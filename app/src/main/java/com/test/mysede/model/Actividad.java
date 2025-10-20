@@ -1,5 +1,8 @@
 package com.test.mysede.model;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +22,7 @@ public class Actividad {
     private SocioComunitario socioComunitario;
     private List<ArchivoAdjunto> archivosAdjuntos;
     private int diasAvisoPrevio;
+    private List<Cita> citas;
 
     public Actividad(String nombre, Periodicidad periodicidad) {
         this.nombre = Objects.requireNonNull(nombre, "El nombre de la actividad es obligatorio");
@@ -101,5 +105,47 @@ public class Actividad {
             throw new IllegalArgumentException("Los días de aviso previo no pueden ser negativos");
         }
         this.diasAvisoPrevio = diasAvisoPrevio;
+    }
+
+    public List<Cita> getCitas() {
+        return Collections.unmodifiableList(citas);
+    }
+
+    public Cita crearCita(Lugar lugar, LocalDate fecha, LocalTime hora) {
+        Objects.requireNonNull(lugar, "El lugar es obligatorio");
+        Objects.requireNonNull(fecha, "La fecha es obligatoria");
+        Objects.requireNonNull(hora, "La hora es obligatoria");
+
+        if (periodicidad.getTipo() == Periodicidad.Tipo.PUNTUAL && !citas.isEmpty()) {
+            throw new IllegalStateException("Una actividad puntual solo puede tener una cita");
+        }
+
+        periodicidad.getFechaInicio().ifPresent(fechaInicio -> {
+            if (fecha.isBefore(fechaInicio)) {
+                throw new IllegalArgumentException("La fecha de la cita no puede ser anterior al inicio de la periodicidad");
+            }
+        });
+
+        periodicidad.getFechaFin().ifPresent(fechaFin -> {
+            if (fecha.isAfter(fechaFin)) {
+                throw new IllegalArgumentException("La fecha de la cita no puede ser posterior al fin de la periodicidad");
+            }
+        });
+
+        Cita nuevaCita = new Cita(this, lugar, fecha, hora);
+        citas.add(nuevaCita);
+        return nuevaCita;
+    }
+
+    public LocalDateTime calcularMomentoAviso(Cita cita) {
+        Objects.requireNonNull(cita, "La cita es obligatoria");
+        if (cita.getActividad() != this) {
+            throw new IllegalArgumentException("La cita no pertenece a esta actividad");
+        }
+
+        LocalDate fechaCita = cita.getFecha();
+        LocalTime horaCita = cita.getHora();
+        LocalDateTime fechaHoraCita = LocalDateTime.of(fechaCita, horaCita);
+        return fechaHoraCita.minusDays(diasAvisoPrevio);
     }
 }
