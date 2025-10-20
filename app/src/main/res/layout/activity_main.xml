@@ -1,340 +1,191 @@
-<LinearLayout
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+
     android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <ScrollView
-        android:id="@+id/rh06taulqmiu"
+    android:layout_height="match_parent"
+    android:background="@color/md_theme_surface"
+    tools:context=".MainActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="wrap_content"
+        android:background="@color/md_theme_primary"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
+        android:title="@string/app_name"
+        android:titleTextColor="@color/md_theme_onPrimary"
+        app:titleCentered="false" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/home_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:padding="20dp"
+        android:clipToPadding="false">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-            <LinearLayout
-                android:id="@+id/r10d6vw09udh"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:dividerPadding="12dp"
+            android:gravity="center_horizontal"
+            android:showDividers="none">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/home_title"
+                style="@style/TextAppearance.Material3.TitleLarge"
+
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="8dp"
-                android:orientation="vertical">
-                <RelativeLayout
-                    android:id="@+id/ru563yomjdvf_rl"
+                android:text="@string/home_title"
+                android:textColor="@color/md_theme_onSurface"
+                android:layout_marginBottom="12dp" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/home_subtitle"
+                style="@style/TextAppearance.Material3.BodyMedium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/home_subtitle"
+                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:layout_marginBottom="20dp" />
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_crear_cita"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
+                app:cardElevation="0dp"
+                app:cardUseCompatPadding="true"
+                app:strokeColor="@color/md_theme_outlineVariant"
+                app:strokeWidth="1dp">
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    >
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-                    <LinearLayout
-                        android:paddingTop="24dp"
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/card_crear_cita_title"
+                        style="@style/TextAppearance.Material3.TitleMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/home_card_create_title"
+                        android:textColor="@color/md_theme_onSurface" />
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/card_crear_cita_body"
+                        style="@style/TextAppearance.Material3.BodyMedium"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:background="@color/md_theme_primary">
-                        <LinearLayout
-                            android:id="@+id/rxafunw3oh"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:paddingVertical="16dp"
-                            android:paddingLeft="16dp"
-                            android:orientation="vertical">
-                            <TextView
-                                android:id="@+id/r760ltfqykqn"
-                                android:textColor="@color/md_theme_onPrimaryFixed_highContrast"
-                                android:textSize="45sp"
-                                android:textStyle="bold"
-                                android:layout_height="wrap_content"
-                                android:layout_width="wrap_content"
-                                android:text="MySede App"
-                                />
-                            <TextView
-                                android:id="@+id/ruu8yyjd5dub"
-                                android:textSize="12sp"
-                                android:textColor="@color/md_theme_onPrimaryFixed_highContrast"
-                                android:layout_marginEnd="207dp"
-                                android:layout_height="wrap_content"
-                                android:layout_width="wrap_content"
-                                android:text="Index"
-                                />
-                        </LinearLayout>
-                    </LinearLayout>
-                </RelativeLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/r51fqrq88rhx"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingVertical="12dp"
-                android:paddingHorizontal="16dp"
-                android:layout_marginBottom="2dp"
-                android:orientation="horizontal"
-                android:clickable="true"
-                android:focusable="true"
-                android:checkable="true">
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/home_card_create_body"
+                        android:textColor="@color/md_theme_onSurfaceVariant" />
 
-                <ImageView
-                    android:id="@+id/rty8db7r2jbo"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_marginEnd="16dp"
-                    android:src="@mipmap/ic_launcher"
-                    android:scaleType="fitXY"
-                    />
-                <LinearLayout
-                    android:id="@+id/rm84pw759i9h"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-                    <LinearLayout
-                        android:id="@+id/r0xkdbnm1e5s"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_ir_crear_cita"
+                        style="@style/Widget.Material3.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="9dp"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/rdpol0wcbmvn"
-                            android:textSize="22sp"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="Actividades"
-                            />
-                    </LinearLayout>
-                    <LinearLayout
-                        android:id="@+id/rd5zladqxzc"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/r02qfjmkpk385"
-                            android:textSize="14sp"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="Gestion de actividades "
-                            />
-                    </LinearLayout>
+                        android:layout_marginTop="16dp"
+                        android:text="@string/home_card_create_cta"
+                        android:textAllCaps="false" />
                 </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/rbuaua2snvjl"
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_reagendar_cita"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
+                app:cardElevation="0dp"
+                app:cardUseCompatPadding="true"
+                app:strokeColor="@color/md_theme_outlineVariant"
+                app:strokeWidth="1dp">
                 <LinearLayout
-                    android:id="@+id/r2rmhv0bay23"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginVertical="11dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:orientation="horizontal">
-                    <ImageView
-                        android:id="@+id/rzz1rgysjf9"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:layout_marginEnd="16dp"
-                        android:src="@mipmap/ic_launcher"
-                        android:scaleType="fitXY"
-                        />
-                    <LinearLayout
-                        android:id="@+id/rap5e8z2v81g"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-                        <TextView
-                            android:id="@+id/rp5tzxqr0hqf"
-                            android:layout_width="107dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="195dp"
-                            android:layout_marginBottom="9dp"
-                            android:text="Calendario"
-                            android:textSize="22sp" />
-                        <LinearLayout
-                            android:id="@+id/rbwcv7jowet"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-                            <TextView
-                                android:id="@+id/rhp6e2eg7f6m"
-                                android:textSize="14sp"
-                                android:layout_height="wrap_content"
-                                android:layout_width="wrap_content"
-                                android:text="Gestion de Citas"
-                                />
-                        </LinearLayout>
-                    </LinearLayout>
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/card_reagendar_cita_title"
+                        style="@style/TextAppearance.Material3.TitleMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/home_card_reschedule_title"
+                        android:textColor="@color/md_theme_onSurface" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/card_reagendar_cita_body"
+                        style="@style/TextAppearance.Material3.BodyMedium"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/home_card_reschedule_body"
+                        android:textColor="@color/md_theme_onSurfaceVariant" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_ir_reagendar_cita"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/home_card_reschedule_cta"
+                        android:textAllCaps="false" />
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_cancelar_cita"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
+                app:cardElevation="0dp"
+                app:cardUseCompatPadding="true"
+                app:strokeColor="@color/md_theme_outlineVariant"
+                app:strokeWidth="1dp">
+
                 <LinearLayout
-                    android:id="@+id/r6u74ii8wbgv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingVertical="12dp"
-                    android:paddingHorizontal="16dp"
-                    android:orientation="horizontal">
-                    <ImageView
-                        android:id="@+id/r8jasccxgrnj"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:layout_marginEnd="16dp"
-                        android:src="@mipmap/ic_launcher"
-                        android:scaleType="fitXY"
-                        />
-                    <LinearLayout
-                        android:id="@+id/r5ej5bdeej5l"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-                        <LinearLayout
-                            android:id="@+id/r8bi9832na2"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="9dp"
-                            android:orientation="vertical">
-                            <TextView
-                                android:id="@+id/rskon83mggd8"
-                                android:textSize="22sp"
-                                android:layout_height="wrap_content"
-                                android:layout_width="wrap_content"
-                                android:text="Mantenedores"
-                                />
-                        </LinearLayout>
-                        <LinearLayout
-                            android:id="@+id/rcfyobyflwok"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-                            <TextView
-                                android:id="@+id/rni2t9ien6l8"
-                                android:textSize="14sp"
-                                android:layout_height="wrap_content"
-                                android:layout_width="wrap_content"
-                                android:text="Gestion de Mantenedores"
-                                />
-                        </LinearLayout>
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/r4lg5jb8zi88"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingVertical="12dp"
-                android:paddingHorizontal="16dp"
-                android:layout_marginBottom="1dp"
-                android:orientation="horizontal">
-                <ImageView
-                    android:id="@+id/rgb955hx7sot"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_marginEnd="16dp"
-                    android:src="@mipmap/ic_launcher"
-                    android:scaleType="fitXY"
-                    />
-                <LinearLayout
-                    android:id="@+id/rsrq8m7ko1en"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-                    <LinearLayout
-                        android:id="@+id/rc89yju9h6tl"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/card_cancelar_cita_title"
+                        style="@style/TextAppearance.Material3.TitleMedium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="9dp"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/rrd57hejbiz"
-                            android:textSize="22sp"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="List item"
-                            />
-                    </LinearLayout>
-                    <LinearLayout
-                        android:id="@+id/r02ndl7cq23ep"
+                        android:text="@string/home_card_cancel_title"
+                        android:textColor="@color/md_theme_onSurface" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/card_cancelar_cita_body"
+                        style="@style/TextAppearance.Material3.BodyMedium"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/home_card_cancel_body"
+                        android:textColor="@color/md_theme_onSurfaceVariant" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_ir_cancelar_cita"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/r2hiy693rgsj"
-                            android:textSize="14sp"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="Category • $$ • 1.2 miles away  "
-                            />
-                    </LinearLayout>
+                        android:layout_marginTop="16dp"
+                        android:text="@string/home_card_cancel_cta"
+                        android:textAllCaps="false" />
                 </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/riybbv8xu0ca"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingVertical="12dp"
-                android:paddingHorizontal="16dp"
-                android:layout_marginBottom="1dp"
-                android:orientation="horizontal">
-                <ImageView
-                    android:id="@+id/r0jj8nd4cx89"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_marginEnd="16dp"
-                    android:src="@mipmap/ic_launcher"
-                    android:scaleType="fitXY"
-                    />
-                <LinearLayout
-                    android:id="@+id/rlwi3nljzovn"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-                    <LinearLayout
-                        android:id="@+id/rvzba04uitxp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="9dp"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/rty89m33j298"
-                            android:textSize="22sp"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="List item"
-                            />
-                    </LinearLayout>
-                    <LinearLayout
-                        android:id="@+id/rgvwpgj8gxio"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/r8tabp7vjxca"
-                            android:textSize="14sp"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="Category • $$ • 1.2 miles away  "
-                            />
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/r8p95q8vvd9v"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:paddingVertical="10dp"
-                android:orientation="vertical">
-                <LinearLayout
-                    android:id="@+id/rxlkdo5vq9b"
-                    android:layout_width="108dp"
-                    android:layout_height="4dp"
-                    android:orientation="vertical">
-                </LinearLayout>
-            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
 
