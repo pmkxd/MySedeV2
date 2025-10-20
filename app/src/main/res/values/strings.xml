@@ -1,3 +1,68 @@
 <resources>
-    <string name="app_name">mysede</string>
-</resources>
+<string name="app_name">MySede</string>
+<string name="home_title">Gestión de citas comunitarias</string>
+<string name="home_subtitle">Administra los turnos de tus actividades de forma clara y coherente con los lineamientos de MySede.</string>
+<string name="home_card_create_title">Registrar nueva cita</string>
+<string name="home_card_create_body">Ingresa rápidamente los datos esenciales de la actividad, lugar, fecha y hora.</string>
+<string name="home_card_create_cta">Crear cita</string>
+<string name="home_card_reschedule_title">Reagendar una cita</string>
+<string name="home_card_reschedule_body">Ajusta la cita manteniendo trazabilidad del aviso a participantes.</string>
+<string name="home_card_reschedule_cta">Reagendar</string>
+<string name="home_card_cancel_title">Cancelar cita</string>
+<string name="home_card_cancel_body">Comunica el motivo y define si se notificará a los asistentes.</string>
+<string name="home_card_cancel_cta">Cancelar</string>
+
+<string name="crear_cita_title">Crear cita</string>
+<string name="crear_cita_intro">Completa la información para registrar la cita y calcular el aviso correspondiente.</string>
+<string name="crear_cita_section_datos">Datos de la cita</string>
+<string name="crear_cita_hint_actividad">Actividad</string>
+<string name="crear_cita_hint_lugar">Lugar</string>
+<string name="crear_cita_hint_fecha">Fecha</string>
+<string name="crear_cita_hint_hora">Hora</string>
+<string name="crear_cita_hint_cupo">Cupo máximo</string>
+<string name="crear_cita_btn_confirmar">Confirmar cita</string>
+<string name="crear_cita_resumen_title">Cita registrada</string>
+<string name="crear_cita_resumen_text">%1$s en %2$s el %3$s a las %4$s. Cupo disponible: %5$s personas.</string>
+<string name="crear_cita_campos_obligatorios">Completa todos los campos para continuar.</string>
+<string name="crear_cita_snackbar_confirmada">Cita registrada y aviso programado.</string>
+
+<string name="reagendar_cita_title">Reagendar cita</string>
+<string name="reagendar_cita_section_actual">Cita programada</string>
+<string name="reagendar_cita_section_nueva">Nueva programación</string>
+<string name="reagendar_cita_hint_lugar">Nuevo lugar</string>
+<string name="reagendar_cita_hint_fecha">Nueva fecha</string>
+<string name="reagendar_cita_hint_hora">Nueva hora</string>
+<string name="reagendar_cita_switch_notificar">Notificar a participantes y socio comunitario</string>
+<string name="reagendar_cita_btn_confirmar">Guardar cambios</string>
+<string name="reagendar_cita_resumen_nuevo_title">Cita reagendada</string>
+<string name="reagendar_cita_resumen_nuevo_text">Se reprogramó en %1$s para el %2$s a las %3$s. Notificación: %4$s.</string>
+<string name="reagendar_cita_error_campos">Selecciona el nuevo lugar, fecha y hora.</string>
+<string name="reagendar_cita_aviso_programado">Aviso programado para %1$s a las %2$s.</string>
+<string name="reagendar_cita_snackbar_guardada">La cita fue reagendada.</string>
+<string name="reagendar_cita_resumen_detalle_formato">Actividad: %1$s
+Lugar: %2$s
+Fecha: %3$s
+Hora: %4$s</string>
+
+<string name="cancelar_cita_title">Cancelar cita</string>
+<string name="cancelar_cita_detalle_title">Detalles programados</string>
+<string name="cancelar_cita_motivo_label">Motivo de cancelación</string>
+<string name="cancelar_cita_hint_motivo">Describe el motivo para compartirlo con las personas inscritas.</string>
+<string name="cancelar_cita_switch_notificar">Enviar notificación a participantes</string>
+<string name="cancelar_cita_check_confirmacion">Confirmo que deseo cancelar esta cita</string>
+<string name="cancelar_cita_btn_confirmar">Cancelar cita</string>
+<string name="cancelar_cita_btn_rechazar">Mantener cita</string>
+<string name="cancelar_cita_resumen_title">Resumen de cancelación</string>
+<string name="cancelar_cita_resumen_text">Cita cancelada. Se notificará: %1$s. Motivo: %2$s.</string>
+<string name="cancelar_cita_error_datos">Indica el motivo y confirma la cancelación.</string>
+<string name="cancelar_cita_mensaje_mantener">La cita se mantiene sin cambios.</string>
+<string name="cancelar_cita_aviso_programado">Aviso programado para %1$s a las %2$s.</string>
+<string name="cancelar_cita_snackbar_exitosa">La cita fue cancelada.</string>
+<string name="cancelar_cita_detalle_formato">Actividad: %1$s
+Lugar: %2$s
+Fecha: %3$s
+Hora: %4$s</string>
+
+<string name="accion_notificar_si">sí</string>
+<string name="accion_notificar_no">no</string>
+    </resources>

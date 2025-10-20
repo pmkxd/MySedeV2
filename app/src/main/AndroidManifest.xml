@@ -12,6 +12,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".citas.CrearCitaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".citas.ReagendarCitaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".citas.CancelarCitaActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
