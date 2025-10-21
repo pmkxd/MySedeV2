@@ -47,6 +47,10 @@
             android:exported="false"
             android:label="Detalle de Actividad"
             android:parentActivityName=".actividades.ListarActividadesActivity" />
+
+        <activity
+            android:name=".CalendarActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

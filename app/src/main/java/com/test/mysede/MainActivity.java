@@ -52,5 +52,12 @@ public class MainActivity extends AppCompatActivity {
         actividadesButton.setOnClickListener(v ->
                 startActivity(new Intent(this, ListarActividadesActivity.class))
         );
+        // Francisco :)
+        MaterialButton calendarioButton = findViewById(R.id.btn_ir_calendario);
+
+        calendarioButton.setOnClickListener(v ->
+                startActivity(new Intent(this, CalendarActivity.class))
+        );
+
     }
 }
