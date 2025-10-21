@@ -4,58 +4,100 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5"
-    android:padding="16dp"
-    tools:context=".CalendarActivity">
+    android:background="#F3F6F7"
+    android:padding="16dp">
 
-    <!-- Texto superior con la fecha -->
-    <TextView
-        android:id="@+id/txtFechaSeleccionada"
-        android:layout_width="match_parent"
+    <!-- Botón de semana -->
+    <Button
+        android:id="@+id/btnSemana"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Fecha actual:"
+        android:text="SEMANA"
+        android:textAllCaps="true"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#009688"
         android:textStyle="bold"
-        android:textSize="16sp"
-        android:textColor="#000000"
-        android:paddingBottom="8dp" />
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="8dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="20dp" />
 
-    <!-- Botones de cambio de vista -->
+    <!-- Mes y año -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginBottom="12dp">
+        android:layout_gravity="center_horizontal"
+        android:gravity="center">
 
-        <Button
-            android:id="@+id/btnMes"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <TextView
+            android:id="@+id/txtMesAnio"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mes" />
+            android:text="Oct, 2025"
+            android:textColor="#009688"
+            android:textStyle="bold"
+            android:textSize="22sp"
+            android:layout_marginEnd="6dp" />
 
-        <Button
-            android:id="@+id/btnSemana"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Semana" />
-
-        <Button
-            android:id="@+id/btnDia"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Día" />
+        <ImageButton
+            android:id="@+id/btnCambiarMes"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:background="@android:color/transparent"
+            android:src="@android:drawable/arrow_down_float"
+            android:tint="#009688"
+            android:contentDescription="Cambiar mes"
+            tools:ignore="UseAppTint" />
     </LinearLayout>
 
-    <!-- Contenedor donde se cargan las vistas -->
-    <FrameLayout
-        android:id="@+id/calendarContainer"
+    <!-- Semana (L, M, X, J, V, S, D) -->
+    <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:id="@+id/contenedorDias"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingVertical="4dp"
+            android:paddingHorizontal="8dp" />
+    </HorizontalScrollView>
+
+    <!-- Línea divisoria -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#C0C0C0"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Título actividades -->
+    <TextView
+        android:id="@+id/txtTituloActividades"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Actividades del día"
+        android:textColor="#009688"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Lista de actividades -->
+    <ListView
+        android:id="@+id/listActividades"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:background="#FFFFFF"
-        android:elevation="2dp"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp"
         android:padding="8dp" />
 
 </LinearLayout>

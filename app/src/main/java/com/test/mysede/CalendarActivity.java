@@ -1,155 +1,158 @@
 package com.test.mysede;
 
-import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.widget.Button;
-import android.widget.CalendarView;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
+import android.view.Gravity;
+import android.widget.*;
+import androidx.appcompat.app.AppCompatActivity;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
+import java.util.*;
 
-/**
- * Clase principal que controla la actividad del calendario.
- * Permite visualizar las actividades en diferentes vistas: mes, semana o día.
- * La vista por defecto es la semanal.
- */
-public class CalendarActivity extends Activity {
-    // Contenedor principal donde se cargan las vistas (mes, semana o día)
-    private FrameLayout calendarContainer;
+public class CalendarActivity extends AppCompatActivity {
 
-    // Texto que muestra la fecha seleccionada actualmente
-    private TextView txtFechaSeleccionada;
+    private LinearLayout contenedorDias;
+    private TextView txtMesAnio, txtTituloActividades;
+    private ImageButton btnCambiarMes;
+    private ListView listActividades;
+    private Button btnSemana;
 
-    // Botones para cambiar entre las vistas disponibles
-    private Button btnMes, btnSemana, btnDia;
+    private Calendar fechaActual = Calendar.getInstance();
+    private int diaSeleccionado = -1;
+    private ArrayList<TextView> listaDias = new ArrayList<>();
 
-    // Fecha actualmente seleccionada por el usuario
-    private Calendar fechaSeleccionada = Calendar.getInstance();
-
-    // Inflador utilizado para cargar layouts dinámicamente
-    private LayoutInflater inflater;
-
-    /**
-     * Método principal del ciclo de vida de la actividad.
-     * Se ejecuta al crear la actividad y configura los elementos de la interfaz.
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
 
-        // Inicialización del inflador y del contenedor principal
-        inflater = LayoutInflater.from(this);
-        calendarContainer = findViewById(R.id.calendarContainer);
-
-        // Referencias a los elementos de la interfaz
-        txtFechaSeleccionada = findViewById(R.id.txtFechaSeleccionada);
-        btnMes = findViewById(R.id.btnMes);
+        contenedorDias = findViewById(R.id.contenedorDias);
+        txtMesAnio = findViewById(R.id.txtMesAnio);
+        txtTituloActividades = findViewById(R.id.txtTituloActividades);
+        listActividades = findViewById(R.id.listActividades);
+        btnCambiarMes = findViewById(R.id.btnCambiarMes);
         btnSemana = findViewById(R.id.btnSemana);
-        btnDia = findViewById(R.id.btnDia);
 
-        // Se muestra por defecto la vista de semana
-        mostrarVistaSemana();
+        mostrarSemanaActual();
 
-        // Listeners para cambiar entre vistas
-        btnMes.setOnClickListener(v -> mostrarVistaMes());
-        btnSemana.setOnClickListener(v -> mostrarVistaSemana());
-        btnDia.setOnClickListener(v -> mostrarVistaDia());
+        btnCambiarMes.setOnClickListener(v -> abrirSelectorMes());
+        btnSemana.setOnClickListener(v -> mostrarSemanaActual());
     }
 
-    /**
-     * Muestra la vista del calendario mensual.
-     * Utiliza un CalendarView nativo de Android para seleccionar una fecha.
-     */
-    private void mostrarVistaMes() {
-        // Limpiar cualquier vista anterior
-        calendarContainer.removeAllViews();
+    private void mostrarSemanaActual() {
+        contenedorDias.removeAllViews();
+        listaDias.clear();
 
-        // Inflar la vista de calendario mensual
-        CalendarView viewMonth = (CalendarView) inflater.inflate(R.layout.view_calendar_month, calendarContainer, false);
+        Calendar calendar = (Calendar) fechaActual.clone();
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
 
-        // Detectar cambios de fecha seleccionada en el calendario
-        viewMonth.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
-            fechaSeleccionada.set(year, month, dayOfMonth);
-            actualizarTextoFecha();
-        });
+        SimpleDateFormat sdfMes = new SimpleDateFormat("MMM, yyyy", new Locale("es", "ES"));
+        txtMesAnio.setText(sdfMes.format(fechaActual.getTime()));
 
-        // Agregar la vista al contenedor
-        calendarContainer.addView(viewMonth);
+        Calendar hoy = Calendar.getInstance();
 
-        // Actualizar el texto con la fecha seleccionada
-        actualizarTextoFecha();
-    }
-
-    /**
-     * Muestra la vista de la semana actual.
-     * Presenta los días de la semana comenzando en lunes.
-     */
-    private void mostrarVistaSemana() {
-        // Limpiar cualquier vista anterior
-        calendarContainer.removeAllViews();
-
-        // Inflar el layout correspondiente a la vista semanal
-        LinearLayout viewWeek = (LinearLayout) inflater.inflate(R.layout.view_calendar_week, calendarContainer, false);
-
-        // Contenedor de los días de la semana
-        LinearLayout weekDaysContainer = viewWeek.findViewById(R.id.weekDaysContainer);
-        weekDaysContainer.removeAllViews();
-
-        // Se crea un clon del calendario para recorrer los días
-        Calendar c = (Calendar) fechaSeleccionada.clone();
-        c.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY); // Semana comienza en lunes
-
-        // Formato del día a mostrar
-        SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd/MM", new Locale("es", "ES"));
-
-        // Mostrar los 7 días de la semana
         for (int i = 0; i < 7; i++) {
-            TextView tv = new TextView(this);
-            tv.setText("• " + sdf.format(c.getTime()));
-            tv.setPadding(4, 8, 4, 8);
-            weekDaysContainer.addView(tv);
-            c.add(Calendar.DAY_OF_MONTH, 1);
+            int diaMes = calendar.get(Calendar.DAY_OF_MONTH);
+            String diaSemana = new SimpleDateFormat("E", new Locale("es", "ES"))
+                    .format(calendar.getTime()).substring(0, 1).toUpperCase();
+
+            // contenedor de un día
+            LinearLayout diaItem = new LinearLayout(this);
+            diaItem.setOrientation(LinearLayout.VERTICAL);
+            diaItem.setGravity(Gravity.CENTER);
+            diaItem.setPadding(16, 8, 16, 8);
+
+            LinearLayout.LayoutParams params =
+                    new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
+            diaItem.setLayoutParams(params);
+
+            // nombre del día
+            TextView tvDiaSemana = new TextView(this);
+            tvDiaSemana.setText(diaSemana);
+            tvDiaSemana.setTextColor(Color.parseColor("#666666"));
+            tvDiaSemana.setGravity(Gravity.CENTER);
+
+            // número del día
+            TextView tvDiaNumero = new TextView(this);
+            tvDiaNumero.setText(String.valueOf(diaMes));
+            tvDiaNumero.setGravity(Gravity.CENTER);
+            tvDiaNumero.setTextSize(18f);
+            tvDiaNumero.setPadding(0, 10, 0, 10);
+
+            // resalta el día actual
+            if (calendar.get(Calendar.YEAR) == hoy.get(Calendar.YEAR)
+                    && calendar.get(Calendar.DAY_OF_YEAR) == hoy.get(Calendar.DAY_OF_YEAR)) {
+                resaltarDia(tvDiaNumero);
+                diaSeleccionado = i;
+            }
+
+            int index = i;
+            diaItem.setOnClickListener(v -> seleccionarDia(index));
+
+            diaItem.addView(tvDiaSemana);
+            diaItem.addView(tvDiaNumero);
+            contenedorDias.addView(diaItem);
+            listaDias.add(tvDiaNumero);
+
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
         }
 
-        // Agregar la vista al contenedor
-        calendarContainer.addView(viewWeek);
-        actualizarTextoFecha();
+        mostrarActividadesDia(fechaActual.get(Calendar.DAY_OF_WEEK) - 2);
     }
 
-    /**
-     * Muestra la vista diaria.
-     * Presenta las actividades asociadas al día seleccionado.
-     */
-    private void mostrarVistaDia() {
-        // Limpiar cualquier vista anterior
-        calendarContainer.removeAllViews();
+    private void seleccionarDia(int index) {
+        for (TextView dia : listaDias) {
+            dia.setBackground(null);
+            dia.setTextColor(Color.parseColor("#333333"));
+        }
 
-        // Inflar la vista correspondiente al día
-        LinearLayout viewDay = (LinearLayout) inflater.inflate(R.layout.view_calendar_day, calendarContainer, false);
-
-        // Referencia al texto que muestra las actividades del día
-        TextView txtDiaContenido = viewDay.findViewById(R.id.txtDiaContenido);
-
-        // Formato amigable de la fecha
-        SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd 'de' MMMM", new Locale("es", "ES"));
-        txtDiaContenido.setText("Mostrando actividades del " + sdf.format(fechaSeleccionada.getTime()));
-
-        // Agregar la vista al contenedor
-        calendarContainer.addView(viewDay);
-        actualizarTextoFecha();
+        resaltarDia(listaDias.get(index));
+        diaSeleccionado = index;
+        mostrarActividadesDia(index);
     }
 
-    /**
-     * Actualiza el texto superior con la fecha actual seleccionada.
-     */
-    private void actualizarTextoFecha() {
-        SimpleDateFormat formato = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
-        txtFechaSeleccionada.setText("Fecha actual: " + formato.format(fechaSeleccionada.getTime()));
+    private void resaltarDia(TextView tv) {
+        tv.setBackgroundResource(R.drawable.bg_dia_seleccionado);
+        tv.setTextColor(Color.WHITE);
+        tv.setPadding(20, 10, 20, 10);
+    }
+
+    private void abrirSelectorMes() {
+        DatePickerDialog dp = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            fechaActual.set(Calendar.YEAR, year);
+            fechaActual.set(Calendar.MONTH, month);
+            fechaActual.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            mostrarSemanaActual();
+        }, fechaActual.get(Calendar.YEAR),
+                fechaActual.get(Calendar.MONTH),
+                fechaActual.get(Calendar.DAY_OF_MONTH));
+
+        dp.show();
+    }
+
+    private void mostrarActividadesDia(int diaIndex) {
+        ArrayList<String> lista = new ArrayList<>();
+
+        Calendar c = (Calendar) fechaActual.clone();
+        c.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        c.add(Calendar.DAY_OF_MONTH, diaIndex);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", new Locale("es", "ES"));
+        String fecha = sdf.format(c.getTime());
+
+        txtTituloActividades.setText("Actividades del " + fecha);
+
+        // ejemplo de actividades
+        if (fecha.equals("29/10/2025")) {
+            lista.add("• Taller de Programación IoT - 10:00 a 12:00");
+            lista.add("• Reunión de docentes - 15:00");
+            lista.add("• Actividad comunitaria - 18:00");
+        } else {
+            lista.add("• No hay actividades registradas para esta fecha");
+        }
+
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, lista);
+        listActividades.setAdapter(adapter);
     }
 }
