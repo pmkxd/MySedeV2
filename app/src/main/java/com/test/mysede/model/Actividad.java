@@ -30,6 +30,7 @@ public class Actividad {
         this.tiposActividad = new ArrayList<>();
         this.oferentes = new ArrayList<>();
         this.archivosAdjuntos = new ArrayList<>();
+        this.citas = new ArrayList<>();  // <-- AGREGAR ESTA LÍNEA
     }
 
     public Proyecto getProyecto() {
