@@ -29,6 +29,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".actividades.ListarActividadesActivity"
+            android:exported="false"
+            android:label="Actividades"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".actividades.CrearActividadActivity"
+            android:exported="false"
+            android:label="Crear Actividad"
+            android:parentActivityName=".actividades.ListarActividadesActivity" />
+
+        <activity
+            android:name=".actividades.VerActividadActivity"
+            android:exported="false"
+            android:label="Detalle de Actividad"
+            android:parentActivityName=".actividades.ListarActividadesActivity" />
     </application>
 
 </manifest>
