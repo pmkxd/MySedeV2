@@ -137,6 +137,9 @@ public class Actividad {
         citas.add(nuevaCita);
         return nuevaCita;
     }
+    public void limpiarCitas() {
+        citas.clear();
+    }
 
     public LocalDateTime calcularMomentoAviso(Cita cita) {
         Objects.requireNonNull(cita, "La cita es obligatoria");

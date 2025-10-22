@@ -43,8 +43,8 @@
 
         <ImageButton
             android:id="@+id/btnCambiarMes"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="@android:color/transparent"
             android:src="@android:drawable/arrow_down_float"
             android:tint="#009688"
@@ -67,7 +67,7 @@
             android:orientation="horizontal"
             android:gravity="center"
             android:paddingVertical="4dp"
-            android:paddingHorizontal="8dp" />
+            android:paddingHorizontal="16dp" />
     </HorizontalScrollView>
 
     <!-- Línea divisoria -->
