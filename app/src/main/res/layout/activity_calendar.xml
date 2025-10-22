@@ -1,103 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/calendar_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#F3F6F7"
-    android:padding="16dp">
+    android:background="@color/md_theme_surface"
+    tools:context=".CalendarActivity">
 
-    <!-- Botón de semana -->
-    <Button
-        android:id="@+id/btnSemana"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="SEMANA"
-        android:textAllCaps="true"
-        android:textColor="#FFFFFF"
-        android:backgroundTint="#009688"
-        android:textStyle="bold"
-        android:paddingHorizontal="24dp"
-        android:paddingVertical="8dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="20dp" />
-
-    <!-- Mes y año -->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="center_horizontal"
-        android:gravity="center">
-
-        <TextView
-            android:id="@+id/txtMesAnio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Oct, 2025"
-            android:textColor="#009688"
-            android:textStyle="bold"
-            android:textSize="22sp"
-            android:layout_marginEnd="6dp" />
-
-        <ImageButton
-            android:id="@+id/btnCambiarMes"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:background="@android:color/transparent"
-            android:src="@android:drawable/arrow_down_float"
-            android:tint="#009688"
-            android:contentDescription="Cambiar mes"
-            tools:ignore="UseAppTint" />
-    </LinearLayout>
-
-    <!-- Semana (L, M, X, J, V, S, D) -->
-    <HorizontalScrollView
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="none"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="16dp">
+        android:background="@color/md_theme_primary"
+        android:title="@string/calendario_title"
+        android:titleTextColor="@color/md_theme_onPrimary"
+        app:titleCentered="false" />
+
+    <LinearLayout
+        android:id="@+id/calendar_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/calendar_week_title"
+            style="@style/TextAppearance.Material3.TitleMedium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:gravity="center"
+            android:textColor="@color/md_theme_onSurface"
+            tools:text="Semana del 10 al 16 de junio" />
 
         <LinearLayout
-            android:id="@+id/contenedorDias"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
+            android:paddingBottom="12dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/calendar_week_previous"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/calendario_semana_anterior"
+                android:textAllCaps="false" />
+
+            <View
+                android:layout_width="16dp"
+                android:layout_height="0dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/calendar_week_next"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/calendario_semana_siguiente"
+                android:textAllCaps="false" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendar_week_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp"
+            tools:listitem="@layout/item_calendar_day" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/calendar_hint"
+            style="@style/TextAppearance.Material3.BodyMedium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center"
-            android:paddingVertical="4dp"
-            android:paddingHorizontal="8dp" />
-    </HorizontalScrollView>
+            android:text="@string/calendario_hint"
+            android:textColor="@color/md_theme_onSurfaceVariant"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp" />
 
-    <!-- Línea divisoria -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#C0C0C0"
-        android:layout_marginBottom="8dp" />
-
-    <!-- Título actividades -->
-    <TextView
-        android:id="@+id/txtTituloActividades"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Actividades del día"
-        android:textColor="#009688"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:gravity="center_horizontal"
-        android:layout_marginBottom="8dp" />
-
-    <!-- Lista de actividades -->
-    <ListView
-        android:id="@+id/listActividades"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#FFFFFF"
-        android:divider="@android:color/darker_gray"
-        android:dividerHeight="1dp"
-        android:padding="8dp" />
-
-</LinearLayout>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
