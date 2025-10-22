@@ -3,13 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/md_theme_surface"
     tools:context=".MainActivity">
 
+    <!-- Toolbar superior -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -21,6 +21,7 @@
         android:titleTextColor="@color/md_theme_onPrimary"
         app:titleCentered="false" />
 
+    <!-- Contenido desplazable -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/home_scroll"
         android:layout_width="match_parent"
@@ -28,6 +29,7 @@
         android:layout_marginTop="?attr/actionBarSize"
         android:padding="20dp"
         android:clipToPadding="false">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -36,10 +38,10 @@
             android:gravity="center_horizontal"
             android:showDividers="none">
 
+            <!-- Encabezado -->
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/home_title"
                 style="@style/TextAppearance.Material3.TitleLarge"
-
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/home_title"
@@ -55,16 +57,16 @@
                 android:textColor="@color/md_theme_onSurfaceVariant"
                 android:layout_marginBottom="20dp" />
 
+            <!-- CARD: Crear cita -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_crear_cita"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
-                app:cardElevation="0dp"
-                app:cardUseCompatPadding="true"
                 app:strokeColor="@color/md_theme_outlineVariant"
                 app:strokeWidth="1dp">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -78,6 +80,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/home_card_create_title"
                         android:textColor="@color/md_theme_onSurface" />
+
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/card_crear_cita_body"
                         style="@style/TextAppearance.Material3.BodyMedium"
@@ -98,16 +101,16 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- CARD: Reagendar cita -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_reagendar_cita"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
-                app:cardElevation="0dp"
-                app:cardUseCompatPadding="true"
                 app:strokeColor="@color/md_theme_outlineVariant"
                 app:strokeWidth="1dp">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -142,14 +145,13 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- CARD: Cancelar cita -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_cancelar_cita"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
-                app:cardElevation="0dp"
-                app:cardUseCompatPadding="true"
                 app:strokeColor="@color/md_theme_outlineVariant"
                 app:strokeWidth="1dp">
 
@@ -187,16 +189,13 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- ============================================ -->
-            <!-- NUEVA CARD: Gestión de Actividades -->
-            <!-- ============================================ -->
+            <!-- CARD: Gestión de Actividades -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_gestion_actividades"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
-                app:cardElevation="0dp"
-                app:cardUseCompatPadding="true"
                 app:strokeColor="@color/md_theme_outlineVariant"
                 app:strokeWidth="1dp">
 
@@ -234,6 +233,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- CARD: Gestión de Mantenedores -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_mantenedores"
                 android:layout_width="match_parent"
@@ -272,13 +272,53 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="Mantenedores"
+                        android:text="Ver Mantenedores"
                         android:textAllCaps="false" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- CARD: Calendario -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_calendario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
+                app:strokeColor="@color/md_theme_outlineVariant"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        style="@style/TextAppearance.Material3.TitleMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Calendario Semanal"
+                        android:textColor="@color/md_theme_onSurface" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        style="@style/TextAppearance.Material3.BodyMedium"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Consulta las actividades programadas según la semana y el mes."
+                        android:textColor="@color/md_theme_onSurfaceVariant" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_ir_calendario"
+                        style="@style/Widget.Material3.Button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Ver Calendario"
+                        android:textAllCaps="false" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

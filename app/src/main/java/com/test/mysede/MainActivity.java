@@ -17,6 +17,7 @@ import com.test.mysede.actividades.ListarActividadesActivity;
 import com.test.mysede.citas.CancelarCitaActivity;
 import com.test.mysede.citas.CrearCitaActivity;
 import com.test.mysede.citas.ReagendarCitaActivity;
+import com.test.mysede.mantenedores.mantenedoresActivity;
 import com.test.mysede.oferente.OferenteActivity;
 import com.test.mysede.proyecto.ProyectoActivity;
 import com.test.mysede.socio.SocioComunitarioActivity;
@@ -65,6 +66,21 @@ public class MainActivity extends AppCompatActivity {
 
         btnMantenedores.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, com.test.mysede.mantenedores.mantenedoresActivity.class))
+        );
+
+
+        // Botón para ir a los mantenedores
+        Button btnmantenedores = findViewById(R.id.btn_ir_mantenedores);
+        btnMantenedores.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, mantenedoresActivity.class);
+            startActivity(intent);
+        });
+
+
+// Botón de calendario
+        MaterialButton calendarioButton = findViewById(R.id.btn_ir_calendario);
+        calendarioButton.setOnClickListener(v ->
+                startActivity(new Intent(this, CalendarActivity.class))
         );
 
     }
