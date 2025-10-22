@@ -2,6 +2,7 @@ package com.test.mysede;
 
 import android.os.Bundle;
 import android.content.Intent;
+import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,11 +43,8 @@ public class MainActivity extends AppCompatActivity {
         MaterialButton reagendarCitaButton = findViewById(R.id.btn_ir_reagendar_cita);
         MaterialButton cancelarCitaButton = findViewById(R.id.btn_ir_cancelar_cita);
         MaterialButton actividadesButton = findViewById(R.id.btn_ir_actividades);
-        MaterialButton tipoActividadButton = findViewById(R.id.btn_ir_tipo_actividad);
-        MaterialButton lugarButton = findViewById(R.id.btn_ir_lugar);
-        MaterialButton btnSocio = findViewById(R.id.btn_ir_socio);
-        MaterialButton btnProyectos = findViewById(R.id.btn_ir_proyectos);
-        MaterialButton btnIrOferentes = findViewById(R.id.btn_ir_oferentes); // si usas botón
+        MaterialButton btnMantenedores = findViewById(R.id.btn_ir_mantenedores);
+
 
 
         crearCitaButton.setOnClickListener(v ->
@@ -65,28 +63,9 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(this, ListarActividadesActivity.class))
         );
 
-        tipoActividadButton.setOnClickListener(v ->
-                startActivity(new Intent(this, com.test.mysede.tipoactividad.TipoActividadActivity.class))
+        btnMantenedores.setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, com.test.mysede.mantenedores.mantenedoresActivity.class))
         );
-
-        lugarButton.setOnClickListener(v ->
-                startActivity(new Intent(this, LugarActivity.class))
-        );
-
-        btnSocio.setOnClickListener(v -> {
-            Intent intent = new Intent(this, SocioComunitarioActivity.class);
-            startActivity(intent);
-        });
-
-        btnProyectos.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ProyectoActivity.class);
-            startActivity(intent);
-        });
-
-        btnIrOferentes.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, OferenteActivity.class);
-            startActivity(intent);
-        });
 
     }
 }
