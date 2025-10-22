@@ -1,0 +1,28 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <EditText
+        android:id="@+id/etNombreLugar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nombre del lugar"
+        android:inputType="textPersonName" />
+
+    <Spinner
+        android:id="@+id/spTipoLugar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp" />
+
+    <EditText
+        android:id="@+id/etCupoLugar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Cupo (opcional)"
+        android:inputType="number"
+        android:layout_marginTop="10dp" />
+
+</LinearLayout>
