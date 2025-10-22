@@ -1,10 +1,7 @@
 package com.test.mysede;
 
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.util.Log;
-import android.widget.Toast;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,15 +11,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.test.mysede.actividades.ListarActividadesActivity;
-import com.test.mysede.citas.CancelarCitaActivity;
 import com.test.mysede.citas.CrearCitaActivity;
-import com.test.mysede.citas.ReagendarCitaActivity;
-import com.test.mysede.lugar.LugarActivity;
 import com.test.mysede.oferente.OferenteActivity;
 import com.test.mysede.proyecto.ProyectoActivity;
 import com.test.mysede.socio.SocioComunitarioActivity;
@@ -101,14 +91,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(this, CrearCitaActivity.class))
         );
 
-        reagendarCitaButton.setOnClickListener(v ->
-                startActivity(new Intent(this, ReagendarCitaActivity.class))
-        );
-
-        cancelarCitaButton.setOnClickListener(v ->
-                startActivity(new Intent(this, CancelarCitaActivity.class))
-        );
-
+        View.OnClickListener calendarioListener = v ->
+                startActivity(new Intent(this, CalendarActivity.class));
+        reagendarCitaButton.setOnClickListener(calendarioListener);
+        cancelarCitaButton.setOnClickListener(calendarioListener);
         actividadesButton.setOnClickListener(v ->
                 startActivity(new Intent(this, ListarActividadesActivity.class))
         );
@@ -133,8 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(this, OferenteActivity.class))
         );
 
-        calendarioButton.setOnClickListener(v ->
-                startActivity(new Intent(this, CalendarActivity.class))
-        );
+        calendarioButton.setOnClickListener(calendarioListener);
+
     }
 }

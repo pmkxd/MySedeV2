@@ -6,12 +6,11 @@
 <string name="home_card_create_body">Ingresa rápidamente los datos esenciales de la actividad, lugar, fecha y hora.</string>
 <string name="home_card_create_cta">Crear cita</string>
 <string name="home_card_reschedule_title">Reagendar una cita</string>
-<string name="home_card_reschedule_body">Ajusta la cita manteniendo trazabilidad del aviso a participantes.</string>
-<string name="home_card_reschedule_cta">Reagendar</string>
+<string name="home_card_reschedule_body">Consulta el calendario semanal y reubica citas con arrastrar y soltar.</string>
+<string name="home_card_reschedule_cta">Abrir calendario</string>
 <string name="home_card_cancel_title">Cancelar cita</string>
-<string name="home_card_cancel_body">Comunica el motivo y define si se notificará a los asistentes.</string>
-<string name="home_card_cancel_cta">Cancelar</string>
-
+<string name="home_card_cancel_body">Gestiona cancelaciones y notificaciones directamente desde el calendario.</string>
+<string name="home_card_cancel_cta">Abrir calendario</string>
 <string name="crear_cita_title">Crear cita</string>
 <string name="crear_cita_intro">Completa la información para registrar la cita y calcular el aviso correspondiente.</string>
 <string name="crear_cita_section_datos">Datos de la cita</string>
@@ -69,4 +68,24 @@ Hora: %4$s</string>
     <string name="ver">Ver</string>
     <string name="editar">Editar</string>
     <string name="eliminar">Eliminar</string>
-    </resources>
+
+    <string name="calendario_title">Calendario de citas</string>
+    <string name="calendario_semana_anterior">Semana anterior</string>
+    <string name="calendario_semana_siguiente">Semana siguiente</string>
+    <string name="calendario_hint">Mantén pulsada una cita para moverla a otro día o selecciónala para ver los detalles.</string>
+    <string name="calendario_sin_citas">Sin citas para este día</string>
+    <string name="calendario_evento_subtitulo">%1$s · %2$s</string>
+    <string name="calendario_detalle_horario">%1$s a las %2$s</string>
+    <string name="calendario_detalle_lugar">Lugar: %1$s</string>
+    <string name="calendario_detalle_notificar">Notificar a participantes y socios</string>
+    <string name="calendario_detalle_btn_reagendar">Reagendar</string>
+    <string name="calendario_detalle_btn_eliminar">Eliminar cita</string>
+    <string name="calendario_dialogo_reagendar_fecha">Selecciona la nueva fecha</string>
+    <string name="calendario_dialogo_reagendar_hora">Selecciona la nueva hora</string>
+    <string name="calendario_dialogo_eliminar_titulo">Eliminar cita</string>
+    <string name="calendario_dialogo_eliminar_mensaje">¿Deseas eliminar la cita "%1$s"?</string>
+    <string name="calendario_dialogo_eliminar_confirmar">Eliminar</string>
+    <string name="calendario_snackbar_reagendada">%1$s fue reagendada para %2$s a las %3$s.</string>
+    <string name="calendario_snackbar_eliminada">Se eliminó la cita %1$s.</string>
+    <string name="calendario_snackbar_notificacion">Se enviará la notificación correspondiente.</string>
+</resources>
