@@ -17,10 +17,19 @@ import com.test.mysede.oferente.OferenteActivity;
 import com.test.mysede.proyecto.ProyectoActivity;
 import com.test.mysede.socio.SocioComunitarioActivity;
 import com.test.mysede.tipoactividad.TipoActividadActivity;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.test.mysede.lugar.LugarActivity;
+
 
 public class MainActivity extends AppCompatActivity {
 
