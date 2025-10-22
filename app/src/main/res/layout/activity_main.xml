@@ -239,6 +239,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+            <!-- ============================================ -->
+            <!-- NUEVA CARD: Calendario Semanal -->
+            <!-- ============================================ -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_calendario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
                 app:cardElevation="0dp"
                 app:cardUseCompatPadding="true"
@@ -261,6 +269,15 @@
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/card_tipo_actividad_body"
+                        android:id="@+id/card_calendario_title"
+                        style="@style/TextAppearance.Material3.TitleMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Calendario Semanal"
+                        android:textColor="@color/md_theme_onSurface" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/card_calendario_body"
                         style="@style/TextAppearance.Material3.BodyMedium"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -270,6 +287,11 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_ir_tipo_actividad"
+                        android:text="Consulta las actividades programadas por semana"
+                        android:textColor="@color/md_theme_onSurfaceVariant" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_ir_calendario"
                         style="@style/Widget.Material3.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -415,6 +437,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="Ver Proyectos"
+                        android:text="Ver Calendario"
                         android:textAllCaps="false" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

@@ -78,6 +78,9 @@
             android:exported="false"
             android:label="Oferentes"
             android:parentActivityName=".MainActivity" />
+      <activity
+            android:name=".CalendarActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

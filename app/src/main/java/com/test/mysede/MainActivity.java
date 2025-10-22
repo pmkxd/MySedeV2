@@ -88,5 +88,12 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // Francisco :)
+        MaterialButton calendarioButton = findViewById(R.id.btn_ir_calendario);
+
+        calendarioButton.setOnClickListener(v ->
+                startActivity(new Intent(this, CalendarActivity.class))
+        );
+
     }
 }
