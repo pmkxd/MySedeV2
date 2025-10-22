@@ -65,4 +65,8 @@ Hora: %4$s</string>
 
 <string name="accion_notificar_si">sí</string>
 <string name="accion_notificar_no">no</string>
+
+    <string name="ver">Ver</string>
+    <string name="editar">Editar</string>
+    <string name="eliminar">Eliminar</string>
     </resources>
