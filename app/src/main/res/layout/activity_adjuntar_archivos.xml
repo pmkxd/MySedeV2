@@ -108,7 +108,7 @@
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"
                 android:backgroundTint="#004F44"
-                android:cornerRadius="12dp"
+                app:cornerRadius="12dp"
                 android:paddingVertical="14dp" />
 
         </LinearLayout>
