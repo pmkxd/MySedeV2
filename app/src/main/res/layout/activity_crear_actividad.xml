@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/md_theme_background">
+    android:background="@color/md_theme_background"
+    android:orientation="vertical">
 
     <!-- Toolbar -->
     <com.google.android.material.appbar.AppBarLayout
@@ -39,8 +39,8 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nombre de la Actividad"
                 android:layout_marginBottom="16dp"
+                android:hint="Nombre de la Actividad"
                 app:boxBackgroundMode="outline">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -55,44 +55,44 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="Tipo de Actividad"
-                android:textSize="12sp"
-                android:textStyle="bold"
                 android:textColor="@color/md_theme_primary"
-                android:layout_marginBottom="8dp" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
             <Spinner
                 android:id="@+id/spinnerTipo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
                 android:layout_marginBottom="16dp"
-                android:background="@android:drawable/spinner_background" />
+                android:background="@android:drawable/spinner_background"
+                android:minHeight="48dp" />
 
             <!-- Periodicidad -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="Periodicidad"
-                android:textSize="12sp"
-                android:textStyle="bold"
                 android:textColor="@color/md_theme_primary"
-                android:layout_marginBottom="8dp" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
             <RadioGroup
                 android:id="@+id/rgPeriodicidad"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal">
 
                 <RadioButton
                     android:id="@+id/rbPuntual"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Puntual"
-                    android:checked="true" />
+                    android:checked="true"
+                    android:text="Puntual" />
 
                 <RadioButton
                     android:id="@+id/rbPeriodica"
@@ -108,9 +108,9 @@
                 android:id="@+id/layoutFechaPuntual"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:orientation="vertical"
-                android:visibility="visible"
-                android:layout_marginBottom="16dp">
+                android:visibility="visible">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -122,8 +122,8 @@
                         android:id="@+id/etFechaPuntual"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:focusable="false"
                         android:clickable="true"
+                        android:focusable="false"
                         android:inputType="none" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -135,23 +135,23 @@
                 android:id="@+id/layoutFechasPeriodicas"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:orientation="vertical"
-                android:visibility="gone"
-                android:layout_marginBottom="16dp">
+                android:visibility="gone">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Fecha Inicio"
                     android:layout_marginBottom="12dp"
+                    android:hint="Fecha Inicio"
                     app:boxBackgroundMode="outline">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etFechaInicio"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:focusable="false"
                         android:clickable="true"
+                        android:focusable="false"
                         android:inputType="none" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -166,8 +166,8 @@
                         android:id="@+id/etFechaFin"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:focusable="false"
                         android:clickable="true"
+                        android:focusable="false"
                         android:inputType="none" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -178,8 +178,8 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Cupo (opcional)"
                 android:layout_marginBottom="16dp"
+                android:hint="Cupo (opcional)"
                 app:boxBackgroundMode="outline">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -194,62 +194,62 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="Proyecto"
-                android:textSize="12sp"
-                android:textStyle="bold"
                 android:textColor="@color/md_theme_primary"
-                android:layout_marginBottom="8dp" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
             <Spinner
                 android:id="@+id/spinnerProyecto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
                 android:layout_marginBottom="16dp"
-                android:background="@android:drawable/spinner_background" />
+                android:background="@android:drawable/spinner_background"
+                android:minHeight="48dp" />
 
             <!-- Oferente -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="Oferente"
-                android:textSize="12sp"
-                android:textStyle="bold"
                 android:textColor="@color/md_theme_primary"
-                android:layout_marginBottom="8dp" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
             <Spinner
                 android:id="@+id/spinnerOferente"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
                 android:layout_marginBottom="16dp"
-                android:background="@android:drawable/spinner_background" />
+                android:background="@android:drawable/spinner_background"
+                android:minHeight="48dp" />
 
             <!-- Socio Comunitario -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="Socio Comunitario"
-                android:textSize="12sp"
-                android:textStyle="bold"
                 android:textColor="@color/md_theme_primary"
-                android:layout_marginBottom="8dp" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
             <Spinner
                 android:id="@+id/spinnerSocio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
                 android:layout_marginBottom="16dp"
-                android:background="@android:drawable/spinner_background" />
+                android:background="@android:drawable/spinner_background"
+                android:minHeight="48dp" />
 
             <!-- Días de Aviso Previo -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Días de Aviso Previo"
                 android:layout_marginBottom="16dp"
+                android:hint="Días de Aviso Previo"
                 app:boxBackgroundMode="outline">
 
                 <com.google.android.material.textfield.TextInputEditText
