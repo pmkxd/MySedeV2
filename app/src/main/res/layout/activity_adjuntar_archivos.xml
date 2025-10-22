@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/coordinatorLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#E3E6E6"
+    tools:context=".AdjuntarArchivosActivity">
+
+    <!-- CABECERA -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#004F44"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#004F44"
+            android:padding="16dp"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:title="Adjuntar Archivos"
+            app:titleCentered="true"
+            app:titleTextColor="@android:color/white" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- CONTENIDO -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:padding="24dp">
+
+        <LinearLayout
+            android:id="@+id/layoutContenido"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <!-- SPINNER -->
+            <Spinner
+                android:id="@+id/spinner"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="40dp"
+                android:background="@drawable/spinner_background"
+                android:entries="@array/actividades_demo"
+                android:paddingHorizontal="16dp"
+                android:popupBackground="@android:color/white"
+                android:spinnerMode="dropdown" />
+
+            <!-- BOTÓN DE SELECCIONAR ARCHIVO -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSeleccionarArchivo"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:paddingHorizontal="24dp"
+                android:text="Seleccionar archivo"
+                android:textAllCaps="false"
+                android:textColor="#004F44"
+                app:icon="@android:drawable/ic_menu_upload"
+                app:iconGravity="textStart"
+                app:iconTint="#004F44"
+                app:strokeColor="#004F44"
+                app:strokeWidth="1dp" />
+
+            <!-- CONTENEDOR DE IMAGEN Y BOTÓN ELIMINAR -->
+            <FrameLayout
+                android:id="@+id/contenedorImagen"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:layout_marginTop="30dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/imagePreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/image_preview_bg" />
+
+                <ImageButton
+                    android:id="@+id/btnEliminarImagen"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="end|top"
+                    android:layout_margin="8dp"
+                    android:backgroundTint="#CCFFFFFF"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    android:contentDescription="Eliminar imagen" />
+            </FrameLayout>
+
+            <!-- BOTÓN GUARDAR -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGuardarArchivo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="60dp"
+                android:text="Guardar archivo"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:backgroundTint="#004F44"
+                android:cornerRadius="12dp"
+                android:paddingVertical="14dp" />
+
+        </LinearLayout>
+    </ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
