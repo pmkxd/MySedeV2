@@ -12,6 +12,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".citas.CrearCitaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".citas.ReagendarCitaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".citas.CancelarCitaActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -20,6 +29,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".actividades.ListarActividadesActivity"
+            android:exported="false"
+            android:label="Actividades"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".actividades.CrearActividadActivity"
+            android:exported="false"
+            android:label="Crear Actividad"
+            android:parentActivityName=".actividades.ListarActividadesActivity" />
+
+        <activity
+            android:name=".actividades.VerActividadActivity"
+            android:exported="false"
+            android:label="Detalle de Actividad"
+            android:parentActivityName=".actividades.ListarActividadesActivity" />
+
+        <activity
+            android:name=".CalendarActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

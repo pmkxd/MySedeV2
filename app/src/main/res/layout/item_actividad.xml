@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Nombre de la actividad -->
+        <TextView
+            android:id="@+id/tvNombreActividad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nombre de la Actividad"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/md_theme_onSurface"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Contenedor para tipo y periodicidad -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:id="@+id/tvTipoActividad"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Tipo"
+                android:textSize="14sp"
+                android:textColor="@color/md_theme_primary"
+                android:drawablePadding="4dp"
+                android:gravity="center_vertical" />
+
+            <TextView
+                android:id="@+id/tvPeriodicidadActividad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Periodicidad"
+                android:textSize="14sp"
+                android:textColor="@color/md_theme_secondary"
+                android:drawablePadding="4dp"
+                android:gravity="center_vertical" />
+
+        </LinearLayout>
+
+        <!-- Cupo -->
+        <TextView
+            android:id="@+id/tvCupoActividad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cupo: 0"
+            android:textSize="14sp"
+            android:textColor="@color/md_theme_onSurfaceVariant"
+            android:layout_marginBottom="4dp" />
+
+        <!-- Proyecto -->
+        <TextView
+            android:id="@+id/tvProyectoActividad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Proyecto"
+            android:textSize="13sp"
+            android:textColor="@color/md_theme_onSurfaceVariant"
+            android:textStyle="italic" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
