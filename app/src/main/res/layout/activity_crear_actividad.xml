@@ -388,7 +388,33 @@
                     android:inputType="number" />
 
             </com.google.android.material.textfield.TextInputLayout>
+            <!-- Sección de Archivos Adjuntos -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Archivos Adjuntos"
+                android:textColor="@color/md_theme_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAdjuntarArchivo"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Seleccionar Archivos"
+                app:icon="@drawable/ic_attach_file" /> <!-- Necesitarás crear este ícono -->
+
+            <!-- Contenedor para mostrar los nombres de los archivos adjuntos -->
+            <LinearLayout
+                android:id="@+id/layoutArchivosAdjuntos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp" />
         </LinearLayout>
 
     </ScrollView>
