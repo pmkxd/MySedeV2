@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/calendario_detalle_titulo"
+        style="@style/TextAppearance.Material3.TitleLarge"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/md_theme_onSurface"
+        tools:text="Orientación nutricional" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/calendario_detalle_horario"
+        style="@style/TextAppearance.Material3.BodyMedium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/md_theme_onSurfaceVariant"
+        tools:text="Miércoles 14 de junio, 10:30" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/calendario_detalle_descripcion"
+        style="@style/TextAppearance.Material3.BodySmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/md_theme_onSurfaceVariant"
+        tools:text="Lugar: Sede Central" />
+
+    <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/calendario_detalle_switch_notificar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/calendario_detalle_notificar"
+        android:textColor="@color/md_theme_onSurface" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/calendario_detalle_btn_reagendar"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/calendario_detalle_btn_reagendar"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/calendario_detalle_btn_eliminar"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="@string/calendario_detalle_btn_eliminar"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1076602716161",
+    "project_id": "centr0integralalerce-51e7d",
+    "storage_bucket": "centr0integralalerce-51e7d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1076602716161:android:b9cf44e6e29daabbdb4000",
+        "android_client_info": {
+          "package_name": "com.test.mysede"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAw6qriy7wI5lKOe33VJvYAJ1MRpSO3tFs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
