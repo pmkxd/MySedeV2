@@ -1,18 +1,26 @@
 package com.test.mysede.actividades;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -58,6 +66,11 @@ public class CrearActividadActivity extends AppCompatActivity {
     private LocalTime horaPuntualSeleccionada;
     private LocalTime horaPeriodicaSeleccionada;
 
+    private static final int PICK_FILE_REQUEST = 123;
+    private Button btnAdjuntarArchivo;
+    private LinearLayout layoutArchivosAdjuntos;
+    private ArrayList<Uri> urisDeArchivos = new ArrayList<>();
+
     private final DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy", new Locale("es", "CL"));
     private final DateTimeFormatter formatoHora = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault());
 
@@ -81,13 +94,87 @@ public class CrearActividadActivity extends AppCompatActivity {
         inicializarVistas();
         configurarSpinners();
         configurarEventos();
+        btnAdjuntarArchivo = findViewById(R.id.btnAdjuntarArchivo);
+        layoutArchivosAdjuntos = findViewById(R.id.layoutArchivosAdjuntos);
 
+        btnAdjuntarArchivo.setOnClickListener(v -> {
+            abrirSelectorDeArchivos();
+        });
         if (modoEditar && posicion != -1) {
             actividadEditar = ActividadHelper.obtenerActividadPorIndice(posicion);
             cargarDatosActividad();
         }
     }
+    private void abrirSelectorDeArchivos() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*"); // Permite seleccionar cualquier tipo de archivo
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // Permite selección múltiple
+        startActivityForResult(Intent.createChooser(intent, "Selecciona los archivos"), PICK_FILE_REQUEST);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == PICK_FILE_REQUEST && resultCode == RESULT_OK) {
+            if (data != null) {
+                urisDeArchivos.clear(); // Limpiar la lista anterior por si se vuelve a seleccionar
+                if (data.getClipData() != null) {
+                    // El usuario seleccionó múltiples archivos
+                    int count = data.getClipData().getItemCount();
+                    for (int i = 0; i < count; i++) {
+                        Uri uri = data.getClipData().getItemAt(i).getUri();
+                        urisDeArchivos.add(uri);
+                    }
+                } else if (data.getData() != null) {
+                    // El usuario seleccionó un solo archivo
+                    Uri uri = data.getData();
+                    urisDeArchivos.add(uri);
+                }
+                actualizarVistaDeArchivosAdjuntos();
+            }
+        }
+    }
+
+    private void actualizarVistaDeArchivosAdjuntos() {
+        layoutArchivosAdjuntos.removeAllViews(); // Limpiar vistas anteriores
+
+        if (urisDeArchivos.isEmpty()) {
+            layoutArchivosAdjuntos.setVisibility(View.GONE);
+            return;
+        }
+
+        layoutArchivosAdjuntos.setVisibility(View.VISIBLE);
+
+        for (Uri uri : urisDeArchivos) {
+            // Crea un TextView para mostrar el nombre del archivo
+            TextView tvNombreArchivo = new TextView(this);
+            // Aquí podrías implementar una función para obtener el nombre del archivo a partir de la Uri
+            tvNombreArchivo.setText("Archivo: " + getFileName(uri));
+            tvNombreArchivo.setPadding(8, 8, 8, 8);
+            layoutArchivosAdjuntos.addView(tvNombreArchivo);
+        }
+    }
+
+    // Método auxiliar para obtener el nombre del archivo desde una Uri
+    @SuppressLint("Range")
+    private String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
     private void inicializarVistas() {
         etNombre = findViewById(R.id.etNombre);
         etCupo = findViewById(R.id.etCupo);
