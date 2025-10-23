@@ -1,6 +1,7 @@
 package com.test.mysede;
 
 import android.content.Intent;
+import android.widget.Button;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
@@ -13,6 +14,9 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.test.mysede.actividades.ListarActividadesActivity;
 import com.test.mysede.citas.CrearCitaActivity;
+
+import com.test.mysede.mantenedores.mantenedoresActivity;
+
 import com.test.mysede.oferente.OferenteActivity;
 import com.test.mysede.proyecto.ProyectoActivity;
 import com.test.mysede.socio.SocioComunitarioActivity;
@@ -88,12 +92,10 @@ public class MainActivity extends AppCompatActivity {
         MaterialButton reagendarCitaButton = findViewById(R.id.btn_ir_reagendar_cita);
         MaterialButton cancelarCitaButton = findViewById(R.id.btn_ir_cancelar_cita);
         MaterialButton actividadesButton = findViewById(R.id.btn_ir_actividades);
-        MaterialButton tipoActividadButton = findViewById(R.id.btn_ir_tipo_actividad);
-        MaterialButton lugarButton = findViewById(R.id.btn_ir_lugar);
-        MaterialButton btnSocio = findViewById(R.id.btn_ir_socio);
-        MaterialButton btnProyectos = findViewById(R.id.btn_ir_proyectos);
-        MaterialButton btnIrOferentes = findViewById(R.id.btn_ir_oferentes);
+
+        MaterialButton btnMantenedores = findViewById(R.id.btn_ir_mantenedores);
         MaterialButton calendarioButton = findViewById(R.id.btn_ir_calendario);
+
 
         // === Acciones de los botones ===
         crearCitaButton.setOnClickListener(v ->
@@ -108,24 +110,23 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(this, ListarActividadesActivity.class))
         );
 
-        tipoActividadButton.setOnClickListener(v ->
-                startActivity(new Intent(this, TipoActividadActivity.class))
+        btnMantenedores.setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, com.test.mysede.mantenedores.mantenedoresActivity.class))
         );
 
-        lugarButton.setOnClickListener(v ->
-                startActivity(new Intent(this, LugarActivity.class))
-        );
 
-        btnSocio.setOnClickListener(v ->
-                startActivity(new Intent(this, SocioComunitarioActivity.class))
-        );
+        // Botón para ir a los mantenedores
+        Button btnmantenedores = findViewById(R.id.btn_ir_mantenedores);
+        btnMantenedores.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, mantenedoresActivity.class);
+            startActivity(intent);
+        });
 
-        btnProyectos.setOnClickListener(v ->
-                startActivity(new Intent(this, ProyectoActivity.class))
-        );
 
-        btnIrOferentes.setOnClickListener(v ->
-                startActivity(new Intent(this, OferenteActivity.class))
+// Botón de calendario
+        MaterialButton calendarioButton = findViewById(R.id.btn_ir_calendario);
+        calendarioButton.setOnClickListener(v ->
+                startActivity(new Intent(this, CalendarActivity.class))
         );
 
         calendarioButton.setOnClickListener(calendarioListener);

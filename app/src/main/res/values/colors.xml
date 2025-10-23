@@ -143,4 +143,7 @@
     <color name="teal_700">#018786</color>
     <color name="yellow_700">#FBC02D</color>
     <color name="red_700">#D32F2F</color>
+    <color name="verde_principal">#00695C</color>
+    <color name="fondo_claro">#F5F7F5</color>
+    <color name="texto_titulo">#000000</color>
 </resources>

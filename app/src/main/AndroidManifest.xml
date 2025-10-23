@@ -73,9 +73,19 @@
             android:exported="false"
             android:label="Oferentes"
             android:parentActivityName=".MainActivity" />
-      <activity
+        <activity
+            android:name=".mantenedores.mantenedoresActivity"
+            android:label="Gestión de Mantenedores"
+            android:exported="false"
+            android:theme="@style/AppTheme" />
+
+        <activity
             android:name=".CalendarActivity"
             android:exported="false" />
     </application>
+
+
+
+
 
 </manifest>
