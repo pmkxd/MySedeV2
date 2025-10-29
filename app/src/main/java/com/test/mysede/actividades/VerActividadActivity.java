@@ -16,6 +16,12 @@ import com.test.mysede.model.Actividad;
 import com.test.mysede.model.OferenteActividad;
 import com.test.mysede.model.TipoActividad;
 
+// ============================================
+// IMPORTS DEL SISTEMA DE PERMISOS
+// ============================================
+import com.test.mysede.auth.PermissionManager;
+import com.test.mysede.auth.Permiso;
+
 import java.time.format.DateTimeFormatter;
 
 public class VerActividadActivity extends AppCompatActivity {
@@ -29,6 +35,16 @@ public class VerActividadActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // ============================================
+        // VALIDAR PERMISO PARA VER ACTIVIDADES
+        // ============================================
+        if (!PermissionManager.tienePermiso(Permiso.VER_ACTIVIDADES)) {
+            Toast.makeText(this, "No tienes permiso para ver actividades", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_ver_actividad);
 
         // Configurar toolbar
@@ -60,16 +76,10 @@ public class VerActividadActivity extends AppCompatActivity {
             mostrarDatos();
         }
 
-        // Configurar botón editar
-        btnEditar.setOnClickListener(v -> {
-            Intent intent = new Intent(VerActividadActivity.this, CrearActividadActivity.class);
-            intent.putExtra("posicion", posicion);
-            intent.putExtra("modo", "editar");
-            startActivity(intent);
-        });
-
-        // Configurar botón eliminar
-        btnEliminar.setOnClickListener(v -> mostrarDialogoEliminar());
+        // ============================================
+        // CONFIGURAR BOTONES CON VALIDACIÓN DE PERMISOS
+        // ============================================
+        configurarBotones();
     }
 
     @Override
@@ -78,6 +88,33 @@ public class VerActividadActivity extends AppCompatActivity {
         if (posicion != -1) {
             actividad = ActividadHelper.obtenerActividadPorIndice(posicion);
             mostrarDatos();
+        }
+    }
+
+    private void configurarBotones() {
+        // ============================================
+        // BOTÓN EDITAR - Solo si tiene permiso
+        // ============================================
+        if (PermissionManager.tienePermiso(Permiso.EDITAR_ACTIVIDAD)) {
+            btnEditar.setVisibility(View.VISIBLE);
+            btnEditar.setOnClickListener(v -> {
+                Intent intent = new Intent(VerActividadActivity.this, CrearActividadActivity.class);
+                intent.putExtra("posicion", posicion);
+                intent.putExtra("modo", "editar");
+                startActivity(intent);
+            });
+        } else {
+            btnEditar.setVisibility(View.GONE);
+        }
+
+        // ============================================
+        // BOTÓN ELIMINAR - Solo si tiene permiso
+        // ============================================
+        if (PermissionManager.tienePermiso(Permiso.ELIMINAR_ACTIVIDAD)) {
+            btnEliminar.setVisibility(View.VISIBLE);
+            btnEliminar.setOnClickListener(v -> mostrarDialogoEliminar());
+        } else {
+            btnEliminar.setVisibility(View.GONE);
         }
     }
 
@@ -157,6 +194,14 @@ public class VerActividadActivity extends AppCompatActivity {
     }
 
     private void mostrarDialogoEliminar() {
+        // ============================================
+        // VALIDACIÓN ADICIONAL ANTES DE ELIMINAR
+        // ============================================
+        if (!PermissionManager.tienePermiso(Permiso.ELIMINAR_ACTIVIDAD)) {
+            Toast.makeText(this, "No tienes permiso para eliminar actividades", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Eliminar Actividad")
                 .setMessage("¿Está seguro que desea eliminar esta actividad?\n\nEsta acción no se puede deshacer.")

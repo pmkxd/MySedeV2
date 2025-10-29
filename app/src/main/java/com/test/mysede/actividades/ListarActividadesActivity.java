@@ -3,6 +3,8 @@ package com.test.mysede.actividades;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -12,6 +14,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.test.mysede.R;
 import com.test.mysede.model.Actividad;
+
+// ============================================
+// IMPORTS DEL SISTEMA DE PERMISOS
+// ============================================
+import com.test.mysede.auth.PermissionManager;
+import com.test.mysede.auth.Permiso;
 
 import java.util.List;
 
@@ -24,6 +32,16 @@ public class ListarActividadesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // ============================================
+        // VALIDAR PERMISO PARA VER ACTIVIDADES
+        // ============================================
+        if (!PermissionManager.tienePermiso(Permiso.VER_ACTIVIDADES)) {
+            Toast.makeText(this, "No tienes permiso para ver actividades", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_listar_actividades);
 
         // Configurar toolbar
@@ -48,11 +66,18 @@ public class ListarActividadesActivity extends AppCompatActivity {
         adapter = new ActividadAdapter(this, actividades);
         recyclerView.setAdapter(adapter);
 
-        // Configurar FAB para crear nueva actividad
-        fabCrear.setOnClickListener(v -> {
-            Intent intent = new Intent(ListarActividadesActivity.this, CrearActividadActivity.class);
-            startActivity(intent);
-        });
+        // ============================================
+        // CONFIGURAR FAB CON VALIDACIÓN DE PERMISOS
+        // ============================================
+        if (PermissionManager.tienePermiso(Permiso.CREAR_ACTIVIDAD)) {
+            fabCrear.setVisibility(View.VISIBLE);
+            fabCrear.setOnClickListener(v -> {
+                Intent intent = new Intent(ListarActividadesActivity.this, CrearActividadActivity.class);
+                startActivity(intent);
+            });
+        } else {
+            fabCrear.setVisibility(View.GONE);
+        }
     }
 
     @Override
