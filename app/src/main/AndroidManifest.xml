@@ -82,6 +82,31 @@
         <activity
             android:name=".CalendarActivity"
             android:exported="false" />
+
+        <!-- Sistema de Roles y Permisos -->
+        <activity
+            android:name=".auth.SelectorRolActivity"
+            android:exported="true"
+            android:label="Selector de Rol"
+            android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".usuarios.GestionUsuariosActivity"
+            android:exported="false"
+            android:label="Gestión de Usuarios"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".usuarios.CrearUsuarioActivity"
+            android:exported="false"
+            android:label="Crear Usuario"
+            android:parentActivityName=".usuarios.GestionUsuariosActivity" />
+
+        <activity
+            android:name=".usuarios.DetalleUsuarioActivity"
+            android:exported="false"
+            android:label="Detalle Usuario"
+            android:parentActivityName=".usuarios.GestionUsuariosActivity" />
     </application>
 
 
