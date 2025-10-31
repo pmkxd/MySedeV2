@@ -12,7 +12,7 @@ public class OferenteActividad {
         CFT,
         UNIVERSIDAD
     }
-
+    private String id;
     private final String nombre;
     private final String docenteResponsable;
     private final Institucion institucion;
@@ -22,6 +22,13 @@ public class OferenteActividad {
         this.docenteResponsable = Objects.requireNonNull(docenteResponsable, "El docente responsable es obligatorio");
         this.institucion = Objects.requireNonNull(institucion, "La institución es obligatoria");
     }
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
+
 
     public String getNombre() {
         return nombre;

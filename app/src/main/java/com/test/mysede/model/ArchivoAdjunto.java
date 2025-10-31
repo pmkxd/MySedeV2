@@ -6,7 +6,7 @@ import java.util.Objects;
  * Representa un archivo adjunto asociado a una actividad.
  */
 public class ArchivoAdjunto {
-
+    private String id;
     private final String nombre;
     private final String ubicacion;
 
@@ -18,6 +18,13 @@ public class ArchivoAdjunto {
     public String getNombre() {
         return nombre;
     }
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
+
 
     public String getUbicacion() {
         return ubicacion;
