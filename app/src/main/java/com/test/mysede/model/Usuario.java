@@ -18,6 +18,8 @@ public class Usuario implements Serializable {
     private String id;
     private String nombre;
     private String email;
+    private String contrasena_hash;
+    private String rut;
     private Rol rol;
     private Set<Permiso> permisos;
     private boolean activo;
@@ -134,6 +136,23 @@ public class Usuario implements Serializable {
     public List<Permiso> getPermisosComoLista() {
         return new ArrayList<>(this.permisos);
     }
+
+    public String getContrasena_hash() {
+        return contrasena_hash;
+    }
+
+    public void setContrasena_hash(String contrasena_hash) {
+        this.contrasena_hash = contrasena_hash;
+    }
+    public String getRut() {
+        return rut;
+    }
+
+    public void setRut(String rut) {
+        this.rut = rut;
+    }
+
+    // Método toString para mostrar información del usuario
 
     @Override
     public String toString() {
