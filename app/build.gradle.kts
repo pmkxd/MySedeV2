@@ -34,6 +34,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.firebase.firestore)
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation(libs.appcompat)
     implementation(libs.material)
