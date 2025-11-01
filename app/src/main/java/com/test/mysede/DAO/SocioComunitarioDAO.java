@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -27,17 +28,28 @@ public class SocioComunitarioDAO {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     // este es el que se utiliza para guardar los datos en firestore
     public void saveSocioComunitario(SocioComunitario socioComunitario) {
+        saveSocioComunitario(socioComunitario, null);
+    }
+
+    public void saveSocioComunitario(SocioComunitario socioComunitario, @Nullable FirestoreOperationCallback callback) {
         if (socioComunitario == null) {
+            if (callback != null) {
+                callback.onFailure(new IllegalArgumentException("El socio comunitario no puede ser nulo"));
+            }
             return;
         }
         if (TextUtils.isEmpty(socioComunitario.getId())) {
-            addSocioComunitario(socioComunitario);
+            addSocioComunitario(socioComunitario, callback);
         } else {
-            updateSocioComunitario(socioComunitario);
+            updateSocioComunitario(socioComunitario, callback);
         }
     }
 
     public void addSocioComunitario(SocioComunitario socioComunitario) {
+        addSocioComunitario(socioComunitario, null);
+    }
+
+    private void addSocioComunitario(SocioComunitario socioComunitario, @Nullable FirestoreOperationCallback callback) {
         Map<String, Object> data = FirestoreModelMapper.socioComunitarioToMap(socioComunitario);
         db.collection(COLLECTION)
                 .add(data)
@@ -46,19 +58,32 @@ public class SocioComunitarioDAO {
                     public void onSuccess(DocumentReference documentReference) {
                         socioComunitario.setId(documentReference.getId());
                         Log.d(TAG, "Socio comunitario registrado con ID: " + documentReference.getId());
+                        if (callback != null) {
+                            callback.onSuccess();
+                        }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG, "Error al registrar el socio comunitario", e);
+                        if (callback != null) {
+                            callback.onFailure(e);
+                        }
                     }
                 });
     }
 
     public void updateSocioComunitario(SocioComunitario socioComunitario) {
+        updateSocioComunitario(socioComunitario, null);
+    }
+
+    private void updateSocioComunitario(SocioComunitario socioComunitario, @Nullable FirestoreOperationCallback callback) {
         if (TextUtils.isEmpty(socioComunitario.getId())) {
             Log.w(TAG, "No es posible actualizar un socio comunitario sin ID");
+            if (callback != null) {
+                callback.onFailure(new IllegalArgumentException("El socio comunitario debe tener un ID válido"));
+            }
             return;
         }
         Map<String, Object> data = FirestoreModelMapper.socioComunitarioToMap(socioComunitario);
@@ -69,12 +94,46 @@ public class SocioComunitarioDAO {
                     @Override
                     public void onSuccess(Void unused) {
                         Log.d(TAG, "Socio comunitario actualizado correctamente");
+                        if (callback != null) {
+                            callback.onSuccess();
+                        }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG, "Error al actualizar el socio comunitario", e);
+                        if (callback != null) {
+                            callback.onFailure(e);
+                        }
+                    }
+                });
+    }
+
+    public void deleteSocioComunitario(SocioComunitario socioComunitario) {
+        deleteSocioComunitario(socioComunitario, null);
+    }
+
+    public void deleteSocioComunitario(SocioComunitario socioComunitario, @Nullable FirestoreOperationCallback callback) {
+        if (socioComunitario == null || TextUtils.isEmpty(socioComunitario.getId())) {
+            if (callback != null) {
+                callback.onFailure(new IllegalArgumentException("El socio comunitario debe tener un ID para ser eliminado"));
+            }
+            return;
+        }
+        db.collection(COLLECTION)
+                .document(socioComunitario.getId())
+                .delete()
+                .addOnSuccessListener(unused -> {
+                    Log.d(TAG, "Socio comunitario eliminado correctamente");
+                    if (callback != null) {
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error al eliminar el socio comunitario", e);
+                    if (callback != null) {
+                        callback.onFailure(e);
                     }
                 });
     }

@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -27,17 +28,28 @@ public class TipoActividadDAO {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     // este es el que se utiliza para guardar los datos en firestore
     public void saveTipoActividad(TipoActividad tipoActividad) {
+        saveTipoActividad(tipoActividad, null);
+    }
+
+    public void saveTipoActividad(TipoActividad tipoActividad, @Nullable FirestoreOperationCallback callback) {
         if (tipoActividad == null) {
+            if (callback != null) {
+                callback.onFailure(new IllegalArgumentException("El tipo de actividad no puede ser nulo"));
+            }
             return;
         }
         if (TextUtils.isEmpty(tipoActividad.getId())) {
-            addTipoActividad(tipoActividad);
+            addTipoActividad(tipoActividad, callback);
         } else {
-            updateTipoActividad(tipoActividad);
+            updateTipoActividad(tipoActividad, callback);
         }
     }
 
     public void addTipoActividad(TipoActividad tipoActividad) {
+        addTipoActividad(tipoActividad, null);
+    }
+
+    private void addTipoActividad(TipoActividad tipoActividad, @Nullable FirestoreOperationCallback callback) {
         Map<String, Object> data = FirestoreModelMapper.tipoActividadToMap(tipoActividad);
         db.collection(COLLECTION)
                 .add(data)
@@ -46,19 +58,32 @@ public class TipoActividadDAO {
                     public void onSuccess(DocumentReference documentReference) {
                         tipoActividad.setId(documentReference.getId());
                         Log.d(TAG, "Tipo de actividad registrado con ID: " + documentReference.getId());
+                        if (callback != null) {
+                            callback.onSuccess();
+                        }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG, "Error al registrar el tipo de actividad", e);
+                        if (callback != null) {
+                            callback.onFailure(e);
+                        }
                     }
                 });
     }
 
     public void updateTipoActividad(TipoActividad tipoActividad) {
+        updateTipoActividad(tipoActividad, null);
+    }
+
+    private void updateTipoActividad(TipoActividad tipoActividad, @Nullable FirestoreOperationCallback callback) {
         if (TextUtils.isEmpty(tipoActividad.getId())) {
             Log.w(TAG, "No es posible actualizar un tipo de actividad sin ID");
+            if (callback != null) {
+                callback.onFailure(new IllegalArgumentException("El tipo de actividad debe tener un ID válido"));
+            }
             return;
         }
         Map<String, Object> data = FirestoreModelMapper.tipoActividadToMap(tipoActividad);
@@ -69,12 +94,46 @@ public class TipoActividadDAO {
                     @Override
                     public void onSuccess(Void unused) {
                         Log.d(TAG, "Tipo de actividad actualizado correctamente");
+                        if (callback != null) {
+                            callback.onSuccess();
+                        }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG, "Error al actualizar el tipo de actividad", e);
+                        if (callback != null) {
+                            callback.onFailure(e);
+                        }
+                    }
+                });
+    }
+
+    public void deleteTipoActividad(TipoActividad tipoActividad) {
+        deleteTipoActividad(tipoActividad, null);
+    }
+
+    public void deleteTipoActividad(TipoActividad tipoActividad, @Nullable FirestoreOperationCallback callback) {
+        if (tipoActividad == null || TextUtils.isEmpty(tipoActividad.getId())) {
+            if (callback != null) {
+                callback.onFailure(new IllegalArgumentException("El tipo de actividad debe tener un ID para ser eliminado"));
+            }
+            return;
+        }
+        db.collection(COLLECTION)
+                .document(tipoActividad.getId())
+                .delete()
+                .addOnSuccessListener(unused -> {
+                    Log.d(TAG, "Tipo de actividad eliminado correctamente");
+                    if (callback != null) {
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error al eliminar el tipo de actividad", e);
+                    if (callback != null) {
+                        callback.onFailure(e);
                     }
                 });
     }

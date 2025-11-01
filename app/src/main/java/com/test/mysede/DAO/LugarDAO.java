@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -27,17 +28,28 @@ public class LugarDAO {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     // este es el que se utiliza para guardar los datos en firestore
     public void saveLugar(Lugar lugar) {
+        saveLugar(lugar, null);
+    }
+
+    public void saveLugar(Lugar lugar, @Nullable FirestoreOperationCallback callback) {
         if (lugar == null) {
+            if (callback != null) {
+                callback.onFailure(new IllegalArgumentException("El lugar no puede ser nulo"));
+            }
             return;
         }
         if (TextUtils.isEmpty(lugar.getId())) {
-            addLugar(lugar);
+            addLugar(lugar, callback);
         } else {
-            updateLugar(lugar);
+            updateLugar(lugar, callback);
         }
     }
 
     public void addLugar(Lugar lugar) {
+        addLugar(lugar, null);
+    }
+
+    private void addLugar(Lugar lugar, @Nullable FirestoreOperationCallback callback) {
         Map<String, Object> data = FirestoreModelMapper.lugarToMap(lugar);
         db.collection(COLLECTION)
                 .add(data)
@@ -46,19 +58,32 @@ public class LugarDAO {
                     public void onSuccess(DocumentReference documentReference) {
                         lugar.setId(documentReference.getId());
                         Log.d(TAG, "Lugar registrado con ID: " + documentReference.getId());
+                        if (callback != null) {
+                            callback.onSuccess();
+                        }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG, "Error al registrar el lugar", e);
+                        if (callback != null) {
+                            callback.onFailure(e);
+                        }
                     }
                 });
     }
 
     public void updateLugar(Lugar lugar) {
+        updateLugar(lugar, null);
+    }
+
+    private void updateLugar(Lugar lugar, @Nullable FirestoreOperationCallback callback) {
         if (TextUtils.isEmpty(lugar.getId())) {
             Log.w(TAG, "No es posible actualizar un lugar sin ID");
+            if (callback != null) {
+                callback.onFailure(new IllegalArgumentException("El lugar debe tener un ID válido"));
+            }
             return;
         }
         Map<String, Object> data = FirestoreModelMapper.lugarToMap(lugar);
@@ -69,12 +94,46 @@ public class LugarDAO {
                     @Override
                     public void onSuccess(Void unused) {
                         Log.d(TAG, "Lugar actualizado correctamente");
+                        if (callback != null) {
+                            callback.onSuccess();
+                        }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG, "Error al actualizar el lugar", e);
+                        if (callback != null) {
+                            callback.onFailure(e);
+                        }
+                    }
+                });
+    }
+
+    public void deleteLugar(Lugar lugar) {
+        deleteLugar(lugar, null);
+    }
+
+    public void deleteLugar(Lugar lugar, @Nullable FirestoreOperationCallback callback) {
+        if (lugar == null || TextUtils.isEmpty(lugar.getId())) {
+            if (callback != null) {
+                callback.onFailure(new IllegalArgumentException("El lugar debe tener un ID para ser eliminado"));
+            }
+            return;
+        }
+        db.collection(COLLECTION)
+                .document(lugar.getId())
+                .delete()
+                .addOnSuccessListener(unused -> {
+                    Log.d(TAG, "Lugar eliminado correctamente");
+                    if (callback != null) {
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error al eliminar el lugar", e);
+                    if (callback != null) {
+                        callback.onFailure(e);
                     }
                 });
     }
