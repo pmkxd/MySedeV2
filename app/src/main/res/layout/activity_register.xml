@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".login.ActivityRegister">
+
+    <ImageView
+        android:id="@+id/bgImage"
+        android:src="@drawable/fondo"
+        android:scaleType="centerCrop"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="24dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvTituloRegister"
+                android:text="Crear Cuenta"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="#005045"
+                android:layout_marginBottom="32dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/etNombre"
+                android:hint="Nombre Completo"
+                android:padding="12dp"
+                android:textColor="@android:color/white"
+                android:textColorHint="#BFBFBF"
+                android:background="@android:drawable/edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/etEmail"
+                android:hint="Correo Electrónico"
+                android:padding="12dp"
+                android:inputType="textEmailAddress"
+                android:textColor="@android:color/white"
+                android:textColorHint="#BFBFBF"
+                android:background="@android:drawable/edit_text"
+                android:layout_marginTop="14dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/etPassword"
+                android:hint="Contraseña"
+                android:padding="12dp"
+                android:inputType="textPassword"
+                android:textColor="@android:color/white"
+                android:textColorHint="#BFBFBF"
+                android:background="@android:drawable/edit_text"
+                android:layout_marginTop="14dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/etConfirmPassword"
+                android:hint="Confirmar Contraseña"
+                android:padding="12dp"
+                android:inputType="textPassword"
+                android:textColor="@android:color/white"
+                android:textColorHint="#BFBFBF"
+                android:background="@android:drawable/edit_text"
+                android:layout_marginTop="14dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/btnRegistrar"
+                android:text="Registrar"
+                android:layout_marginTop="22dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/tvIrLogin"
+                android:text="¿Ya tiene cuenta? Iniciar sesión"
+                android:textStyle="bold"
+                android:textColor="#005045"
+                android:layout_marginTop="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

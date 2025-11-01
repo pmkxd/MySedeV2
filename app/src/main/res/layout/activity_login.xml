@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF"
     android:padding="24dp"
-    tools:context=".ui.LoginMiSedeActivity">
+    tools:context=".login.ActivityLogin">
 
     <!-- Título -->
     <TextView
