@@ -49,7 +49,7 @@
             android:label="Detalle de Actividad"
             android:parentActivityName=".actividades.ListarActividadesActivity" />
 
-        <!-- 🔹 NUEVA: Adjuntar Archivos -->
+        <!-- Adjuntar Archivos -->
         <activity
             android:name=".AdjuntarArchivosActivity"
             android:label="Adjuntar Archivos"
