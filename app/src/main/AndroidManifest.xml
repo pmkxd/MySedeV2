@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <!-- Permiso para leer archivos del almacenamiento -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,19 +14,23 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".citas.CrearCitaActivity"
-            android:exported="false" />
+
+        <!-- Activity principal -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <!-- Crear Cita -->
+        <activity
+            android:name=".citas.CrearCitaActivity"
+            android:exported="false" />
+
+        <!-- Actividades -->
         <activity
             android:name=".actividades.ListarActividadesActivity"
             android:exported="false"
@@ -43,6 +49,19 @@
             android:label="Detalle de Actividad"
             android:parentActivityName=".actividades.ListarActividadesActivity" />
 
+        <!-- 🔹 NUEVA: Adjuntar Archivos -->
+        <activity
+            android:name=".AdjuntarArchivosActivity"
+            android:label="Adjuntar Archivos"
+            android:exported="false"
+            android:parentActivityName=".actividades.CrearActividadActivity">
+            <!-- Esto ayuda a la navegación "hacia atrás" (Up Navigation) -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".actividades.CrearActividadActivity" />
+        </activity>
+
+        <!-- Otros módulos -->
         <activity
             android:name=".tipoactividad.TipoActividadActivity"
             android:exported="false"
@@ -54,7 +73,6 @@
             android:exported="false"
             android:label="Lugares"
             android:parentActivityName=".MainActivity" />
-
 
         <activity
             android:name=".socio.SocioComunitarioActivity"
@@ -73,6 +91,7 @@
             android:exported="false"
             android:label="Oferentes"
             android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".mantenedores.mantenedoresActivity"
             android:label="Gestión de Mantenedores"
@@ -108,9 +127,5 @@
             android:label="Detalle Usuario"
             android:parentActivityName=".usuarios.GestionUsuariosActivity" />
     </application>
-
-
-
-
 
 </manifest>
