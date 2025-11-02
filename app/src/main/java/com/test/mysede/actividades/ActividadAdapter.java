@@ -18,12 +18,18 @@ import java.util.List;
 
 public class ActividadAdapter extends RecyclerView.Adapter<ActividadAdapter.ActividadViewHolder> {
 
-    private Context context;
+    private final Context context;
     private List<Actividad> actividades;
+    private final OnActividadClickListener listener;
 
     public ActividadAdapter(Context context, List<Actividad> actividades) {
+        this(context, actividades, null);
+    }
+
+    public ActividadAdapter(Context context, List<Actividad> actividades, OnActividadClickListener listener) {
         this.context = context;
         this.actividades = actividades;
+        this.listener = listener;
     }
 
     @NonNull
@@ -66,9 +72,13 @@ public class ActividadAdapter extends RecyclerView.Adapter<ActividadAdapter.Acti
 
         // Click para ver detalle
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, VerActividadActivity.class);
-            intent.putExtra("posicion", position);
-            context.startActivity(intent);
+            if (listener != null) {
+                listener.onActividadClick(actividad);
+            } else {
+                Intent intent = new Intent(context, VerActividadActivity.class);
+                intent.putExtra("actividadId", actividad.getId());
+                context.startActivity(intent);
+            }
         });
     }
 
@@ -77,6 +87,14 @@ public class ActividadAdapter extends RecyclerView.Adapter<ActividadAdapter.Acti
         return actividades.size();
     }
 
+    public void setActividades(List<Actividad> actividades) {
+        this.actividades = actividades;
+        notifyDataSetChanged();
+    }
+
+    public interface OnActividadClickListener {
+        void onActividadClick(Actividad actividad);
+    }
     static class ActividadViewHolder extends RecyclerView.ViewHolder {
         TextView tvNombre;
         TextView tvTipo;
