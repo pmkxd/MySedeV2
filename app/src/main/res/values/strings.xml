@@ -70,10 +70,16 @@ Hora: %4$s</string>
     <string name="eliminar">Eliminar</string>
 
     <string name="calendario_title">Calendario de citas</string>
-    <string name="calendario_semana_anterior">Semana anterior</string>
-    <string name="calendario_semana_siguiente">Semana siguiente</string>
-    <string name="calendario_hint">Mantén pulsada una cita para moverla a otro día o selecciónala para ver los detalles.</string>
+    <string name="calendario_toggle_dia">Día</string>
+    <string name="calendario_toggle_mes">Mes</string>
+    <string name="calendario_dia_anterior">Día anterior</string>
+    <string name="calendario_dia_siguiente">Día siguiente</string>
+    <string name="calendario_mes_anterior">Anterior</string>
+    <string name="calendario_mes_siguiente">Siguiente</string>
+    <string name="calendario_hint">Selecciona un día para ver y gestionar las citas programadas.</string>
     <string name="calendario_sin_citas">Sin citas para este día</string>
+    <string name="calendario_sheet_vacio">No hay citas programadas en esta fecha.</string>
+    <string name="calendario_evento_sin_actividad">Actividad sin nombre</string>
     <string name="calendario_evento_subtitulo">%1$s · %2$s</string>
     <string name="calendario_detalle_horario">%1$s a las %2$s</string>
     <string name="calendario_detalle_lugar">Lugar: %1$s</string>
@@ -88,4 +94,7 @@ Hora: %4$s</string>
     <string name="calendario_snackbar_reagendada">%1$s fue reagendada para %2$s a las %3$s.</string>
     <string name="calendario_snackbar_eliminada">Se eliminó la cita %1$s.</string>
     <string name="calendario_snackbar_notificacion">Se enviará la notificación correspondiente.</string>
+    <string name="calendario_error_cargar">No fue posible cargar las citas. Intenta nuevamente.</string>
+    <string name="calendario_error_reagendar">No fue posible reagendar la cita. Vuelve a intentarlo.</string>
+    <string name="calendario_error_cancelar">No fue posible cancelar la cita. Revisa tu conexión e inténtalo otra vez.</string>
 </resources>
