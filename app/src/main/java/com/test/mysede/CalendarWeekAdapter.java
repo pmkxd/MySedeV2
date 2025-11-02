@@ -113,42 +113,28 @@ final class CalendarWeekAdapter extends RecyclerView.Adapter<CalendarWeekAdapter
         }
 
         private View crearVistaEvento(ViewGroup parent, CalendarUiCita cita, OnEventInteractionListener listener) {
-            MaterialCardView card = new MaterialCardView(parent.getContext());
-            card.setCardElevation(4f);
-            card.setStrokeWidth(1);
-            card.setStrokeColor(Color.parseColor("#E0E0E0"));
-            card.setUseCompatPadding(true);
-            int margin = Math.round(parent.getResources().getDimension(R.dimen.calendar_event_margin));
+            MaterialCardView card = (MaterialCardView) LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_calendar_event, parent, false);
+            MaterialTextView title = card.findViewById(R.id.calendar_event_title);
+            MaterialTextView subtitle = card.findViewById(R.id.calendar_event_subtitle);
+            title.setText(cita.getActividadNombre());
+            subtitle.setText(parent.getResources().getString(R.string.calendario_evento_subtitulo,
+                    cita.getLugarNombre(),
+                    cita.getHora().format(DateTimeFormatter.ofPattern("HH:mm"))));
+            card.setOnClickListener(v -> listener.onEventSelected(cita));
+            card.setOnLongClickListener(v -> {
+                ClipData data = ClipData.newPlainText("cita", cita.getUiId().toString());
+                v.startDragAndDrop(data, new View.DragShadowBuilder(v), cita, 0);
+                return true;
+            });
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
             );
+            int margin = Math.round(parent.getResources().getDimension(R.dimen.calendar_event_margin));
             params.setMargins(0, margin, 0, margin);
             card.setLayoutParams(params);
 
-            LinearLayout layout = new LinearLayout(parent.getContext());
-            layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(margin, margin, margin, margin);
-
-            MaterialTextView title = new MaterialTextView(parent.getContext());
-            title.setText(cita.getActividad().getNombre());
-            title.setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_TitleSmall);
-
-            MaterialTextView subtitle = new MaterialTextView(parent.getContext());
-            subtitle.setText(parent.getResources().getString(R.string.calendario_evento_subtitulo, cita.getLugar().getNombre(), cita.getHora().format(DateTimeFormatter.ofPattern("HH:mm"))));
-            subtitle.setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_BodySmall);
-
-            layout.addView(title);
-            layout.addView(subtitle);
-
-            card.addView(layout);
-
-            card.setOnClickListener(v -> listener.onEventSelected(cita));
-            card.setOnLongClickListener(v -> {
-                ClipData data = ClipData.newPlainText("cita", cita.getId().toString());
-                v.startDragAndDrop(data, new View.DragShadowBuilder(v), cita, 0);
-                return true;
-            });
 
             return card;
         }

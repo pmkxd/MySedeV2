@@ -15,6 +15,7 @@ import com.google.android.material.button.MaterialButton;
 import com.test.mysede.actividades.ListarActividadesActivity;
 import com.test.mysede.citas.CrearCitaActivity;
 import com.test.mysede.mantenedores.mantenedoresActivity;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.test.mysede.oferente.OferenteActivity;
 import com.test.mysede.proyecto.ProyectoActivity;
 import com.test.mysede.socio.SocioComunitarioActivity;
@@ -210,11 +211,24 @@ public class MainActivity extends AppCompatActivity {
         // CARD DE CALENDARIO (CONSOLIDADA)
         // ============================================
         MaterialButton calendarioButton = findViewById(R.id.btn_ir_calendario);
+        MaterialButtonToggleGroup calendarModeToggle = findViewById(R.id.calendar_mode_toggle);
+        if (calendarModeToggle != null) {
+            calendarModeToggle.check(R.id.calendar_mode_week);
+        }
         MaterialButton reagendarCitaButton = findViewById(R.id.btn_ir_reagendar_cita);
         MaterialButton cancelarCitaButton = findViewById(R.id.btn_ir_cancelar_cita);
 
-        View.OnClickListener calendarioListener = v ->
-                startActivity(new Intent(this, CalendarActivity.class));
+        View.OnClickListener calendarioListener = v -> {
+            Intent intent = new Intent(this, CalendarActivity.class);
+            if (calendarModeToggle != null) {
+                int checkedId = calendarModeToggle.getCheckedButtonId();
+                String mode = checkedId == R.id.calendar_mode_month
+                        ? CalendarActivity.MODE_MONTH
+                        : CalendarActivity.MODE_WEEK;
+                intent.putExtra(CalendarActivity.EXTRA_INITIAL_MODE, mode);
+            }
+            startActivity(intent);
+        };
 
         // Validar permisos para ver calendario
         if (PermissionManager.tienePermiso(Permiso.VER_CALENDARIO)) {
