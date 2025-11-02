@@ -14,9 +14,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.test.mysede.DAO.FirestoreOperationCallback;
+import com.test.mysede.DAO.TipoActividadDAO;
 import com.test.mysede.R;
 import com.test.mysede.model.TipoActividad;
-import com.test.mysede.tipoactividad.TipoActividadAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,7 @@ public class TipoActividadActivity extends AppCompatActivity {
     private TipoActividadAdapter adapter;
     private List<TipoActividad> listaTipos;
     private FloatingActionButton btnNuevaActividad;
+    private TipoActividadDAO tipoActividadDAO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +37,8 @@ public class TipoActividadActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerTipos);
         btnNuevaActividad = findViewById(R.id.btnNuevaActividad);
-
+        tipoActividadDAO = new TipoActividadDAO();
         listaTipos = new ArrayList<>();
-        listaTipos.add(new TipoActividad("Taller de Cocina", "Aprende recetas saludables", TipoActividad.Categoria.TALLER));
-        listaTipos.add(new TipoActividad("Charla Motivacional", "Encuentro para fomentar el bienestar", TipoActividad.Categoria.CHARLA));
-        listaTipos.add(new TipoActividad("Operativo de Salud", "Atención médica gratuita", TipoActividad.Categoria.OPERATIVO));
 
         adapter = new TipoActividadAdapter(this, listaTipos, new TipoActividadAdapter.OnItemClickListener() {
             @Override
@@ -62,6 +61,27 @@ public class TipoActividadActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         btnNuevaActividad.setOnClickListener(v -> mostrarDialogoAgregar());
+
+        cargarTiposActividad();
+    }
+
+    private void cargarTiposActividad() {
+        tipoActividadDAO.getAllTiposActividad(new TipoActividadDAO.OnTiposActividadLoadedListener() {
+            @Override
+            public void onTiposActividadLoaded(ArrayList<TipoActividad> tiposActividad) {
+                runOnUiThread(() -> {
+                    listaTipos.clear();
+                    listaTipos.addAll(tiposActividad);
+                    adapter.notifyDataSetChanged();
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                runOnUiThread(() -> Toast.makeText(TipoActividadActivity.this,
+                        "Error al cargar los tipos de actividad", Toast.LENGTH_SHORT).show());
+            }
+        });
     }
 
     // 👁️ Ver detalles
@@ -99,8 +119,22 @@ public class TipoActividadActivity extends AppCompatActivity {
                         return;
                     }
 
-                    listaTipos.add(new TipoActividad(nombre, descripcion, categoria));
-                    adapter.notifyItemInserted(listaTipos.size() - 1);
+                    TipoActividad nuevoTipo = new TipoActividad(nombre, descripcion, categoria);
+                    tipoActividadDAO.saveTipoActividad(nuevoTipo, new FirestoreOperationCallback() {
+                        @Override
+                        public void onSuccess() {
+                            runOnUiThread(() -> {
+                                Toast.makeText(TipoActividadActivity.this, "Tipo de actividad registrado", Toast.LENGTH_SHORT).show();
+                                cargarTiposActividad();
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(Exception exception) {
+                            runOnUiThread(() -> Toast.makeText(TipoActividadActivity.this,
+                                    "No fue posible registrar el tipo de actividad", Toast.LENGTH_SHORT).show());
+                        }
+                    });
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
@@ -134,9 +168,23 @@ public class TipoActividadActivity extends AppCompatActivity {
                         return;
                     }
 
-                    listaTipos.set(position, new TipoActividad(nuevoNombre, nuevaDescripcion, nuevaCategoria));
-                    adapter.notifyItemChanged(position);
-                    Toast.makeText(this, "Actividad actualizada", Toast.LENGTH_SHORT).show();
+                    TipoActividad tipoActualizado = new TipoActividad(nuevoNombre, nuevaDescripcion, nuevaCategoria);
+                    tipoActualizado.setId(tipo.getId());
+                    tipoActividadDAO.saveTipoActividad(tipoActualizado, new FirestoreOperationCallback() {
+                        @Override
+                        public void onSuccess() {
+                            runOnUiThread(() -> {
+                                Toast.makeText(TipoActividadActivity.this, "Actividad actualizada", Toast.LENGTH_SHORT).show();
+                                cargarTiposActividad();
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(Exception exception) {
+                            runOnUiThread(() -> Toast.makeText(TipoActividadActivity.this,
+                                    "No fue posible actualizar el tipo de actividad", Toast.LENGTH_SHORT).show());
+                        }
+                    });
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
@@ -144,13 +192,26 @@ public class TipoActividadActivity extends AppCompatActivity {
 
     // 🗑️ Eliminar
     private void confirmarEliminar(int position) {
+        TipoActividad tipoActividad = listaTipos.get(position);
         new AlertDialog.Builder(this)
                 .setTitle("Eliminar")
                 .setMessage("¿Seguro que deseas eliminar este tipo de actividad?")
                 .setPositiveButton("Sí", (dialog, which) -> {
-                    listaTipos.remove(position);
-                    adapter.notifyItemRemoved(position);
-                    Toast.makeText(this, "Eliminado correctamente", Toast.LENGTH_SHORT).show();
+                    tipoActividadDAO.deleteTipoActividad(tipoActividad, new FirestoreOperationCallback() {
+                        @Override
+                        public void onSuccess() {
+                            runOnUiThread(() -> {
+                                Toast.makeText(TipoActividadActivity.this, "Eliminado correctamente", Toast.LENGTH_SHORT).show();
+                                cargarTiposActividad();
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(Exception exception) {
+                            runOnUiThread(() -> Toast.makeText(TipoActividadActivity.this,
+                                    "No fue posible eliminar el tipo de actividad", Toast.LENGTH_SHORT).show());
+                        }
+                    });
                 })
                 .setNegativeButton("No", null)
                 .show();

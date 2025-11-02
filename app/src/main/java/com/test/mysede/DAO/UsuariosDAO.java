@@ -17,9 +17,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class usuariosDAO {
+public class UsuariosDAO {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    // este es el que se utiliza para guardar los datos en firestore
+    public void saveUsuario(Usuario usuario) {
+        if (usuario == null) {
+            return;
+        }
+        if (usuario.getId() == null || usuario.getId().isEmpty()) {
+            setNewUsuario(usuario);
+        } else {
+            updateUsuario(usuario);
+        }
+    }
+
 
     private void setNewUsuario(Usuario usuario){
         Map<String, Object> usuario_nuevo = new HashMap<>();
@@ -59,7 +71,7 @@ public class usuariosDAO {
         usuario_mod.put("activo", usuario.isActivo());
         usuario_mod.put("fechaCreacion", usuario.getFechaCreacion());
         usuario_mod.put("ultimoAcceso", usuario.getUltimoAcceso());
-        db.collection("cities").document(usuario.getId())
+        db.collection("usuarios").document(usuario.getId())
                 .set(usuario_mod)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

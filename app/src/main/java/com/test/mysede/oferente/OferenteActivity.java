@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.test.mysede.DAO.FirestoreOperationCallback;
+import com.test.mysede.DAO.OferenteActividadDAO;
 import com.test.mysede.R;
 import com.test.mysede.model.OferenteActividad;
 
@@ -27,6 +29,9 @@ public class OferenteActivity extends AppCompatActivity {
     private List<OferenteActividad> listaOferentes;
     private FloatingActionButton btnNuevoOferente;
 
+    private OferenteActividadDAO oferenteActividadDAO;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,10 +39,9 @@ public class OferenteActivity extends AppCompatActivity {
 
         recyclerOferentes = findViewById(R.id.recyclerOferentes);
         btnNuevoOferente = findViewById(R.id.btnNuevoOferente);
-
+        oferenteActividadDAO = new OferenteActividadDAO();
         listaOferentes = new ArrayList<>();
-        listaOferentes.add(new OferenteActividad("Oferente 1", "Juan Pérez", OferenteActividad.Institucion.IP));
-        listaOferentes.add(new OferenteActividad("Oferente 2", "María Gómez", OferenteActividad.Institucion.UNIVERSIDAD));
+
 
         adapter = new OferenteAdapter(this, listaOferentes, new OferenteAdapter.OnItemClickListener() {
             @Override
@@ -60,6 +64,27 @@ public class OferenteActivity extends AppCompatActivity {
         recyclerOferentes.setAdapter(adapter);
 
         btnNuevoOferente.setOnClickListener(v -> mostrarDialogoAgregar());
+
+        cargarOferentes();
+    }
+
+    private void cargarOferentes() {
+        oferenteActividadDAO.getAllOferentes(new OferenteActividadDAO.OnOferentesLoadedListener() {
+            @Override
+            public void onOferentesLoaded(ArrayList<OferenteActividad> oferentes) {
+                runOnUiThread(() -> {
+                    listaOferentes.clear();
+                    listaOferentes.addAll(oferentes);
+                    adapter.notifyDataSetChanged();
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                runOnUiThread(() -> Toast.makeText(OferenteActivity.this,
+                        "Error al cargar los oferentes", Toast.LENGTH_SHORT).show());
+            }
+        });
     }
 
     private void mostrarDetalles(OferenteActividad oferente) {
@@ -94,9 +119,22 @@ public class OferenteActivity extends AppCompatActivity {
                         Toast.makeText(this, "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show();
                         return;
                     }
+                    OferenteActividad nuevoOferente = new OferenteActividad(nombre, docente, institucion);
+                    oferenteActividadDAO.saveOferente(nuevoOferente, new FirestoreOperationCallback() {
+                        @Override
+                        public void onSuccess() {
+                            runOnUiThread(() -> {
+                                Toast.makeText(OferenteActivity.this, "Oferente registrado", Toast.LENGTH_SHORT).show();
+                                cargarOferentes();
+                            });
+                        }
 
-                    listaOferentes.add(new OferenteActividad(nombre, docente, institucion));
-                    adapter.notifyItemInserted(listaOferentes.size() - 1);
+                        @Override
+                        public void onFailure(Exception exception) {
+                            runOnUiThread(() -> Toast.makeText(OferenteActivity.this,
+                                    "No fue posible registrar el oferente", Toast.LENGTH_SHORT).show());
+                        }
+                    });
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
@@ -128,23 +166,49 @@ public class OferenteActivity extends AppCompatActivity {
                         Toast.makeText(this, "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show();
                         return;
                     }
+                    OferenteActividad oferenteActualizado = new OferenteActividad(nuevoNombre, nuevoDocente, nuevaInstitucion);
+                    oferenteActualizado.setId(oferente.getId());
+                    oferenteActividadDAO.saveOferente(oferenteActualizado, new FirestoreOperationCallback() {
+                        @Override
+                        public void onSuccess() {
+                            runOnUiThread(() -> {
+                                Toast.makeText(OferenteActivity.this, "Oferente actualizado", Toast.LENGTH_SHORT).show();
+                                cargarOferentes();
+                            });
+                        }
 
-                    listaOferentes.set(position, new OferenteActividad(nuevoNombre, nuevoDocente, nuevaInstitucion));
-                    adapter.notifyItemChanged(position);
-                    Toast.makeText(this, "Oferente actualizado", Toast.LENGTH_SHORT).show();
+                        @Override
+                        public void onFailure(Exception exception) {
+                            runOnUiThread(() -> Toast.makeText(OferenteActivity.this,
+                                    "No fue posible actualizar el oferente", Toast.LENGTH_SHORT).show());
+                        }
+                    });
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
     }
 
     private void confirmarEliminar(int position) {
+        OferenteActividad oferente = listaOferentes.get(position);
         new AlertDialog.Builder(this)
                 .setTitle("Eliminar")
                 .setMessage("¿Seguro que deseas eliminar este oferente?")
                 .setPositiveButton("Sí", (dialog, which) -> {
-                    listaOferentes.remove(position);
-                    adapter.notifyItemRemoved(position);
-                    Toast.makeText(this, "Oferente eliminado", Toast.LENGTH_SHORT).show();
+                    oferenteActividadDAO.deleteOferente(oferente, new FirestoreOperationCallback() {
+                        @Override
+                        public void onSuccess() {
+                            runOnUiThread(() -> {
+                                Toast.makeText(OferenteActivity.this, "Oferente eliminado", Toast.LENGTH_SHORT).show();
+                                cargarOferentes();
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(Exception exception) {
+                            runOnUiThread(() -> Toast.makeText(OferenteActivity.this,
+                                    "No fue posible eliminar el oferente", Toast.LENGTH_SHORT).show());
+                        }
+                    });
                 })
                 .setNegativeButton("No", null)
                 .show();
