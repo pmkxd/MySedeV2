@@ -2,8 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permiso para leer archivos del almacenamiento -->
+    <!-- Permisos de almacenamiento (Android < 13) -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <!-- Si vas a apuntar a Android 13+ considera agregar estas -->
+    <!--
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    -->
 
     <application
         android:allowBackup="true"
@@ -15,7 +22,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!-- LOGIN como pantalla inicial -->
+        <!-- Login como pantalla inicial -->
         <activity
             android:name=".login.ActivityLogin"
             android:exported="true">
@@ -30,20 +37,10 @@
             android:name=".login.ActivityForgotPassword"
             android:exported="false" />
 
-        <!-- MainActivity ya no es launcher, pero sigue accesible -->
+        <!-- MainActivity accesible después del login -->
         <activity
             android:name=".MainActivity"
             android:exported="true" />
-
-        <!-- Activity principal -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 
         <!-- Crear Cita -->
         <activity
@@ -75,7 +72,6 @@
             android:label="Adjuntar Archivos"
             android:exported="false"
             android:parentActivityName=".actividades.CrearActividadActivity">
-            <!-- Esto ayuda a la navegación "hacia atrás" (Up Navigation) -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".actividades.CrearActividadActivity" />
@@ -122,13 +118,14 @@
             android:name=".CalendarActivity"
             android:exported="false" />
 
-        <!-- Sistema de Roles y Permisos -->
+        <!-- Roles -->
         <activity
             android:name=".auth.SelectorRolActivity"
             android:exported="true"
             android:label="Selector de Rol"
             android:theme="@style/AppTheme" />
 
+        <!-- Usuarios -->
         <activity
             android:name=".usuarios.GestionUsuariosActivity"
             android:exported="false"
@@ -146,6 +143,7 @@
             android:exported="false"
             android:label="Detalle Usuario"
             android:parentActivityName=".usuarios.GestionUsuariosActivity" />
+
     </application>
 
 </manifest>

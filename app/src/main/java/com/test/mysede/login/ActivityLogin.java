@@ -3,6 +3,7 @@ package com.test.mysede.login;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -10,18 +11,28 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.DocumentReference;
-
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.test.mysede.MainActivity;
 import com.test.mysede.R;
+import com.test.mysede.auth.PermissionManager;
+import com.test.mysede.auth.Permiso;
+import com.test.mysede.auth.SessionManager;
+import com.test.mysede.auth.Rol;
+import com.test.mysede.model.Usuario;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ActivityLogin extends AppCompatActivity {
 
-    private EditText inputCorreoMiSede, inputPasswordMiSede;
-    private Button btnLoginMiSede;
-    private TextView txtForgotPassMiSede;
+    private EditText inputCorreo, inputPassword;
+    private Button btnLogin;
+    private TextView txtForgotPass;
 
     private FirebaseAuth auth;
     private FirebaseFirestore db;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,32 +41,38 @@ public class ActivityLogin extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        sessionManager = new SessionManager(this);
 
-        inputCorreoMiSede = findViewById(R.id.inputCorreoMiSede);
-        inputPasswordMiSede = findViewById(R.id.inputPasswordMiSede);
-        btnLoginMiSede = findViewById(R.id.btnLoginMiSede);
-        txtForgotPassMiSede = findViewById(R.id.txtForgotPassMiSede);
+        inputCorreo = findViewById(R.id.inputCorreoMiSede);
+        inputPassword = findViewById(R.id.inputPasswordMiSede);
+        btnLogin = findViewById(R.id.btnLoginMiSede);
+        txtForgotPass = findViewById(R.id.txtForgotPassMiSede);
 
-        btnLoginMiSede.setOnClickListener(v -> loginUser());
-
-        txtForgotPassMiSede.setOnClickListener(v -> {
-            startActivity(new Intent(this, ActivityForgotPassword.class));
-        });
+        btnLogin.setOnClickListener(v -> loginUser());
+        txtForgotPass.setOnClickListener(v ->
+                startActivity(new Intent(this, ActivityForgotPassword.class))
+        );
     }
 
     private void loginUser() {
-        String correo = inputCorreoMiSede.getText().toString().trim();
-        String pass = inputPasswordMiSede.getText().toString().trim();
+        String correo = inputCorreo.getText().toString().trim();
+        String pass = inputPassword.getText().toString().trim();
 
         if (correo.isEmpty()) {
-            inputCorreoMiSede.setError("Ingrese su correo");
-            inputCorreoMiSede.requestFocus();
+            inputCorreo.setError("Ingrese su correo");
+            inputCorreo.requestFocus();
+            return;
+        }
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
+            inputCorreo.setError("Correo inválido");
+            inputCorreo.requestFocus();
             return;
         }
 
         if (pass.isEmpty()) {
-            inputPasswordMiSede.setError("Ingrese su contraseña");
-            inputPasswordMiSede.requestFocus();
+            inputPassword.setError("Ingrese su contraseña");
+            inputPassword.requestFocus();
             return;
         }
 
@@ -63,50 +80,59 @@ public class ActivityLogin extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         String uid = auth.getCurrentUser().getUid();
-                        validateUserProfile(uid, correo);
+                        loadUserFromFirestore(uid);
                     } else {
-                        Toast.makeText(this,
-                                "Credenciales incorrectas o usuario no encontrado",
+                        Toast.makeText(this, "Credenciales incorrectas o usuario no encontrado",
                                 Toast.LENGTH_LONG).show();
                     }
                 });
     }
 
-    private void validateUserProfile(String uid, String correo) {
-        DocumentReference userRef = db.collection("usuarios").document(uid);
+    private void loadUserFromFirestore(String uid) {
+        db.collection("usuarios").document(uid)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        Toast.makeText(this, "Usuario no registrado en Firestore", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    // Cargar datos del usuario
+                    String nombre = doc.getString("nombre");
+                    String email = doc.getString("email");
+                    String rut = doc.getString("rut");
+                    String rolString = doc.getString("rol");
+                    List<String> permisosList = (List<String>) doc.get("permisos");
 
-        userRef.get().addOnSuccessListener(doc -> {
-            if (!doc.exists()) {
-                // Crear perfil mínimo si no existe
-                userRef.set(new UserProfile(correo, "usuario", "sin_sede"))
-                        .addOnSuccessListener(aVoid ->
-                                goToHome("Login OK + perfil creado"))
-                        .addOnFailureListener(e ->
-                                Toast.makeText(this, "Error creando perfil", Toast.LENGTH_SHORT).show());
-            } else {
-                goToHome("Login OK");
-            }
-        }).addOnFailureListener(e ->
-                Toast.makeText(this, "Error verificando perfil", Toast.LENGTH_SHORT).show());
-    }
+                    Rol rol = Rol.valueOf(rolString);
+                    Usuario usuario = new Usuario(nombre, email, rol);
+                    usuario.setRut(rut);
+                    usuario.setId(uid);
 
-    private void goToHome(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-        // startActivity(new Intent(ActivityLogin.this, HomeMiSedeActivity.class));
-        // finish();
-    }
+                    // Convertir permisos de String a Permiso
+                    Set<Permiso> permisos = new HashSet<>();
+                    if (permisosList != null) {
+                        for (String p : permisosList) {
+                            try {
+                                permisos.add(Permiso.valueOf(p));
+                            } catch (Exception e) {
+                                // Permiso desconocido, ignorar
+                            }
+                        }
+                    }
+                    usuario.setPermisos(permisos);
 
-    public static class UserProfile {
-        public String correo;
-        public String rol;
-        public String sede;
+                    // Guardar sesión
+                    sessionManager.crearSesion(usuario);
 
-        public UserProfile() {}
+                    // Configurar PermissionManager
+                    PermissionManager.setUsuarioActual(usuario);
 
-        public UserProfile(String correo, String rol, String sede) {
-            this.correo = correo;
-            this.rol = rol;
-            this.sede = sede;
-        }
+                    // Ir a MainActivity
+                    startActivity(new Intent(ActivityLogin.this, MainActivity.class));
+                    finish();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Error cargando datos del usuario: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                );
     }
 }
