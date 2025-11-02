@@ -1,7 +1,6 @@
 package com.test.mysede;
 
 import com.test.mysede.model.Actividad;
-import androidx.annotation.Nullable;
 import com.test.mysede.model.Cita;
 import com.test.mysede.model.Lugar;
 
@@ -12,38 +11,18 @@ import java.util.UUID;
 
 final class CalendarUiCita {
     private final UUID id = UUID.randomUUID();
-    @Nullable
-    private final String remoteId;
-    @Nullable
-    private final String actividadId;
-    private String actividadNombre;
+    private final Actividad actividad;
     private final Lugar lugar;
     private LocalDate fecha;
     private LocalTime hora;
     private final int duracionMinutos;
 
     CalendarUiCita(Cita cita, int duracionMinutos) {
-        this(
-                cita != null ? cita.getId() : null,
-                cita != null && cita.getActividad() != null ? cita.getActividad().getId() : null,
-                cita != null && cita.getActividad() != null ? cita.getActividad().getNombre() : null,
-                Objects.requireNonNull(cita).getLugar(),
-                cita.getFecha(),
-                cita.getHora(),
-                duracionMinutos
-        );
+        this(Objects.requireNonNull(cita).getActividad(), cita.getLugar(), cita.getFecha(), cita.getHora(), duracionMinutos);
     }
 
-    CalendarUiCita(@Nullable String remoteId,
-                   @Nullable String actividadId,
-                   @Nullable String actividadNombre,
-                   Lugar lugar,
-                   LocalDate fecha,
-                   LocalTime hora,
-                   int duracionMinutos) {
-        this.remoteId = remoteId;
-        this.actividadId = actividadId;
-        this.actividadNombre = actividadNombre;
+    CalendarUiCita(Actividad actividad, Lugar lugar, LocalDate fecha, LocalTime hora, int duracionMinutos) {
+        this.actividad = Objects.requireNonNull(actividad, "La actividad es obligatoria");
         this.lugar = Objects.requireNonNull(lugar, "El lugar es obligatorio");
         this.fecha = Objects.requireNonNull(fecha, "La fecha es obligatoria");
         this.hora = Objects.requireNonNull(hora, "La hora es obligatoria");
@@ -54,23 +33,8 @@ final class CalendarUiCita {
         return id;
     }
 
-    @Nullable
-    String getRemoteId() {
-        return remoteId;
-    }
-
-    @Nullable
-    String getActividadId() {
-        return actividadId;
-    }
-
-    @Nullable
-    String getActividadNombre() {
-        return actividadNombre;
-    }
-
-    void setActividadNombre(@Nullable String actividadNombre) {
-        this.actividadNombre = actividadNombre;
+    Actividad getActividad() {
+        return actividad;
     }
 
     Lugar getLugar() {
