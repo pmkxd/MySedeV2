@@ -23,7 +23,7 @@ import java.util.Map;
  */
 public class SocioComunitarioDAO {
 
-    private static final String COLLECTION = "socios_comutarios";
+    private static final String COLLECTION = "sociosComunitarios";
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     // este es el que se utiliza para guardar los datos en firestore

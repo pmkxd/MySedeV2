@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.test.mysede.DAO.FirestoreOperationCallback;
+import com.test.mysede.DAO.ProyectoDAO;
 import com.test.mysede.R;
 import com.test.mysede.model.Proyecto;
 
@@ -24,6 +26,7 @@ public class ProyectoActivity extends AppCompatActivity {
     private ProyectoAdapter adapter;
     private List<Proyecto> listaProyectos;
     private FloatingActionButton btnNuevoProyecto;
+    private ProyectoDAO proyectoDAO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +36,8 @@ public class ProyectoActivity extends AppCompatActivity {
         recyclerProyectos = findViewById(R.id.recyclerProyectos);
         btnNuevoProyecto = findViewById(R.id.btnNuevoProyecto);
 
+        proyectoDAO = new ProyectoDAO();
         listaProyectos = new ArrayList<>();
-        listaProyectos.add(new Proyecto("Proyecto Inicial 1"));
-        listaProyectos.add(new Proyecto("Proyecto Inicial 2"));
 
         adapter = new ProyectoAdapter(this, listaProyectos, new ProyectoAdapter.OnItemClickListener() {
             @Override
@@ -58,6 +60,26 @@ public class ProyectoActivity extends AppCompatActivity {
         recyclerProyectos.setAdapter(adapter);
 
         btnNuevoProyecto.setOnClickListener(v -> mostrarDialogoAgregar());
+        cargarProyectos();
+    }
+
+    private void cargarProyectos() {
+        proyectoDAO.getAllProyectos(new ProyectoDAO.OnProyectosLoadedListener() {
+            @Override
+            public void onProyectosLoaded(ArrayList<Proyecto> proyectos) {
+                runOnUiThread(() -> {
+                    listaProyectos.clear();
+                    listaProyectos.addAll(proyectos);
+                    adapter.notifyDataSetChanged();
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                runOnUiThread(() -> Toast.makeText(ProyectoActivity.this,
+                        "Error al cargar los proyectos", Toast.LENGTH_SHORT).show());
+            }
+        });
     }
 
     // 👁️ Ver detalles
@@ -83,8 +105,22 @@ public class ProyectoActivity extends AppCompatActivity {
                         Toast.makeText(this, "El nombre es obligatorio", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    listaProyectos.add(new Proyecto(nombre));
-                    adapter.notifyItemInserted(listaProyectos.size() - 1);
+                    Proyecto nuevoProyecto = new Proyecto(nombre);
+                    proyectoDAO.saveProyecto(nuevoProyecto, new FirestoreOperationCallback() {
+                        @Override
+                        public void onSuccess() {
+                            runOnUiThread(() -> {
+                                Toast.makeText(ProyectoActivity.this, "Proyecto registrado", Toast.LENGTH_SHORT).show();
+                                cargarProyectos();
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(Exception exception) {
+                            runOnUiThread(() -> Toast.makeText(ProyectoActivity.this,
+                                    "No fue posible registrar el proyecto", Toast.LENGTH_SHORT).show());
+                        }
+                    });
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
@@ -105,9 +141,23 @@ public class ProyectoActivity extends AppCompatActivity {
                         Toast.makeText(this, "El nombre es obligatorio", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    listaProyectos.set(position, new Proyecto(nuevoNombre));
-                    adapter.notifyItemChanged(position);
-                    Toast.makeText(this, "Proyecto actualizado", Toast.LENGTH_SHORT).show();
+                    Proyecto proyectoActualizado = new Proyecto(nuevoNombre);
+                    proyectoActualizado.setId(proyecto.getId());
+                    proyectoDAO.saveProyecto(proyectoActualizado, new FirestoreOperationCallback() {
+                        @Override
+                        public void onSuccess() {
+                            runOnUiThread(() -> {
+                                Toast.makeText(ProyectoActivity.this, "Proyecto actualizado", Toast.LENGTH_SHORT).show();
+                                cargarProyectos();
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(Exception exception) {
+                            runOnUiThread(() -> Toast.makeText(ProyectoActivity.this,
+                                    "No fue posible actualizar el proyecto", Toast.LENGTH_SHORT).show());
+                        }
+                    });
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
@@ -115,13 +165,26 @@ public class ProyectoActivity extends AppCompatActivity {
 
     // 🗑️ Eliminar
     private void confirmarEliminar(int position) {
+        Proyecto proyecto = listaProyectos.get(position);
         new AlertDialog.Builder(this)
                 .setTitle("Eliminar")
                 .setMessage("¿Seguro que deseas eliminar este proyecto?")
                 .setPositiveButton("Sí", (dialog, which) -> {
-                    listaProyectos.remove(position);
-                    adapter.notifyItemRemoved(position);
-                    Toast.makeText(this, "Proyecto eliminado", Toast.LENGTH_SHORT).show();
+                    proyectoDAO.deleteProyecto(proyecto, new FirestoreOperationCallback() {
+                        @Override
+                        public void onSuccess() {
+                            runOnUiThread(() -> {
+                                Toast.makeText(ProyectoActivity.this, "Proyecto eliminado", Toast.LENGTH_SHORT).show();
+                                cargarProyectos();
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(Exception exception) {
+                            runOnUiThread(() -> Toast.makeText(ProyectoActivity.this,
+                                    "No fue posible eliminar el proyecto", Toast.LENGTH_SHORT).show());
+                        }
+                    });
                 })
                 .setNegativeButton("No", null)
                 .show();
