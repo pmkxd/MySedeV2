@@ -15,6 +15,26 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <!-- LOGIN como pantalla inicial -->
+        <activity
+            android:name=".login.ActivityLogin"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Forgot Password -->
+        <activity
+            android:name=".login.ActivityForgotPassword"
+            android:exported="false" />
+
+        <!-- MainActivity ya no es launcher, pero sigue accesible -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" />
+
         <!-- Activity principal -->
         <activity
             android:name=".MainActivity"
