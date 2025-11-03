@@ -314,6 +314,37 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+
+        // ============================================
+        // BOTÓN DE NOTIFICACIONES
+        // ============================================
+        MaterialButton btnIrNotificaciones = findViewById(R.id.btn_ir_notificaciones);
+        View cardNotificaciones = findViewById(R.id.card_notificaciones);
+
+        View.OnClickListener notificacionesListener = v -> {
+            Intent intent = new Intent(this, NotificationActivity.class);
+            startActivity(intent);
+        };
+
+        boolean puedeVerNotificaciones = true; // si hay permisos de rol, cámbialo aquí
+
+        if (puedeVerNotificaciones) {
+
+            if (btnIrNotificaciones != null) {
+                btnIrNotificaciones.setOnClickListener(notificacionesListener);
+            }
+
+            if (cardNotificaciones != null) {
+                cardNotificaciones.setOnClickListener(notificacionesListener);
+            }
+
+        } else {
+            // Ocultar card si no tiene acceso
+            if (cardNotificaciones != null) {
+                cardNotificaciones.setVisibility(View.GONE);
+            }
+        }
+
     }
 
     @Override

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardNoti"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    android:padding="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/txtNotiTitulo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Título notificación"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="@color/md_theme_onSurface"
+            />
+
+        <TextView
+            android:id="@+id/txtNotiMensaje"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mensaje corto de notificación"
+            android:textSize="14sp"
+            android:textColor="@color/md_theme_onSurfaceVariant"
+            android:layout_marginTop="4dp"
+            />
+
+        <TextView
+            android:id="@+id/txtNotiFecha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="12/09 10:20"
+            android:textSize="12sp"
+            android:textColor="@color/md_theme_outline"
+            android:layout_marginTop="4dp"
+            />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
