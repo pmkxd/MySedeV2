@@ -2,15 +2,20 @@ package com.test.mysede.organizador;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.test.mysede.R;
 import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.auth.Rol;
 import com.test.mysede.auth.SessionManager;
+import com.test.mysede.login.ActivityLogin;
 import com.test.mysede.model.Usuario;
 import com.test.mysede.actividades.ListarActividadesActivity;
 import com.test.mysede.CalendarActivity;
@@ -24,6 +29,12 @@ public class OrganizadorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_organizador);
+
+        // Configurar Toolbar
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
 
         sessionManager = new SessionManager(this);
         usuario = sessionManager.obtenerUsuarioSesion();
@@ -59,6 +70,30 @@ public class OrganizadorActivity extends AppCompatActivity {
         } else {
             btnCalendario.setEnabled(false);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_user_options, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.menu_cerrar_sesion) {
+            cerrarSesion();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void cerrarSesion() {
+        sessionManager.cerrarSesion();
+        PermissionManager.setUsuarioActual(null);
+        Intent intent = new Intent(this, ActivityLogin.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     @Override

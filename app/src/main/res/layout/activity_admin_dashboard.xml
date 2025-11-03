@@ -1,30 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/admin_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="#F6F6F8"
+    android:fitsSystemWindows="true"
     tools:context=".admin.AdminActivity">
 
-    <!-- Toolbar con 3 puntos -->
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    <!-- Toolbar con menú de 3 puntos -->
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/md_theme_primary"
-        android:title="@string/app_name"
-        android:titleTextColor="@color/md_theme_onPrimary"
-        app:popupTheme="@style/ThemeOverlay.Material3.Light"
-        app:titleCentered="false"/>
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary"
+            android:elevation="4dp"
+            app:title="Administrador"
+            app:titleTextColor="@android:color/white"
+            app:menu="@menu/menu_admin" />
+
+    </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Contenido desplazable -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize"
         android:padding="20dp">
 
         <LinearLayout
@@ -54,7 +60,7 @@
                 android:textColor="#666666"
                 android:paddingBottom="24dp"/>
 
-            <!-- Tarjeta simple: Usuarios -->
+            <!-- Tarjeta: Usuarios -->
             <LinearLayout
                 android:id="@+id/cardUsuarios"
                 android:layout_width="match_parent"
@@ -197,4 +203,4 @@
         </LinearLayout>
     </ScrollView>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

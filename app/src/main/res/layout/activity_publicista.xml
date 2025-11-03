@@ -1,144 +1,170 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
-    android:background="#F6F6F8"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
     tools:context=".publicista.PublicistaActivity">
 
-    <LinearLayout
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:fitsSystemWindows="true">
 
-        <!-- Bienvenida -->
-        <TextView
-            android:id="@+id/txtBienvenida"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Bienvenido"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="#2B2B2B"
-            android:paddingBottom="6dp"/>
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary"
+            android:elevation="4dp"
+            app:title="Publicista"
+            app:titleTextColor="@android:color/white"
+            app:menu="@menu/menu_user_options" />
 
-        <!-- Nombre Usuario -->
-        <TextView
-            android:id="@+id/txtNombreUsuario"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Nombre Apellido"
-            android:textSize="18sp"
-            android:textStyle="italic"
-            android:textColor="#666666"
-            android:paddingBottom="24dp"/>
+    </com.google.android.material.appbar.AppBarLayout>
 
-        <!-- Tarjeta: Actividades -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="20dp"
+        android:background="#F6F6F8">
+
         <LinearLayout
-            android:id="@+id/cardActividades"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="18dp"
-            android:layout_marginBottom="12dp"
-            android:background="#FFFFFF"
-            android:elevation="4dp">
+            android:gravity="center_horizontal">
 
+            <!-- Bienvenida -->
             <TextView
+                android:id="@+id/txtBienvenida"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Actividades"
-                android:textSize="17sp"
+                android:text="Bienvenido"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                android:textColor="#1F4B8B"/>
+                android:textColor="#2B2B2B"
+                android:paddingBottom="6dp"/>
 
+            <!-- Nombre Usuario -->
             <TextView
+                android:id="@+id/txtNombreUsuario"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Visualiza las actividades del centro."
-                android:textSize="14sp"
+                android:text="Nombre Apellido"
+                android:textSize="18sp"
+                android:textStyle="italic"
                 android:textColor="#666666"
-                android:paddingTop="6dp"
-                android:paddingBottom="10dp"/>
+                android:paddingBottom="24dp"/>
 
-            <Button
-                android:id="@+id/btnActividades"
-                android:layout_width="wrap_content"
+            <!-- Tarjeta: Actividades -->
+            <LinearLayout
+                android:id="@+id/cardActividades"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ingresar" />
+                android:orientation="vertical"
+                android:padding="18dp"
+                android:layout_marginBottom="12dp"
+                android:background="#FFFFFF"
+                android:elevation="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Actividades"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F4B8B"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Visualiza las actividades del centro."
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="10dp"/>
+
+                <Button
+                    android:id="@+id/btnActividades"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ingresar" />
+            </LinearLayout>
+
+            <!-- Tarjeta: Calendario -->
+            <LinearLayout
+                android:id="@+id/cardCalendario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp"
+                android:layout_marginBottom="12dp"
+                android:background="#FFFFFF"
+                android:elevation="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Calendario"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F4B8B"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Consulta el calendario de citas del centro."
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="10dp"/>
+
+                <Button
+                    android:id="@+id/btnCalendario"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ingresar" />
+            </LinearLayout>
+
+            <!-- Tarjeta: Adjuntar Archivos -->
+            <LinearLayout
+                android:id="@+id/cardAdjuntar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp"
+                android:layout_marginBottom="20dp"
+                android:background="#FFFFFF"
+                android:elevation="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Adjuntar Archivos"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F4B8B"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Agrega archivos relacionados con las actividades."
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="10dp"/>
+
+                <Button
+                    android:id="@+id/btnAdjuntar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Adjuntar" />
+            </LinearLayout>
+
         </LinearLayout>
-
-        <!-- Tarjeta: Calendario -->
-        <LinearLayout
-            android:id="@+id/cardCalendario"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="18dp"
-            android:layout_marginBottom="12dp"
-            android:background="#FFFFFF"
-            android:elevation="4dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Calendario"
-                android:textSize="17sp"
-                android:textStyle="bold"
-                android:textColor="#1F4B8B"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Consulta el calendario de citas del centro."
-                android:textSize="14sp"
-                android:textColor="#666666"
-                android:paddingTop="6dp"
-                android:paddingBottom="10dp"/>
-
-            <Button
-                android:id="@+id/btnCalendario"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ingresar" />
-        </LinearLayout>
-
-        <!-- Tarjeta: Adjuntar Archivos -->
-        <LinearLayout
-            android:id="@+id/cardAdjuntar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="18dp"
-            android:layout_marginBottom="20dp"
-            android:background="#FFFFFF"
-            android:elevation="4dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Adjuntar Archivos"
-                android:textSize="17sp"
-                android:textStyle="bold"
-                android:textColor="#1F4B8B"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Agrega archivos relacionados con las actividades."
-                android:textSize="14sp"
-                android:textColor="#666666"
-                android:paddingTop="6dp"
-                android:paddingBottom="10dp"/>
-
-            <Button
-                android:id="@+id/btnAdjuntar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Adjuntar" />
-        </LinearLayout>
-
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</LinearLayout>

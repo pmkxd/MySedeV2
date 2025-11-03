@@ -61,7 +61,12 @@
             android:label="Gestión de Usuarios" />
         <activity
             android:name=".usuarios.CrearUsuarioActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:label="Crear Usuario" />
+        <activity
+            android:name=".usuarios.RegistrarUsuarioActivity"
+            android:exported="false"
+            android:label="Registrar Usuario con Firebase" />
         <activity
             android:name=".usuarios.DetalleUsuarioActivity"
             android:exported="false" />
