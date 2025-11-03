@@ -190,4 +190,27 @@ public class CitaDAO {
                     }
                 });
     }
+
+    public void deleteCita(Cita cita, @Nullable FirestoreOperationCallback callback) {
+        if (cita == null || TextUtils.isEmpty(cita.getId())) {
+            if (callback != null) {
+                callback.onFailure(new IllegalArgumentException("La cita debe tener un ID válido"));
+            }
+            return;
+        }
+        db.collection(COLLECTION)
+                .document(cita.getId())
+                .delete()
+                .addOnSuccessListener(unused -> {
+                    if (callback != null) {
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error al eliminar la cita", e);
+                    if (callback != null) {
+                        callback.onFailure(e);
+                    }
+                });
+    }
 }

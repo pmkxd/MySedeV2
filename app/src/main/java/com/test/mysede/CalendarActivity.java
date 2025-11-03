@@ -18,8 +18,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
@@ -31,9 +29,12 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.test.mysede.DAO.ActividadDAO;
+import com.test.mysede.DAO.CitaDAO;
+import com.test.mysede.DAO.FirestoreOperationCallback;
+import com.test.mysede.model.Actividad;
+import com.test.mysede.model.Cita;
+import com.test.mysede.model.Lugar;
 
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -44,14 +45,15 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CalendarActivity extends AppCompatActivity implements
         CalendarWeekAdapter.OnEventInteractionListener,
@@ -61,9 +63,6 @@ public class CalendarActivity extends AppCompatActivity implements
     public static final String MODE_WEEK = "WEEK";
     public static final String MODE_MONTH = "MONTH";
 
-    private static final String COLLECTION_CITAS = "citas";
-    private static final String COLLECTION_ACTIVIDADES = "actividades";
-
     private enum ViewMode { WEEK, MONTH }
 
     private final Locale locale = new Locale("es", "ES");
@@ -72,7 +71,8 @@ public class CalendarActivity extends AppCompatActivity implements
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault());
     private final DateTimeFormatter monthTitleFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", locale);
 
-    private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    private final ActividadDAO actividadDAO = new ActividadDAO();
+    private final CitaDAO citaDAO = new CitaDAO();
 
     private CoordinatorLayout root;
     private MaterialButtonToggleGroup viewToggle;
@@ -157,7 +157,7 @@ public class CalendarActivity extends AppCompatActivity implements
         }
 
         actualizarSeleccion(selectedDate);
-        cargarCitasDesdeFirestore();
+        cargarCitasDesdeDao();
     }
 
     private void cambiarModo(ViewMode mode) {
@@ -242,94 +242,75 @@ public class CalendarActivity extends AppCompatActivity implements
         currentMonth = YearMonth.from(selectedDate);
     }
 
-    private void cargarCitasDesdeFirestore() {
-        firestore.collection(COLLECTION_CITAS)
-                .get()
-                .addOnSuccessListener(this::procesarCitas)
-                .addOnFailureListener(e -> {
+    private void cargarCitasDesdeDao() {
+        actividadDAO.getAllActividades(new ActividadDAO.OnActividadesLoadedListener() {
+            @Override
+            public void onActividadesLoaded(ArrayList<Actividad> actividades) {
+                if (actividades == null || actividades.isEmpty()) {
+                    runOnUiThread(() -> {
+                        allAppointments.clear();
+                        actualizarIndicePorFecha();
+                        refrescarSemana();
+                        refrescarMes();
+                    });
+                    return;
+                }
+
+                final AtomicInteger pendientes = new AtomicInteger(actividades.size());
+                final AtomicBoolean errorReportado = new AtomicBoolean(false);
+                final List<CalendarUiCita> citasRecolectadas = Collections.synchronizedList(new ArrayList<>());
+
+                for (Actividad actividad : actividades) {
+                    citaDAO.getCitasPorActividad(actividad, new CitaDAO.OnCitasLoadedListener() {
+                        @Override
+                        public void onCitasLoaded(ArrayList<Cita> citas) {
+                            if (citas != null) {
+                                for (Cita cita : citas) {
+                                    citasRecolectadas.add(CalendarUiCita.fromCita(cita));
+                                }
+                            }
+                            verificarFinalizacion();
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            if (errorReportado.compareAndSet(false, true)) {
+                                runOnUiThread(() ->
+                                        Snackbar.make(root, R.string.calendario_error_cargar_citas, Snackbar.LENGTH_LONG).show());
+                            }
+                            verificarFinalizacion();
+                        }
+
+                        private void verificarFinalizacion() {
+                            if (pendientes.decrementAndGet() == 0) {
+                                List<CalendarUiCita> snapshot;
+                                synchronized (citasRecolectadas) {
+                                    snapshot = new ArrayList<>(citasRecolectadas);
+                                }
+                                runOnUiThread(() -> actualizarCalendario(snapshot));
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                runOnUiThread(() -> {
                     Snackbar.make(root, R.string.calendario_error_cargar_citas, Snackbar.LENGTH_LONG).show();
                     allAppointments.clear();
                     actualizarIndicePorFecha();
                     refrescarSemana();
                     refrescarMes();
                 });
-    }
-
-    private void procesarCitas(QuerySnapshot snapshot) {
-        List<RawCita> rawCitas = new ArrayList<>();
-        Set<String> actividadIds = new HashSet<>();
-        for (DocumentSnapshot document : snapshot.getDocuments()) {
-            String fechaStr = document.getString("fecha");
-            String horaStr = document.getString("hora");
-            if (fechaStr == null || horaStr == null) continue;
-
-            try {
-                LocalDate fecha = LocalDate.parse(fechaStr);
-                LocalTime hora = LocalTime.parse(horaStr);
-                String actividadId = document.getString("actividadId");
-                String actividadNombre = document.getString("actividadNombre");
-                Map<String, Object> lugarData = document.get("lugar", Map.class);
-                String lugarNombre = null;
-                if (lugarData != null) {
-                    Object nombre = lugarData.get("nombre");
-                    if (nombre instanceof String) {
-                        lugarNombre = (String) nombre;
-                    }
-                }
-                rawCitas.add(new RawCita(document.getId(), actividadId, actividadNombre, lugarNombre, fecha, hora));
-                if (TextUtils.isEmpty(actividadNombre) && !TextUtils.isEmpty(actividadId)) {
-                    actividadIds.add(actividadId);
-                }
-            } catch (Exception ignored) {}
-        }
-
-        if (actividadIds.isEmpty()) {
-            construirCitas(rawCitas, new HashMap<>());
-        } else {
-            List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
-            for (String actividadId : actividadIds) {
-                tasks.add(firestore.collection(COLLECTION_ACTIVIDADES).document(actividadId).get());
             }
-            Tasks.whenAllSuccess(tasks)
-                    .addOnSuccessListener(results -> {
-                        Map<String, String> nombres = new HashMap<>();
-                        for (Object result : results) {
-                            if (result instanceof DocumentSnapshot) {
-                                DocumentSnapshot document = (DocumentSnapshot) result;
-                                if (document.exists()) {
-                                    String nombre = document.getString("nombre");
-                                    if (!TextUtils.isEmpty(nombre)) {
-                                        nombres.put(document.getId(), nombre);
-                                    }
-                                }
-                            }
-                        }
-                        construirCitas(rawCitas, nombres);
-                    })
-                    .addOnFailureListener(e -> construirCitas(rawCitas, new HashMap<>()));
-        }
+        });
     }
 
-    private void construirCitas(List<RawCita> rawCitas, Map<String, String> nombresActividades) {
+    private void actualizarCalendario(List<CalendarUiCita> nuevasCitas) {
         allAppointments.clear();
-        for (RawCita raw : rawCitas) {
-            String nombreActividad = !TextUtils.isEmpty(raw.actividadNombre)
-                    ? raw.actividadNombre
-                    : nombresActividades.get(raw.actividadId);
-            if (TextUtils.isEmpty(nombreActividad)) {
-                nombreActividad = raw.actividadId != null ? raw.actividadId : getString(R.string.calendario_actividad_sin_nombre);
-            }
-            String lugarNombre = !TextUtils.isEmpty(raw.lugarNombre)
-                    ? raw.lugarNombre
-                    : getString(R.string.calendario_lugar_desconocido);
-            allAppointments.add(new CalendarUiCita(
-                    raw.firestoreId,
-                    raw.actividadId,
-                    nombreActividad,
-                    lugarNombre,
-                    raw.fecha,
-                    raw.hora,
-                    60));
+        if (nuevasCitas != null) {
+            allAppointments.addAll(nuevasCitas);
         }
         actualizarIndicePorFecha();
         refrescarSemana();
@@ -395,24 +376,38 @@ public class CalendarActivity extends AppCompatActivity implements
             return;
         }
 
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("fecha", nuevaFecha.format(DateTimeFormatter.ISO_LOCAL_DATE));
-        updates.put("hora", nuevaHora.format(DateTimeFormatter.ISO_LOCAL_TIME));
+        Cita citaActualizada = cita.crearModelo(nuevaFecha, nuevaHora);
+        if (citaActualizada == null) {
+            cita.actualizarFechaHora(nuevaFecha, nuevaHora);
+            actualizarIndicePorFecha();
+            actualizarSeleccion(nuevaFecha);
+            Snackbar.make(root, getString(R.string.calendario_snackbar_reagendada,
+                    cita.getActividadNombre(),
+                    capitalizar(nuevaFecha.format(dateDetailFormatter)),
+                    nuevaHora.format(timeFormatter)), Snackbar.LENGTH_LONG).show();
+            return;
+        }
 
-        firestore.collection(COLLECTION_CITAS)
-                .document(firestoreId)
-                .update(updates)
-                .addOnSuccessListener(unused -> {
-                    cita.actualizarFechaHora(nuevaFecha, nuevaHora);
+        citaDAO.saveCita(citaActualizada, new FirestoreOperationCallback() {
+            @Override
+            public void onSuccess() {
+                runOnUiThread(() -> {
+                    cita.actualizarModelo(citaActualizada);
                     actualizarIndicePorFecha();
                     actualizarSeleccion(nuevaFecha);
                     Snackbar.make(root, getString(R.string.calendario_snackbar_reagendada,
                             cita.getActividadNombre(),
                             capitalizar(nuevaFecha.format(dateDetailFormatter)),
                             nuevaHora.format(timeFormatter)), Snackbar.LENGTH_LONG).show();
-                })
-                .addOnFailureListener(e ->
+                });
+            }
+
+            @Override
+            public void onFailure(Exception exception) {
+                runOnUiThread(() ->
                         Snackbar.make(root, R.string.calendario_error_actualizar_cita, Snackbar.LENGTH_LONG).show());
+            }
+        });
     }
 
     private void eliminarCita(CalendarUiCita cita) {
@@ -425,18 +420,38 @@ public class CalendarActivity extends AppCompatActivity implements
             Snackbar.make(root, getString(R.string.calendario_snackbar_eliminada, cita.getActividadNombre()), Snackbar.LENGTH_LONG).show();
             return;
         }
-        firestore.collection(COLLECTION_CITAS)
-                .document(firestoreId)
-                .delete()
-                .addOnSuccessListener(unused -> {
+        Cita modelo = cita.getCita();
+        if (modelo == null) {
+            modelo = cita.crearModelo(cita.getFecha(), cita.getHora());
+        }
+        if (modelo == null) {
+            allAppointments.remove(cita);
+            actualizarIndicePorFecha();
+            refrescarSemana();
+            refrescarMes();
+            Snackbar.make(root, getString(R.string.calendario_snackbar_eliminada, cita.getActividadNombre()), Snackbar.LENGTH_LONG).show();
+            return;
+        }
+
+        Cita finalModelo = modelo;
+        citaDAO.deleteCita(finalModelo, new FirestoreOperationCallback() {
+            @Override
+            public void onSuccess() {
+                runOnUiThread(() -> {
                     allAppointments.remove(cita);
                     actualizarIndicePorFecha();
                     refrescarSemana();
                     refrescarMes();
                     Snackbar.make(root, getString(R.string.calendario_snackbar_eliminada, cita.getActividadNombre()), Snackbar.LENGTH_LONG).show();
-                })
-                .addOnFailureListener(e ->
+                });
+            }
+
+            @Override
+            public void onFailure(Exception exception) {
+                runOnUiThread(() ->
                         Snackbar.make(root, R.string.calendario_error_eliminar_cita, Snackbar.LENGTH_LONG).show());
+            }
+        });
     }
 
     private void mostrarDialogoDetalle(CalendarUiCita cita) {
@@ -534,23 +549,5 @@ public class CalendarActivity extends AppCompatActivity implements
     public void onDayClicked(@NonNull LocalDate date) {
         actualizarSeleccion(date);
         mostrarCitasDelDia(date);
-    }
-
-    private static final class RawCita {
-        final String firestoreId;
-        final String actividadId;
-        final String actividadNombre;
-        final String lugarNombre;
-        final LocalDate fecha;
-        final LocalTime hora;
-
-        RawCita(String firestoreId, String actividadId, String actividadNombre, String lugarNombre, LocalDate fecha, LocalTime hora) {
-            this.firestoreId = firestoreId;
-            this.actividadId = actividadId;
-            this.actividadNombre = actividadNombre;
-            this.lugarNombre = lugarNombre;
-            this.fecha = fecha;
-            this.hora = hora;
-        }
     }
 }
