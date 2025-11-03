@@ -19,14 +19,10 @@
 
         <!-- Login -->
         <activity android:name=".login.ActivityLogin" android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
-        <activity android:name=".login.ActivityForgotPassword" android:exported="false" />
+    </activity>
+    <activity android:name=".login.ActivityForgotPassword" android:exported="false" />
 
-        <!-- Pantallas principales -->
+    <!-- Pantallas principales -->
         <activity android:name=".MainActivity" android:exported="true"/>
         <activity android:name=".admin.AdminActivity" android:exported="true"/>
         <activity android:name=".organizador.OrganizadorActivity" android:exported="true"/>
@@ -35,7 +31,6 @@
 
         <!-- Citas, Actividades y Calendar -->
         <activity android:name=".citas.CrearCitaActivity" android:exported="false"/>
-        <activity android:name=".actividades.ListarActividadesActivity" android:exported="false"/>
         <activity android:name=".actividades.ListarActividadesActivity" android:exported="false"/>
         <activity android:name=".CalendarActivity" android:exported="false"/>
 

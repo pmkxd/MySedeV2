@@ -134,14 +134,14 @@ public class CrearUsuarioActivity extends AppCompatActivity {
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(authResult -> {
                     String uid = authResult.getUser().getUid();
-                    guardarUsuarioEnFirestore(uid, nombre, email);
+                    guardarUsuarioEnFirestore(uid, nombre, email, password);
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Error Auth: " + e.getMessage(), Toast.LENGTH_LONG).show()
                 );
     }
 
-    private void guardarUsuarioEnFirestore(String uid, String nombre, String email) {
+    private void guardarUsuarioEnFirestore(String uid, String nombre, String email, String pass) {
 
         Rol rol = Rol.fromNombreCompleto(spinnerRolUsuario.getSelectedItem().toString());
         Set<Permiso> permisos = new HashSet<>();
@@ -160,6 +160,7 @@ public class CrearUsuarioActivity extends AppCompatActivity {
         data.put("permisos", user.getPermisosComoLista());
         data.put("activo", true);
         data.put("fechaCreacion", user.getFechaCreacion());
+        data.put("pass", pass);
 
         db.collection("usuarios")
                 .document(uid)
