@@ -57,6 +57,10 @@
                 android:textColor="@color/md_theme_onSurfaceVariant"
                 android:layout_marginBottom="20dp" />
 
+            <!-- ============================================ -->
+            <!-- SECCIÓN: GESTIÓN DE CITAS -->
+            <!-- ============================================ -->
+
             <!-- CARD: Crear cita -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_crear_cita"
@@ -101,9 +105,9 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- CARD: Reagendar cita -->
+            <!-- CARD: Calendario Semanal (incluye reagendar y cancelar) -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_reagendar_cita"
+                android:id="@+id/card_calendario"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
@@ -118,77 +122,94 @@
                     android:padding="20dp">
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/card_reagendar_cita_title"
+                        android:id="@+id/card_calendario_title"
                         style="@style/TextAppearance.Material3.TitleMedium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/home_card_reschedule_title"
+                        android:text="Calendario de Citas"
                         android:textColor="@color/md_theme_onSurface" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/card_reagendar_cita_body"
+                        android:id="@+id/card_calendario_body"
                         style="@style/TextAppearance.Material3.BodyMedium"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="@string/home_card_reschedule_body"
+                        android:text="Visualiza, reagenda o cancela las citas programadas en el centro"
                         android:textColor="@color/md_theme_onSurfaceVariant" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_ir_reagendar_cita"
-                        style="@style/Widget.Material3.Button.TonalButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="@string/home_card_reschedule_cta"
-                        android:textAllCaps="false" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- CARD: Cancelar cita -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_cancelar_cita"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
-                app:strokeColor="@color/md_theme_outlineVariant"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/card_cancelar_cita_title"
-                        style="@style/TextAppearance.Material3.TitleMedium"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/home_card_cancel_title"
-                        android:textColor="@color/md_theme_onSurface" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/card_cancelar_cita_body"
-                        style="@style/TextAppearance.Material3.BodyMedium"
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/calendar_mode_toggle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/home_card_cancel_body"
-                        android:textColor="@color/md_theme_onSurfaceVariant" />
+                        android:layout_marginTop="12dp"
+                        app:singleSelection="true">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_ir_cancelar_cita"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="wrap_content"
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/calendar_mode_week"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/calendario_toggle_semana"
+                            android:textAllCaps="false" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/calendar_mode_month"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/calendario_toggle_mes"
+                            android:textAllCaps="false" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+
+                    <!-- Botones de acciones rápidas -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="@string/home_card_cancel_cta"
-                        android:textAllCaps="false" />
+                        android:orientation="horizontal"
+                        android:layout_marginTop="16dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_ir_calendario"
+                            style="@style/Widget.Material3.Button"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:text="Ver Calendario"
+                            android:textAllCaps="false" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_ir_reagendar_cita"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:text="Reagendar"
+                            android:textAllCaps="false"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_ir_cancelar_cita"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Cancelar"
+                            android:textAllCaps="false"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- ============================================ -->
+            <!-- SECCIÓN: GESTIÓN DE ACTIVIDADES -->
+            <!-- ============================================ -->
 
             <!-- CARD: Gestión de Actividades -->
             <com.google.android.material.card.MaterialCardView
@@ -235,13 +256,15 @@
             </com.google.android.material.card.MaterialCardView>
 
             <!-- ============================================ -->
-            <!-- NUEVA CARD: Calendario Semanal -->
+            <!-- SECCIÓN: ADMINISTRACIÓN (Solo visible para Admin) -->
             <!-- ============================================ -->
+
+            <!-- CARD: Gestión de Mantenedores -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_calendario"
+                android:id="@+id/card_mantenedores"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
                 app:strokeColor="@color/md_theme_outlineVariant"
                 app:strokeWidth="1dp">
@@ -253,80 +276,155 @@
                     android:padding="20dp">
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/card_calendario_title"
+                        android:id="@+id/card_mantenedores_title"
                         style="@style/TextAppearance.Material3.TitleMedium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Calendario Semanal"
+                        android:text="Gestión de Mantenedores"
                         android:textColor="@color/md_theme_onSurface" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/card_calendario_body"
+                        android:id="@+id/card_mantenedores_body"
                         style="@style/TextAppearance.Material3.BodyMedium"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Consulta las actividades programadas por semana"
+                        android:text="Gestiona oferentes, lugares, tipos de actividad, socios y proyectos"
                         android:textColor="@color/md_theme_onSurfaceVariant" />
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_ir_calendario"
+                        android:id="@+id/btn_ir_mantenedores"
                         style="@style/Widget.Material3.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="Ver Calendario"
+                        android:text="Ver Mantenedores"
                         android:textAllCaps="false" />
-
-
-
-
-
                 </LinearLayout>
-                <!-- CARD: Gestión de Mantenedores -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/card_mantenedores"
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- CARD: Gestión de Usuarios y Roles -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_gestion_usuarios"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
+                app:strokeColor="@color/md_theme_outlineVariant"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
-                    app:strokeColor="@color/md_theme_outlineVariant"
-                    app:strokeWidth="1dp">
-                    <LinearLayout
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/card_usuarios_title"
+                        style="@style/TextAppearance.Material3.TitleMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Gestión de Usuarios y Roles"
+                        android:textColor="@color/md_theme_onSurface" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/card_usuarios_body"
+                        style="@style/TextAppearance.Material3.BodyMedium"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Administra usuarios, asigna roles y configura permisos del sistema"
+                        android:textColor="@color/md_theme_onSurfaceVariant" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_ir_gestion_usuarios"
+                        style="@style/Widget.Material3.Button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Gestionar Usuarios"
+                        android:textAllCaps="false" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ============================================ -->
+            <!-- SECCIÓN: NOTIFICACIONES -->
+            <!-- ============================================ -->
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_notificaciones"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
+                app:strokeColor="@color/md_theme_outlineVariant"
+                app:strokeWidth="1dp"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <!-- Icono de campana -->
+                    <ImageView
+                        android:id="@+id/icon_notificaciones"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:padding="6dp"
+                        android:src="@drawable/ic_bell"
+                        android:tint="@color/md_theme_primary" />
+
+                    <!-- Texto -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="20dp">
+                        android:paddingStart="12dp">
 
                         <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/card_mantenedores_title"
+                            android:id="@+id/card_notificaciones_title"
                             style="@style/TextAppearance.Material3.TitleMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Gestión de Mantenedores"
+                            android:text="Notificaciones"
                             android:textColor="@color/md_theme_onSurface" />
 
                         <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/card_mantenedores_body"
+                            android:id="@+id/card_notificaciones_body"
                             style="@style/TextAppearance.Material3.BodyMedium"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Accede a la gestión de entidades como oferentes, lugares y tipos de actividad."
-                            android:textColor="@color/md_theme_onSurfaceVariant" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_ir_mantenedores"
-                            style="@style/Widget.Material3.Button"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
-                            android:text="Ver Mantenedores"
-                            android:textAllCaps="false" />
+                            android:text="Revisa tus alertas y recordatorios programados"
+                            android:textColor="@color/md_theme_onSurfaceVariant"
+                            android:layout_marginTop="4dp" />
                     </LinearLayout>
 
-                </com.google.android.material.card.MaterialCardView>
+                    <!-- Badge de notificaciones -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/notification_badge"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:gravity="center"
+                        android:background="@drawable/bg_badge_circle"
+                        android:text="0"
+                        android:textColor="@android:color/white"
+                        android:textStyle="bold"
+                        android:visibility="gone"
+                        android:layout_marginEnd="8dp" />
 
+                    <!-- Botón para ir a notificaciones -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_ir_notificaciones"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ver"
+                        android:textAllCaps="false" />
+
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
 

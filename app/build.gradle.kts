@@ -34,6 +34,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.firebase.firestore)
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -52,6 +53,8 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-storage")
+
+    implementation("com.google.firebase:firebase-messaging:25.0.1")
 
     implementation("com.google.firebase:firebase-storage:21.0.1")
     implementation("com.google.firebase:firebase-auth:23.0.0")

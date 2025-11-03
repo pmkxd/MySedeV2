@@ -12,7 +12,7 @@ import java.util.Objects;
  * Modelo que representa una actividad disponible en la sede.
  */
 public class Actividad {
-
+    private String id;
     private Proyecto proyecto;
     private Periodicidad periodicidad;
     private String nombre;
@@ -47,6 +47,12 @@ public class Actividad {
 
     public void setPeriodicidad(Periodicidad periodicidad) {
         this.periodicidad = Objects.requireNonNull(periodicidad);
+    }
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getNombre() {

@@ -10,25 +10,48 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import com.test.mysede.DAO.ActividadDAO;
+import com.test.mysede.DAO.CitaDAO;
+import com.test.mysede.DAO.FirestoreOperationCallback;
 
 import com.test.mysede.R;
 import com.test.mysede.model.Actividad;
 import com.test.mysede.model.OferenteActividad;
 import com.test.mysede.model.TipoActividad;
 
+// ============================================
+// IMPORTS DEL SISTEMA DE PERMISOS
+// ============================================
+import com.test.mysede.auth.PermissionManager;
+import com.test.mysede.auth.Permiso;
+
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+
 
 public class VerActividadActivity extends AppCompatActivity {
 
     private TextView tvNombre, tvTipo, tvPeriodicidad, tvFechas, tvCupo;
     private TextView tvProyecto, tvOferentes, tvSocio, tvDiasAviso;
     private Button btnEditar, btnEliminar;
-    private int posicion;
     private Actividad actividad;
+    private String actividadId;
+    private final ActividadDAO actividadDAO = new ActividadDAO();
+    private final CitaDAO citaDAO = new CitaDAO();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // ============================================
+        // VALIDAR PERMISO PARA VER ACTIVIDADES
+        // ============================================
+        if (!PermissionManager.tienePermiso(Permiso.VER_ACTIVIDADES)) {
+            Toast.makeText(this, "No tienes permiso para ver actividades", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_ver_actividad);
 
         // Configurar toolbar
@@ -52,32 +75,53 @@ public class VerActividadActivity extends AppCompatActivity {
         btnEditar = findViewById(R.id.btnEditar);
         btnEliminar = findViewById(R.id.btnEliminar);
 
-        // Obtener datos del intent
-        posicion = getIntent().getIntExtra("posicion", -1);
-
-        if (posicion != -1) {
-            actividad = ActividadHelper.obtenerActividadPorIndice(posicion);
-            mostrarDatos();
+        actividadId = getIntent().getStringExtra("actividadId");
+        if (actividadId == null) {
+            Toast.makeText(this, "No se encontró la actividad seleccionada", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
 
-        // Configurar botón editar
-        btnEditar.setOnClickListener(v -> {
-            Intent intent = new Intent(VerActividadActivity.this, CrearActividadActivity.class);
-            intent.putExtra("posicion", posicion);
-            intent.putExtra("modo", "editar");
-            startActivity(intent);
-        });
+        // ============================================
+        // CONFIGURAR BOTONES CON VALIDACIÓN DE PERMISOS
+        // ============================================
+        configurarBotones();
 
-        // Configurar botón eliminar
-        btnEliminar.setOnClickListener(v -> mostrarDialogoEliminar());
+        cargarActividad();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (posicion != -1) {
-            actividad = ActividadHelper.obtenerActividadPorIndice(posicion);
-            mostrarDatos();
+        if (actividadId != null) {
+            cargarActividad();
+        }
+    }
+
+    private void configurarBotones() {
+        // ============================================
+        // BOTÓN EDITAR - Solo si tiene permiso
+        // ============================================
+        if (PermissionManager.tienePermiso(Permiso.EDITAR_ACTIVIDAD)) {
+            btnEditar.setVisibility(View.VISIBLE);
+            btnEditar.setOnClickListener(v -> {
+                Intent intent = new Intent(VerActividadActivity.this, CrearActividadActivity.class);
+                intent.putExtra("modo", "editar");
+                intent.putExtra("actividadId", actividadId);
+                startActivity(intent);
+            });
+        } else {
+            btnEditar.setVisibility(View.GONE);
+        }
+
+        // ============================================
+        // BOTÓN ELIMINAR - Solo si tiene permiso
+        // ============================================
+        if (PermissionManager.tienePermiso(Permiso.ELIMINAR_ACTIVIDAD)) {
+            btnEliminar.setVisibility(View.VISIBLE);
+            btnEliminar.setOnClickListener(v -> mostrarDialogoEliminar());
+        } else {
+            btnEliminar.setVisibility(View.GONE);
         }
     }
 
@@ -157,14 +201,18 @@ public class VerActividadActivity extends AppCompatActivity {
     }
 
     private void mostrarDialogoEliminar() {
+        // ============================================
+        // VALIDACIÓN ADICIONAL ANTES DE ELIMINAR
+        // ============================================
+        if (!PermissionManager.tienePermiso(Permiso.ELIMINAR_ACTIVIDAD)) {
+            Toast.makeText(this, "No tienes permiso para eliminar actividades", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Eliminar Actividad")
                 .setMessage("¿Está seguro que desea eliminar esta actividad?\n\nEsta acción no se puede deshacer.")
-                .setPositiveButton("Eliminar", (dialog, which) -> {
-                    ActividadHelper.eliminarActividad(posicion);
-                    Toast.makeText(this, "Actividad eliminada correctamente", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
+                .setPositiveButton("Eliminar", (dialog, which) -> eliminarActividad())
                 .setNegativeButton("Cancelar", null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
@@ -177,5 +225,64 @@ public class VerActividadActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void cargarActividad() {
+        actividadDAO.getActividadById(actividadId, new ActividadDAO.OnActividadLoadedListener() {
+            @Override
+            public void onActividadLoaded(Actividad actividadCargada) {
+                if (actividadCargada == null) {
+                    Toast.makeText(VerActividadActivity.this, "No se encontró la actividad", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
+                actividad = actividadCargada;
+                citaDAO.getCitasPorActividad(actividad, new CitaDAO.OnCitasLoadedListener() {
+                    @Override
+                    public void onCitasLoaded(ArrayList<com.test.mysede.model.Cita> citas) {
+                        mostrarDatos();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Toast.makeText(VerActividadActivity.this, "No fue posible cargar las citas", Toast.LENGTH_SHORT).show();
+                        mostrarDatos();
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(VerActividadActivity.this, "Error al cargar la actividad", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void eliminarActividad() {
+        if (actividad == null) {
+            return;
+        }
+        citaDAO.deleteCitasPorActividad(actividad, new FirestoreOperationCallback() {
+            @Override
+            public void onSuccess() {
+                actividadDAO.deleteActividad(actividad, new FirestoreOperationCallback() {
+                    @Override
+                    public void onSuccess() {
+                        Toast.makeText(VerActividadActivity.this, "Actividad eliminada correctamente", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+
+                    @Override
+                    public void onFailure(Exception exception) {
+                        Toast.makeText(VerActividadActivity.this, "Error al eliminar la actividad", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Exception exception) {
+                Toast.makeText(VerActividadActivity.this, "No fue posible eliminar las citas asociadas", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
