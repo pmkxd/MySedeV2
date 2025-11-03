@@ -11,10 +11,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.test.mysede.CalendarActivity;
 import com.test.mysede.R;
 import com.test.mysede.auth.PermissionManager;
-import com.test.mysede.auth.Permiso;
 import com.test.mysede.auth.SessionManager;
+import com.test.mysede.citas.CrearCitaActivity;
 import com.test.mysede.model.Usuario;
 import com.test.mysede.login.ActivityLogin;
 
@@ -31,11 +32,8 @@ public class ProgramadorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_programador);
 
-        // Configurar Toolbar
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-        }
+        if (toolbar != null) setSupportActionBar(toolbar);
 
         sessionManager = new SessionManager(this);
 
@@ -46,7 +44,13 @@ public class ProgramadorActivity extends AppCompatActivity {
         btnGestionCitas = findViewById(R.id.btnGestionCitas);
         btnCalendario = findViewById(R.id.btnCalendario);
 
+        // Recuperar usuario
         usuarioActual = PermissionManager.getUsuarioActual();
+        if (usuarioActual == null) {
+            usuarioActual = sessionManager.obtenerUsuarioSesion();
+            if (usuarioActual != null) PermissionManager.setUsuarioActual(usuarioActual);
+        }
+
         if (usuarioActual == null) {
             Toast.makeText(this, "Sesión inválida, por favor ingresa nuevamente", Toast.LENGTH_LONG).show();
             startActivity(new Intent(this, ActivityLogin.class));
@@ -54,45 +58,30 @@ public class ProgramadorActivity extends AppCompatActivity {
             return;
         }
 
-        // Actualizar nombre de usuario en pantalla
         txtNombreUsuario.setText(usuarioActual.getNombre());
         txtBienvenida.setText("Bienvenido, " + usuarioActual.getNombre());
 
-        // Validar permisos para cada botón
-        btnCrearCita.setEnabled(usuarioActual.tienePermiso(Permiso.CREAR_CITA));
-        btnGestionCitas.setEnabled(
-                usuarioActual.tienePermiso(Permiso.EDITAR_CITA) ||
-                        usuarioActual.tienePermiso(Permiso.VER_CITAS) ||
-                        usuarioActual.tienePermiso(Permiso.ELIMINAR_CITA)
-        );
-        btnCalendario.setEnabled(usuarioActual.tienePermiso(Permiso.VER_CITAS));
+        // Habilitar siempre los botones
+        btnCrearCita.setEnabled(true);
+        btnGestionCitas.setEnabled(true);
+        btnCalendario.setEnabled(true);
 
-        // Listeners
+        // Listeners implementados
         btnCrearCita.setOnClickListener(v -> {
-            if (!usuarioActual.tienePermiso(Permiso.CREAR_CITA)) {
-                Toast.makeText(this, "No tienes permiso para crear citas", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            // TODO: abrir Activity Crear Cita
+            Intent intent = new Intent(ProgramadorActivity.this, CrearCitaActivity.class);
+            startActivity(intent);
         });
 
         btnGestionCitas.setOnClickListener(v -> {
-            if (!usuarioActual.tienePermiso(Permiso.EDITAR_CITA) &&
-                    !usuarioActual.tienePermiso(Permiso.VER_CITAS) &&
-                    !usuarioActual.tienePermiso(Permiso.ELIMINAR_CITA)) {
-                Toast.makeText(this, "No tienes permisos para gestionar citas", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            // TODO: abrir Activity Listar/Editar Citas
+            Intent intent = new Intent(ProgramadorActivity.this, CalendarActivity.class);
+            startActivity(intent);
         });
 
         btnCalendario.setOnClickListener(v -> {
-            if (!usuarioActual.tienePermiso(Permiso.VER_CITAS)) {
-                Toast.makeText(this, "No tienes permiso para ver el calendario", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            // TODO: abrir Activity Calendario
+            Intent intent = new Intent(ProgramadorActivity.this, CalendarActivity.class);
+            startActivity(intent);
         });
+
     }
 
     @Override

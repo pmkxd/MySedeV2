@@ -11,7 +11,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.test.mysede.AdjuntarArchivosActivity;
+import com.test.mysede.ArchivoAdjunto;
+import com.test.mysede.CalendarActivity;
 import com.test.mysede.R;
+import com.test.mysede.actividades.ListarActividadesActivity;
 import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.auth.Permiso;
 import com.test.mysede.auth.SessionManager;
@@ -31,11 +35,9 @@ public class PublicistaActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_publicista);
 
-        // Configurar Toolbar
+        // Toolbar
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-        }
+        if (toolbar != null) setSupportActionBar(toolbar);
 
         sessionManager = new SessionManager(this);
 
@@ -46,7 +48,15 @@ public class PublicistaActivity extends AppCompatActivity {
         btnCalendario = findViewById(R.id.btnCalendario);
         btnAdjuntar = findViewById(R.id.btnAdjuntar);
 
+        // Recuperar usuario
         usuarioActual = PermissionManager.getUsuarioActual();
+        if (usuarioActual == null) {
+            usuarioActual = sessionManager.obtenerUsuarioSesion();
+            if (usuarioActual != null) {
+                PermissionManager.setUsuarioActual(usuarioActual);
+            }
+        }
+
         if (usuarioActual == null) {
             Toast.makeText(this, "Sesión inválida, por favor ingresa nuevamente", Toast.LENGTH_LONG).show();
             startActivity(new Intent(this, ActivityLogin.class));
@@ -54,30 +64,30 @@ public class PublicistaActivity extends AppCompatActivity {
             return;
         }
 
-        // Actualizar nombre de usuario
+        // Mostrar datos
         txtNombreUsuario.setText(usuarioActual.getNombre());
         txtBienvenida.setText("Bienvenido, " + usuarioActual.getNombre());
 
-        // Validar permisos
+        // Configurar botones y habilitarlos para abrir Activities
         btnActividades.setEnabled(usuarioActual.tienePermiso(Permiso.VER_ACTIVIDADES));
-        btnCalendario.setEnabled(usuarioActual.tienePermiso(Permiso.VER_CITAS));
+        btnCalendario.setEnabled(usuarioActual.tienePermiso(Permiso.VER_CALENDARIO));
         btnAdjuntar.setEnabled(usuarioActual.tienePermiso(Permiso.ADJUNTAR_ARCHIVOS));
 
-        // Listeners
+        // Listeners con navegación real
         btnActividades.setOnClickListener(v -> {
             if (!usuarioActual.tienePermiso(Permiso.VER_ACTIVIDADES)) {
                 Toast.makeText(this, "No tienes permiso para ver actividades", Toast.LENGTH_SHORT).show();
                 return;
             }
-            // TODO: abrir Activity de Actividades
+            startActivity(new Intent(this, ListarActividadesActivity.class));
         });
 
         btnCalendario.setOnClickListener(v -> {
-            if (!usuarioActual.tienePermiso(Permiso.VER_CITAS)) {
+            if (!usuarioActual.tienePermiso(Permiso.VER_CALENDARIO)) {
                 Toast.makeText(this, "No tienes permiso para ver el calendario", Toast.LENGTH_SHORT).show();
                 return;
             }
-            // TODO: abrir Activity Calendario
+            startActivity(new Intent(this, CalendarActivity.class));
         });
 
         btnAdjuntar.setOnClickListener(v -> {
@@ -85,7 +95,7 @@ public class PublicistaActivity extends AppCompatActivity {
                 Toast.makeText(this, "No tienes permiso para adjuntar archivos", Toast.LENGTH_SHORT).show();
                 return;
             }
-            // TODO: abrir Activity Adjuntar Archivos
+            startActivity(new Intent(this, AdjuntarArchivosActivity.class));
         });
     }
 

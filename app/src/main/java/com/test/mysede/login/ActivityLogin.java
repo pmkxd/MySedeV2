@@ -106,22 +106,18 @@ public class ActivityLogin extends AppCompatActivity {
                     String rolString = doc.getString("rol");
                     List<String> permisosList = (List<String>) doc.get("permisos");
 
-                    // Intentar obtener Rol de forma segura
-                    Rol rol = null;
-                    try {
-                        rol = Rol.valueOf(rolString.toUpperCase());
-                    } catch (Exception ignored) {}
-
+                    // Convertir rol de Firestore a enum Rol
+                    Rol rol = Rol.fromNombreCompleto(rolString); // intenta match legible
                     if (rol == null) {
-                        rol = Rol.fromNombreCompleto(rolString);
+                        // fallback: convertir a formato enum
+                        try {
+                            rol = Rol.valueOf(rolString.toUpperCase().replace(" ", "_"));
+                        } catch (Exception e) {
+                            Toast.makeText(this, "Rol inválido para este usuario", Toast.LENGTH_LONG).show();
+                            return;
+                        }
                     }
 
-                    if (rol == null) {
-                        Toast.makeText(this, "Rol inválido para este usuario", Toast.LENGTH_LONG).show();
-                        return;
-                    }
-
-                    // Crear objeto Usuario
                     Usuario usuario = new Usuario(nombre, email, rol);
                     usuario.setRut(rut);
                     usuario.setId(uid);
@@ -137,7 +133,7 @@ public class ActivityLogin extends AppCompatActivity {
                     }
                     usuario.setPermisos(permisos);
 
-                    // Guardar sesión y configurar PermissionManager
+                    // Guardar sesión y PermissionManager
                     sessionManager.crearSesion(usuario);
                     PermissionManager.setUsuarioActual(usuario);
 
