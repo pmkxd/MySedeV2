@@ -11,13 +11,16 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.test.mysede.MainActivity;
 import com.test.mysede.R;
+import com.test.mysede.admin.AdminActivity;
+import com.test.mysede.organizador.OrganizadorActivity;
+import com.test.mysede.programador.ProgramadorActivity;
+import com.test.mysede.publicista.PublicistaActivity;
 import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.auth.Permiso;
-import com.test.mysede.auth.SessionManager;
 import com.test.mysede.auth.Rol;
+import com.test.mysede.auth.SessionManager;
 import com.test.mysede.model.Usuario;
 
 import java.util.HashSet;
@@ -96,14 +99,29 @@ public class ActivityLogin extends AppCompatActivity {
                         Toast.makeText(this, "Usuario no registrado en Firestore", Toast.LENGTH_LONG).show();
                         return;
                     }
-                    // Cargar datos del usuario
+
                     String nombre = doc.getString("nombre");
                     String email = doc.getString("email");
                     String rut = doc.getString("rut");
                     String rolString = doc.getString("rol");
                     List<String> permisosList = (List<String>) doc.get("permisos");
 
-                    Rol rol = Rol.valueOf(rolString);
+                    // Intentar obtener Rol de forma segura
+                    Rol rol = null;
+                    try {
+                        rol = Rol.valueOf(rolString.toUpperCase());
+                    } catch (Exception ignored) {}
+
+                    if (rol == null) {
+                        rol = Rol.fromNombreCompleto(rolString);
+                    }
+
+                    if (rol == null) {
+                        Toast.makeText(this, "Rol inválido para este usuario", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    // Crear objeto Usuario
                     Usuario usuario = new Usuario(nombre, email, rol);
                     usuario.setRut(rut);
                     usuario.setId(uid);
@@ -114,22 +132,35 @@ public class ActivityLogin extends AppCompatActivity {
                         for (String p : permisosList) {
                             try {
                                 permisos.add(Permiso.valueOf(p));
-                            } catch (Exception e) {
-                                // Permiso desconocido, ignorar
-                            }
+                            } catch (Exception ignored) {}
                         }
                     }
                     usuario.setPermisos(permisos);
 
-                    // Guardar sesión
+                    // Guardar sesión y configurar PermissionManager
                     sessionManager.crearSesion(usuario);
-
-                    // Configurar PermissionManager
                     PermissionManager.setUsuarioActual(usuario);
 
-                    // Ir a MainActivity
-                    startActivity(new Intent(ActivityLogin.this, MainActivity.class));
+                    // Redirigir según rol
+                    switch (rol) {
+                        case ADMINISTRADOR:
+                            startActivity(new Intent(ActivityLogin.this, AdminActivity.class));
+                            break;
+                        case ORGANIZADOR_ACTIVIDADES:
+                            startActivity(new Intent(ActivityLogin.this, OrganizadorActivity.class));
+                            break;
+                        case PROGRAMADOR_CITAS:
+                            startActivity(new Intent(ActivityLogin.this, ProgramadorActivity.class));
+                            break;
+                        case PUBLICISTA:
+                            startActivity(new Intent(ActivityLogin.this, PublicistaActivity.class));
+                            break;
+                        default:
+                            startActivity(new Intent(ActivityLogin.this, MainActivity.class));
+                            break;
+                    }
                     finish();
+
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Error cargando datos del usuario: " + e.getMessage(), Toast.LENGTH_LONG).show()

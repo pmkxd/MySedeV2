@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/admin_coordinator"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F6F6F8"
+    tools:context=".admin.AdminActivity">
+
+    <!-- Toolbar con 3 puntos -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/md_theme_primary"
+        android:title="@string/app_name"
+        android:titleTextColor="@color/md_theme_onPrimary"
+        app:popupTheme="@style/ThemeOverlay.Material3.Light"
+        app:titleCentered="false"/>
+
+    <!-- Contenido desplazable -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <!-- Bienvenida -->
+            <TextView
+                android:id="@+id/txtBienvenida"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bienvenido"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#2B2B2B"
+                android:paddingBottom="6dp"/>
+
+            <TextView
+                android:id="@+id/txtNombreUsuario"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nombre Apellido"
+                android:textSize="18sp"
+                android:textStyle="italic"
+                android:textColor="#666666"
+                android:paddingBottom="24dp"/>
+
+            <!-- Tarjeta simple: Usuarios -->
+            <LinearLayout
+                android:id="@+id/cardUsuarios"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp"
+                android:layout_marginBottom="12dp"
+                android:background="#FFFFFF"
+                android:elevation="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Gestionar Usuarios"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F4B8B"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Crear, editar y asignar permisos a usuarios del sistema."
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="10dp"/>
+
+                <Button
+                    android:id="@+id/btnGestionUsuarios"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ingresar" />
+            </LinearLayout>
+
+            <!-- Tarjeta: Mantenedores -->
+            <LinearLayout
+                android:id="@+id/cardMantenedores"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp"
+                android:layout_marginBottom="12dp"
+                android:background="#FFFFFF"
+                android:elevation="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mantenedores"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F4B8B"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Gestiona lugares, oferentes, socios y catálogos."
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="10dp"/>
+
+                <Button
+                    android:id="@+id/btnMantenedores"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ingresar" />
+            </LinearLayout>
+
+            <!-- Tarjeta: Actividades -->
+            <LinearLayout
+                android:id="@+id/cardActividades"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp"
+                android:layout_marginBottom="12dp"
+                android:background="#FFFFFF"
+                android:elevation="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Actividades"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F4B8B"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Crear, editar y gestionar actividades del centro."
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="10dp"/>
+
+                <Button
+                    android:id="@+id/btnActividades"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ingresar" />
+            </LinearLayout>
+
+            <!-- Tarjeta: Calendario -->
+            <LinearLayout
+                android:id="@+id/cardCalendario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp"
+                android:layout_marginBottom="20dp"
+                android:background="#FFFFFF"
+                android:elevation="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Calendario"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F4B8B"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Supervisa citas, actividades y agenda del centro."
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="10dp"/>
+
+                <Button
+                    android:id="@+id/btnCalendario"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ingresar" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
