@@ -137,6 +137,32 @@
                         android:layout_marginTop="8dp"
                         android:text="Visualiza, reagenda o cancela las citas programadas en el centro"
                         android:textColor="@color/md_theme_onSurfaceVariant" />
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/calendar_mode_toggle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        app:singleSelection="true">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/calendar_mode_week"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/calendario_toggle_semana"
+                            android:textAllCaps="false" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/calendar_mode_month"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/calendario_toggle_mes"
+                            android:textAllCaps="false" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
+
 
                     <!-- Botones de acciones rápidas -->
                     <LinearLayout

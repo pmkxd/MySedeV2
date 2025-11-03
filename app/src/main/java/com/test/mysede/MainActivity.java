@@ -14,6 +14,23 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.test.mysede.actividades.ListarActividadesActivity;
+import com.test.mysede.citas.CrearCitaActivity;
+import com.test.mysede.mantenedores.mantenedoresActivity;
+import com.google.android.material.button.MaterialButtonToggleGroup;
+import com.test.mysede.oferente.OferenteActivity;
+import com.test.mysede.proyecto.ProyectoActivity;
+import com.test.mysede.socio.SocioComunitarioActivity;
+import com.test.mysede.tipoactividad.TipoActividadActivity;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
+
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -146,11 +163,61 @@ public class MainActivity extends AppCompatActivity {
             else hideButtonAndCard(btnCrearCita, R.id.card_crear_cita);
         }
 
-        MaterialButton btnCalendario = findViewById(R.id.btn_ir_calendario);
-        if (btnCalendario != null) {
-            if (PermissionManager.tienePermiso(Permiso.VER_CALENDARIO))
-                btnCalendario.setOnClickListener(v -> startActivity(new Intent(this, CalendarActivity.class)));
-            else hideButtonAndCard(btnCalendario, R.id.card_calendario);
+        // ============================================
+        // CARD DE CALENDARIO (CONSOLIDADA)
+        // ============================================
+        MaterialButton calendarioButton = findViewById(R.id.btn_ir_calendario);
+        MaterialButtonToggleGroup calendarModeToggle = findViewById(R.id.calendar_mode_toggle);
+        if (calendarModeToggle != null) {
+            calendarModeToggle.check(R.id.calendar_mode_week);
+        }
+        MaterialButton reagendarCitaButton = findViewById(R.id.btn_ir_reagendar_cita);
+        MaterialButton cancelarCitaButton = findViewById(R.id.btn_ir_cancelar_cita);
+
+        View.OnClickListener calendarioListener = v -> {
+            Intent intent = new Intent(this, CalendarActivity.class);
+            if (calendarModeToggle != null) {
+                int checkedId = calendarModeToggle.getCheckedButtonId();
+                String mode = checkedId == R.id.calendar_mode_month
+                        ? CalendarActivity.MODE_MONTH
+                        : CalendarActivity.MODE_WEEK;
+                intent.putExtra(CalendarActivity.EXTRA_INITIAL_MODE, mode);
+            }
+            startActivity(intent);
+        };
+
+        // Validar permisos para ver calendario
+        if (PermissionManager.tienePermiso(Permiso.VER_CALENDARIO)) {
+            // Botón principal de calendario (siempre visible si tiene permiso)
+            if (calendarioButton != null) {
+                calendarioButton.setOnClickListener(calendarioListener);
+            }
+
+            // Botón Reagendar (solo si tiene permiso de editar)
+            if (reagendarCitaButton != null) {
+                if (PermissionManager.tienePermiso(Permiso.EDITAR_CITA)) {
+                    reagendarCitaButton.setVisibility(View.VISIBLE);
+                    reagendarCitaButton.setOnClickListener(calendarioListener);
+                } else {
+                    reagendarCitaButton.setVisibility(View.GONE);
+                }
+            }
+
+            // Botón Cancelar (solo si tiene permiso de eliminar)
+            if (cancelarCitaButton != null) {
+                if (PermissionManager.tienePermiso(Permiso.ELIMINAR_CITA)) {
+                    cancelarCitaButton.setVisibility(View.VISIBLE);
+                    cancelarCitaButton.setOnClickListener(calendarioListener);
+                } else {
+                    cancelarCitaButton.setVisibility(View.GONE);
+                }
+            }
+        } else {
+            // Ocultar toda la card de calendario si no tiene permiso
+            View cardCalendario = findViewById(R.id.card_calendario);
+            if (cardCalendario != null) {
+                cardCalendario.setVisibility(View.GONE);
+            }
         }
 
         MaterialButton btnActividades = findViewById(R.id.btn_ir_actividades);

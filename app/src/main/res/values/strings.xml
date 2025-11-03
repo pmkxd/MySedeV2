@@ -88,4 +88,17 @@ Hora: %4$s</string>
     <string name="calendario_snackbar_reagendada">%1$s fue reagendada para %2$s a las %3$s.</string>
     <string name="calendario_snackbar_eliminada">Se eliminó la cita %1$s.</string>
     <string name="calendario_snackbar_notificacion">Se enviará la notificación correspondiente.</string>
+    <string name="calendario_toggle_semana">Semana</string>
+    <string name="calendario_toggle_mes">Mes</string>
+    <string name="calendario_mes_anterior">Anterior</string>
+    <string name="calendario_mes_siguiente">Siguiente</string>
+    <string name="calendario_error_cargar_citas">No fue posible cargar las citas. Revisa tu conexión.</string>
+    <string name="calendario_error_actualizar_cita">No fue posible actualizar la cita. Inténtalo nuevamente.</string>
+    <string name="calendario_error_eliminar_cita">No fue posible eliminar la cita. Inténtalo nuevamente.</string>
+    <string name="calendario_actividad_sin_nombre">Actividad sin nombre</string>
+    <string name="calendario_lugar_desconocido">Lugar sin especificar</string>
+    <plurals name="calendario_citas_count">
+        <item quantity="one">%d cita programada</item>
+        <item quantity="other">%d citas programadas</item>
+    </plurals>
 </resources>
