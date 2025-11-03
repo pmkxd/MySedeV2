@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.test.mysede.DAO.ActividadDAO;
 import com.test.mysede.R;
 import com.test.mysede.model.Actividad;
 
@@ -20,7 +21,7 @@ import com.test.mysede.model.Actividad;
 // ============================================
 import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.auth.Permiso;
-
+import java.util.ArrayList;
 import java.util.List;
 
 public class ListarActividadesActivity extends AppCompatActivity {
@@ -28,6 +29,8 @@ public class ListarActividadesActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ActividadAdapter adapter;
     private FloatingActionButton fabCrear;
+    private final List<Actividad> actividades = new ArrayList<>();
+    private final ActividadDAO actividadDAO = new ActividadDAO();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,11 +62,11 @@ public class ListarActividadesActivity extends AppCompatActivity {
         // Configurar RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Obtener datos de prueba
-        List<Actividad> actividades = ActividadHelper.obtenerActividadesPrueba();
-
-        // Configurar adaptador
-        adapter = new ActividadAdapter(this, actividades);
+        adapter = new ActividadAdapter(this, actividades, actividad -> {
+            Intent intent = new Intent(ListarActividadesActivity.this, VerActividadActivity.class);
+            intent.putExtra("actividadId", actividad.getId());
+            startActivity(intent);
+        });
         recyclerView.setAdapter(adapter);
 
         // ============================================
@@ -78,15 +81,13 @@ public class ListarActividadesActivity extends AppCompatActivity {
         } else {
             fabCrear.setVisibility(View.GONE);
         }
+        cargarActividades();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Actualizar lista al volver
-        List<Actividad> actividades = ActividadHelper.obtenerActividadesPrueba();
-        adapter = new ActividadAdapter(this, actividades);
-        recyclerView.setAdapter(adapter);
+        cargarActividades();
     }
 
     @Override
@@ -96,5 +97,21 @@ public class ListarActividadesActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void cargarActividades() {
+        actividadDAO.getAllActividades(new ActividadDAO.OnActividadesLoadedListener() {
+            @Override
+            public void onActividadesLoaded(ArrayList<Actividad> actividadesCargadas) {
+                actividades.clear();
+                actividades.addAll(actividadesCargadas);
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(ListarActividadesActivity.this, "Error al cargar actividades", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
