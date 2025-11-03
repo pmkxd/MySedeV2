@@ -1,49 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/cardNoti"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
-    android:padding="12dp">
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@drawable/bg_card_notification"
+    android:layout_marginVertical="6dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/txtNotiTitulo"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:text="Título de notificación"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@android:color/black" />
 
-        <TextView
-            android:id="@+id/txtNotiTitulo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Título notificación"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@color/md_theme_onSurface"
-            />
+    <TextView
+        android:id="@+id/txtNotiMensaje"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mensaje de notificación"
+        android:textSize="14sp"
+        android:layout_marginTop="4dp"
+        android:textColor="@android:color/darker_gray" />
 
-        <TextView
-            android:id="@+id/txtNotiMensaje"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Mensaje corto de notificación"
-            android:textSize="14sp"
-            android:textColor="@color/md_theme_onSurfaceVariant"
-            android:layout_marginTop="4dp"
-            />
+    <TextView
+        android:id="@+id/txtNotiFecha"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Fecha"
+        android:textSize="12sp"
+        android:layout_marginTop="6dp"
+        android:textColor="@android:color/holo_blue_dark" />
 
-        <TextView
-            android:id="@+id/txtNotiFecha"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="12/09 10:20"
-            android:textSize="12sp"
-            android:textColor="@color/md_theme_outline"
-            android:layout_marginTop="4dp"
-            />
-
-    </LinearLayout>
-
-</androidx.cardview.widget.CardView>
+</LinearLayout>

@@ -90,6 +90,11 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Permiso para mostrar notificaciones fuera de la app
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 100);
+        }
+
         // Inicializar Firebase
         FirebaseApp.initializeApp(this);
         Log.d("Firebase", "Firebase inicializado correctamente");

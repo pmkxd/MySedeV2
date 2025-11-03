@@ -14,6 +14,7 @@ import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.test.mysede.model.Notificacion;
+import com.test.mysede.notificaciones.NotificationAdapter;
 
 import java.util.ArrayList;
 

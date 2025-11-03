@@ -4,6 +4,7 @@
 
     <!-- Permiso para leer archivos del almacenamiento -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -145,6 +146,21 @@
             android:exported="false"
             android:label="Detalle Usuario"
             android:parentActivityName=".usuarios.GestionUsuariosActivity" />
+
+        <activity
+            android:name=".NotificationActivity"
+            android:exported="false"
+            android:label="Notificaciones" />
+
+        <!-- Servicio Firebase Messaging -->
+        <service
+            android:name=".notificaciones.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>
