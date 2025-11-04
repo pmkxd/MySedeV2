@@ -61,7 +61,10 @@ public class GestionUsuariosActivity extends AppCompatActivity {
 
         // Configurar FAB - Mostrar opciones
         if (PermissionManager.tienePermiso(Permiso.CREAR_USUARIO)) {
-            fabCrear.setOnClickListener(v -> mostrarOpcionesCrearUsuario());
+            fabCrear.setOnClickListener(v -> {
+                Intent intent = new Intent(this, CrearUsuarioActivity.class);
+                startActivity(intent);
+            });
         } else {
             fabCrear.hide();
         }
@@ -83,32 +86,6 @@ public class GestionUsuariosActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    private void mostrarOpcionesCrearUsuario() {
-        String[] opciones = {
-                "🔐 Registrar con Firebase (Recomendado)",
-                "📝 Crear sin registro de login"
-        };
-
-        String[] descripciones = {
-                "Crea el usuario en Firebase Authentication Y Firestore.\nEl usuario PODRÁ hacer login.",
-                "Solo guarda datos en Firestore.\nEl usuario NO podrá hacer login."
-        };
-
-        new AlertDialog.Builder(this)
-                .setTitle("¿Cómo desea crear el usuario?")
-                .setItems(opciones, (dialog, which) -> {
-                    if (which == 0) {
-                        // Opción 1: Registrar con Firebase Authentication
-                        Intent intent = new Intent(this, RegistrarUsuarioActivity.class);
-                        startActivity(intent);
-                    } else {
-                        // Opción 2: Crear solo en base de datos (sin login)
-                        Intent intent = new Intent(this, CrearUsuarioActivity.class);
-                        startActivity(intent);
-                    }
-                })
-                .show();
-    }
 
     private void mostrarOpcionesUsuario(Usuario usuario, int posicion) {
         String[] opciones;

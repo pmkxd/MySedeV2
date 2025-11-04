@@ -110,9 +110,6 @@
             android:label="Crear Usuario"
             android:parentActivityName=".usuarios.GestionUsuariosActivity"/>
         <activity
-            android:name=".usuarios.RegistrarUsuarioActivity"
-            android:exported="false"/>
-        <activity
             android:name=".usuarios.DetalleUsuarioActivity"
             android:exported="false"
             android:label="Detalle Usuario"
