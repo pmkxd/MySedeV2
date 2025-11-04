@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
@@ -25,12 +24,6 @@ import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.google.android.material.textview.MaterialTextView;
 import com.test.mysede.R;
-
-// ============================================
-// IMPORTS DEL SISTEMA DE PERMISOS
-// ============================================
-import com.test.mysede.auth.PermissionManager;
-import com.test.mysede.auth.Permiso;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -68,17 +61,6 @@ public class CrearCitaActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // ============================================
-        // VALIDAR PERMISO PARA CREAR CITAS
-        // ============================================
-        if (!PermissionManager.tienePermiso(Permiso.CREAR_CITA)) {
-            Toast.makeText(this, "No tienes permiso para crear citas", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-        // FIN VALIDACIÓN DE PERMISOS
-
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_crear_cita);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.crear_cita_root), (view, windowInsets) -> {
@@ -148,15 +130,6 @@ public class CrearCitaActivity extends AppCompatActivity {
 
     private void configurarConfirmacion() {
         confirmarButton.setOnClickListener(v -> {
-            // ============================================
-            // VALIDACIÓN ADICIONAL ANTES DE CONFIRMAR
-            // ============================================
-            if (!PermissionManager.tienePermiso(Permiso.CREAR_CITA)) {
-                Toast.makeText(this, "No tienes permiso para crear citas", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            // FIN VALIDACIÓN ADICIONAL
-
             limpiarErrores();
             if (!validarCampos()) {
                 Snackbar.make(v, R.string.crear_cita_campos_obligatorios, Snackbar.LENGTH_LONG).show();

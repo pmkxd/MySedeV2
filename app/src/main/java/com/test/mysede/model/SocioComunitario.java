@@ -9,7 +9,7 @@ import java.util.Objects;
  * Representa a un socio comunitario y sus beneficiarios asociados.
  */
 public class SocioComunitario {
-    private String id;
+
     private final String nombre;
     private final List<Beneficiario> beneficiarios;
 
@@ -20,12 +20,6 @@ public class SocioComunitario {
 
     public String getNombre() {
         return nombre;
-    }
-    public String getId() {
-        return id;
-    }
-    public void setId(String id) {
-        this.id = id;
     }
 
     public List<Beneficiario> getBeneficiarios() {

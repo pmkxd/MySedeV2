@@ -8,7 +8,7 @@ import java.util.Objects;
  * Representa la cita de una actividad en un lugar y horario específicos.
  */
 public class Cita {
-    private String id;
+
     private final Actividad actividad;
     private final Lugar lugar;
     private final LocalDate fecha;
@@ -24,13 +24,6 @@ public class Cita {
     public Actividad getActividad() {
         return actividad;
     }
-    public String getId() {
-        return id;
-    }
-    public void setId(String id) {
-        this.id = id;
-    }
-
 
     public Lugar getLugar() {
         return lugar;

@@ -12,8 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.test.mysede.DAO.FirestoreOperationCallback;
-import com.test.mysede.DAO.SocioComunitarioDAO;
 import com.test.mysede.R;
 import com.test.mysede.model.SocioComunitario;
 
@@ -26,7 +24,6 @@ public class SocioComunitarioActivity extends AppCompatActivity {
     private SocioComunitarioAdapter adapter;
     private List<SocioComunitario> listaSocios;
     private FloatingActionButton btnNuevoSocio;
-    private SocioComunitarioDAO socioComunitarioDAO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +32,10 @@ public class SocioComunitarioActivity extends AppCompatActivity {
 
         recyclerSocios = findViewById(R.id.recyclerSocios);
         btnNuevoSocio = findViewById(R.id.btnNuevoSocio);
-        socioComunitarioDAO = new SocioComunitarioDAO();
+
         listaSocios = new ArrayList<>();
+        listaSocios.add(new SocioComunitario("Juan Pérez"));
+        listaSocios.add(new SocioComunitario("María González"));
 
         adapter = new SocioComunitarioAdapter(this, listaSocios, new SocioComunitarioAdapter.OnItemClickListener() {
             @Override
@@ -59,30 +58,9 @@ public class SocioComunitarioActivity extends AppCompatActivity {
         recyclerSocios.setAdapter(adapter);
 
         btnNuevoSocio.setOnClickListener(v -> mostrarDialogoAgregar());
-
-        cargarSocios();
     }
 
-    private void cargarSocios() {
-        socioComunitarioDAO.getAllSociosComunitarios(new SocioComunitarioDAO.OnSociosComunitariosLoadedListener() {
-            @Override
-            public void onSociosComunitariosLoaded(ArrayList<SocioComunitario> socios) {
-                runOnUiThread(() -> {
-                    listaSocios.clear();
-                    listaSocios.addAll(socios);
-                    adapter.notifyDataSetChanged();
-                });
-            }
-
-            @Override
-            public void onError(Exception e) {
-                runOnUiThread(() -> Toast.makeText(SocioComunitarioActivity.this,
-                        "Error al cargar los socios comunitarios", Toast.LENGTH_SHORT).show());
-            }
-        });
-    }
-
-    // Ver detalles
+    // 👁️ Ver detalles
     private void mostrarDetalles(SocioComunitario socio) {
         StringBuilder sb = new StringBuilder();
         sb.append("Nombre: ").append(socio.getNombre()).append("\n\nBeneficiarios:\n");
@@ -114,22 +92,9 @@ public class SocioComunitarioActivity extends AppCompatActivity {
                         Toast.makeText(this, "El nombre es obligatorio", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    SocioComunitario nuevoSocio = new SocioComunitario(nombre);
-                    socioComunitarioDAO.saveSocioComunitario(nuevoSocio, new FirestoreOperationCallback() {
-                        @Override
-                        public void onSuccess() {
-                            runOnUiThread(() -> {
-                                Toast.makeText(SocioComunitarioActivity.this, "Socio registrado", Toast.LENGTH_SHORT).show();
-                                cargarSocios();
-                            });
-                        }
 
-                        @Override
-                        public void onFailure(Exception exception) {
-                            runOnUiThread(() -> Toast.makeText(SocioComunitarioActivity.this,
-                                    "No fue posible registrar el socio", Toast.LENGTH_SHORT).show());
-                        }
-                    });
+                    listaSocios.add(new SocioComunitario(nombre));
+                    adapter.notifyItemInserted(listaSocios.size() - 1);
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
@@ -152,23 +117,10 @@ public class SocioComunitarioActivity extends AppCompatActivity {
                         Toast.makeText(this, "El nombre es obligatorio", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    SocioComunitario socioActualizado = new SocioComunitario(nuevoNombre);
-                    socioActualizado.setId(socio.getId());
-                    socioComunitarioDAO.saveSocioComunitario(socioActualizado, new FirestoreOperationCallback() {
-                        @Override
-                        public void onSuccess() {
-                            runOnUiThread(() -> {
-                                Toast.makeText(SocioComunitarioActivity.this, "Socio actualizado", Toast.LENGTH_SHORT).show();
-                                cargarSocios();
-                            });
-                        }
 
-                        @Override
-                        public void onFailure(Exception exception) {
-                            runOnUiThread(() -> Toast.makeText(SocioComunitarioActivity.this,
-                                    "No fue posible actualizar el socio", Toast.LENGTH_SHORT).show());
-                        }
-                    });
+                    listaSocios.set(position, new SocioComunitario(nuevoNombre));
+                    adapter.notifyItemChanged(position);
+                    Toast.makeText(this, "Socio actualizado", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
@@ -176,26 +128,13 @@ public class SocioComunitarioActivity extends AppCompatActivity {
 
     // 🗑️ Eliminar
     private void confirmarEliminar(int position) {
-        SocioComunitario socio = listaSocios.get(position);
         new AlertDialog.Builder(this)
                 .setTitle("Eliminar")
                 .setMessage("¿Seguro que deseas eliminar este socio?")
                 .setPositiveButton("Sí", (dialog, which) -> {
-                    socioComunitarioDAO.deleteSocioComunitario(socio, new FirestoreOperationCallback() {
-                        @Override
-                        public void onSuccess() {
-                            runOnUiThread(() -> {
-                                Toast.makeText(SocioComunitarioActivity.this, "Socio eliminado", Toast.LENGTH_SHORT).show();
-                                cargarSocios();
-                            });
-                        }
-
-                        @Override
-                        public void onFailure(Exception exception) {
-                            runOnUiThread(() -> Toast.makeText(SocioComunitarioActivity.this,
-                                    "No fue posible eliminar el socio", Toast.LENGTH_SHORT).show());
-                        }
-                    });
+                    listaSocios.remove(position);
+                    adapter.notifyItemRemoved(position);
+                    Toast.makeText(this, "Socio eliminado", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("No", null)
                 .show();
