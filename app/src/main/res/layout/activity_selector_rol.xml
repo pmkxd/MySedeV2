@@ -63,7 +63,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Selecciona un usuario para probar el sistema con diferentes roles y permisos."
+                android:text="Selecciona un usuario para probar el sistema con diferentes roles y permisos. Esta pantalla es temporal y se eliminará cuando se implemente Firebase Authentication."
                 android:textSize="14sp"
                 android:textColor="@color/md_theme_onSecondaryContainer"
                 android:lineSpacingExtra="4dp" />
@@ -83,42 +83,12 @@
         android:paddingHorizontal="16dp"
         android:paddingVertical="8dp" />
 
-    <!-- Container para contenido -->
-    <FrameLayout
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewUsuarios"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <!-- RecyclerView para usuarios -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewUsuarios"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingBottom="16dp"
-            android:visibility="gone" />
-
-        <!-- ProgressBar -->
-        <ProgressBar
-            android:id="@+id/progressBarSelector"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone" />
-
-        <!-- Mensaje vacío/error -->
-        <TextView
-            android:id="@+id/tvEmptySelector"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:padding="32dp"
-            android:text="No hay usuarios disponibles"
-            android:textSize="16sp"
-            android:textColor="@color/md_theme_onSurfaceVariant"
-            android:visibility="gone" />
-
-    </FrameLayout>
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp" />
 
 </LinearLayout>
