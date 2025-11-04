@@ -59,7 +59,7 @@ public class GestionUsuariosActivity extends AppCompatActivity {
         // Cargar usuarios
         cargarUsuarios();
 
-        // Configurar FAB
+        // Configurar FAB - Mostrar opciones
         if (PermissionManager.tienePermiso(Permiso.CREAR_USUARIO)) {
             fabCrear.setOnClickListener(v -> {
                 Intent intent = new Intent(this, CrearUsuarioActivity.class);
@@ -85,6 +85,7 @@ public class GestionUsuariosActivity extends AppCompatActivity {
 
         recyclerView.setAdapter(adapter);
     }
+
 
     private void mostrarOpcionesUsuario(Usuario usuario, int posicion) {
         String[] opciones;
