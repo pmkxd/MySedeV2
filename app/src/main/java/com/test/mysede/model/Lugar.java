@@ -12,7 +12,7 @@ public class Lugar {
         OFICINA_DEL_CENTRO,
         LUGAR_DEL_TERRITORIO
     }
-    private String id;
+
     private final String nombre;
     private final Tipo tipo;
     private final Integer cupo;
@@ -22,13 +22,6 @@ public class Lugar {
         this.tipo = Objects.requireNonNull(tipo, "El tipo de lugar es obligatorio");
         this.cupo = cupo;
     }
-    public String getId() {
-        return id;
-    }
-    public void setId(String id) {
-        this.id = id;
-    }
-
 
     public String getNombre() {
         return nombre;
