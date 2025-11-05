@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
-
+import com.test.mysede.ui.SystemBarsHelper;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,10 +15,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.test.mysede.DAO.ActividadDAO;
 import com.test.mysede.R;
 import com.test.mysede.model.Actividad;
-
-// ============================================
-// IMPORTS DEL SISTEMA DE PERMISOS
-// ============================================
 import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.auth.Permiso;
 import java.util.ArrayList;
@@ -46,6 +42,7 @@ public class ListarActividadesActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_listar_actividades);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         // Configurar toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);

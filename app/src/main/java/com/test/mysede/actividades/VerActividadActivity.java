@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.test.mysede.ui.SystemBarsHelper;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import com.test.mysede.DAO.ActividadDAO;
@@ -53,6 +53,7 @@ public class VerActividadActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_ver_actividad);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         // Configurar toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);

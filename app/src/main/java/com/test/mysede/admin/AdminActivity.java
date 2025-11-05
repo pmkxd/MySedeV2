@@ -19,6 +19,7 @@ import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.auth.SessionManager;
 import com.test.mysede.login.ActivityLogin;
 import com.test.mysede.mantenedores.mantenedoresActivity;
+import com.test.mysede.ui.SystemBarsHelper;
 
 public class AdminActivity extends AppCompatActivity {
 
@@ -28,6 +29,7 @@ public class AdminActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_dashboard);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         // Toolbar como ActionBar
         MaterialToolbar toolbar = findViewById(R.id.toolbar);

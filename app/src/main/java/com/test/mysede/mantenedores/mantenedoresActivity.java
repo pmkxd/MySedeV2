@@ -13,6 +13,7 @@ import com.test.mysede.lugar.LugarActivity;
 import com.test.mysede.oferente.OferenteActivity;
 import com.test.mysede.socio.SocioComunitarioActivity;
 import com.test.mysede.proyecto.ProyectoActivity;
+import com.test.mysede.ui.SystemBarsHelper;
 
 public class mantenedoresActivity extends AppCompatActivity {
 
@@ -20,6 +21,7 @@ public class mantenedoresActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mantenedores);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());

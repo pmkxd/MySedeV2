@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.test.mysede.ui.SystemBarsHelper;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -54,6 +55,7 @@ public class AdjuntarArchivosActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_adjuntar_archivos);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         // Inicializar vistas
         btnSeleccionarArchivo = findViewById(R.id.btnSeleccionarArchivo);

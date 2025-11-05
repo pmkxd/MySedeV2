@@ -9,7 +9,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.test.mysede.ui.SystemBarsHelper;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.test.mysede.AdjuntarArchivosActivity;
 import com.test.mysede.ArchivoAdjunto;
@@ -34,6 +34,7 @@ public class PublicistaActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_publicista);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         // Toolbar
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
