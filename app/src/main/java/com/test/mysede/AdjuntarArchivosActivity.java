@@ -142,9 +142,34 @@ public class AdjuntarArchivosActivity extends AppCompatActivity {
                 builder.setView(input);
 
                 builder.setPositiveButton("Guardar", (dialog, which) -> {
-                    archivo.setNombre(input.getText().toString());
+                    String nuevoNombre = input.getText().toString().trim();
+
+                    if (nuevoNombre.isEmpty()) {
+                        Toast.makeText(this, "El nombre no puede estar vacío", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Obtener la extensión del nombre original (por ejemplo, ".jpg")
+                    String nombreOriginal = archivo.getNombre();
+                    String extension = "";
+                    int puntoIndex = nombreOriginal.lastIndexOf('.');
+                    if (puntoIndex != -1) {
+                        extension = nombreOriginal.substring(puntoIndex); // incluye el punto
+                    }
+
+                    // Eliminar extensión si el usuario la escribió (por error)
+                    if (nuevoNombre.contains(".")) {
+                        nuevoNombre = nuevoNombre.substring(0, nuevoNombre.lastIndexOf('.'));
+                    }
+
+                    // Volver a agregar la extensión original
+                    String nombreFinal = nuevoNombre + extension;
+
+                    archivo.setNombre(nombreFinal);
                     actualizarVistaDeArchivosAdjuntos();
+                    Toast.makeText(this, "Archivo renombrado a: " + nombreFinal, Toast.LENGTH_SHORT).show();
                 });
+
                 builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
                 builder.show();
             });
