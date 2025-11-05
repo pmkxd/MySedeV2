@@ -41,6 +41,22 @@ public class ArchivoAdjunto implements Parcelable {
     public long getTamaño() { return tamaño; }
     public Uri getUri() { return uri; }
 
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public void setTamaño(long tamaño) {
+        this.tamaño = tamaño;
+    }
+
+    public void setUri(Uri uri) {
+        this.uri = uri;
+    }
+
     @Override
     public int describeContents() { return 0; }
 

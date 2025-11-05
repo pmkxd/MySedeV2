@@ -1,12 +1,15 @@
 package com.test.mysede;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -95,7 +98,9 @@ public class AdjuntarArchivosActivity extends AppCompatActivity {
 
         layoutArchivosAdjuntos.setVisibility(View.VISIBLE);
 
-        for (ArchivoAdjunto archivo : archivosSeleccionados) {
+        for (int i = 0; i < archivosSeleccionados.size(); i++) {
+            ArchivoAdjunto archivo = archivosSeleccionados.get(i);
+
             CardView card = new CardView(this);
             card.setRadius(16);
             card.setCardElevation(6);
@@ -114,9 +119,50 @@ public class AdjuntarArchivosActivity extends AppCompatActivity {
             TextView tamaño = new TextView(this);
             tamaño.setText("Tamaño: " + (archivo.getTamaño() / 1024) + " KB");
 
+            // Botones para renombrar y eliminar
+            LinearLayout acciones = new LinearLayout(this);
+            acciones.setOrientation(LinearLayout.HORIZONTAL);
+            acciones.setPadding(0, 8, 0, 0);
+
+            Button btnRenombrar = new Button(this);
+            btnRenombrar.setText("Renombrar");
+            btnRenombrar.setTextSize(12);
+
+            Button btnEliminar = new Button(this);
+            btnEliminar.setText("Eliminar");
+            btnEliminar.setTextSize(12);
+
+            // Acción: renombrar
+            btnRenombrar.setOnClickListener(v -> {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Renombrar archivo");
+
+                final EditText input = new EditText(this);
+                input.setText(archivo.getNombre());
+                builder.setView(input);
+
+                builder.setPositiveButton("Guardar", (dialog, which) -> {
+                    archivo.setNombre(input.getText().toString());
+                    actualizarVistaDeArchivosAdjuntos();
+                });
+                builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
+                builder.show();
+            });
+
+            // Acción: eliminar
+            btnEliminar.setOnClickListener(v -> {
+                archivosSeleccionados.remove(archivo);
+                actualizarVistaDeArchivosAdjuntos();
+            });
+
+            // Añadir botones
+            acciones.addView(btnRenombrar);
+            acciones.addView(btnEliminar);
+
             contenedor.addView(nombre);
             contenedor.addView(tipo);
             contenedor.addView(tamaño);
+            contenedor.addView(acciones);
 
             card.addView(contenedor);
             layoutArchivosAdjuntos.addView(card);
