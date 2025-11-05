@@ -18,6 +18,7 @@ import com.test.mysede.auth.SessionManager;
 import com.test.mysede.citas.CrearCitaActivity;
 import com.test.mysede.model.Usuario;
 import com.test.mysede.login.ActivityLogin;
+import com.test.mysede.ui.SystemBarsHelper;
 
 public class ProgramadorActivity extends AppCompatActivity {
 
@@ -31,6 +32,7 @@ public class ProgramadorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_programador);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) setSupportActionBar(toolbar);

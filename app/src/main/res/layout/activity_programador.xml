@@ -2,10 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:fitsSystemWindows="true"
     tools:context=".programador.ProgramadorActivity">
 
     <!-- Toolbar -->
@@ -18,10 +18,10 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorPrimary"
+            android:background="?attr/colorPrimary"
             android:elevation="4dp"
             app:title="Programador de Citas"
-            app:titleTextColor="@android:color/white"
+            app:titleTextColor="?attr/colorOnPrimary"
             app:menu="@menu/menu_user_options" />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="20dp"
-        android:background="#F6F6F8">
+        android:background="?attr/colorSurface">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -46,7 +46,7 @@
                 android:text="Bienvenido"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:textColor="#2B2B2B"
+                android:textColor="?attr/colorOnSurface"
                 android:paddingBottom="6dp"/>
 
             <!-- Nombre Usuario -->
@@ -57,7 +57,7 @@
                 android:text="Nombre Apellido"
                 android:textSize="18sp"
                 android:textStyle="italic"
-                android:textColor="#666666"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:paddingBottom="24dp"/>
 
             <!-- Tarjeta: Crear Cita -->
@@ -68,7 +68,7 @@
                 android:orientation="vertical"
                 android:padding="18dp"
                 android:layout_marginBottom="12dp"
-                android:background="#FFFFFF"
+                android:background="@color/md_theme_surfaceContainerLow"
                 android:elevation="4dp">
 
                 <TextView
@@ -77,14 +77,14 @@
                     android:text="Crear Cita"
                     android:textSize="17sp"
                     android:textStyle="bold"
-                    android:textColor="#1F4B8B"/>
+                    android:textColor="?attr/colorPrimary"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Permite crear nuevas citas para usuarios."
                     android:textSize="14sp"
-                    android:textColor="#666666"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:paddingTop="6dp"
                     android:paddingBottom="10dp"/>
 
@@ -92,6 +92,8 @@
                     android:id="@+id/btnCrearCita"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:textColor="?attr/colorOnPrimary"
                     android:text="Ingresar" />
             </LinearLayout>
 
@@ -103,7 +105,7 @@
                 android:orientation="vertical"
                 android:padding="18dp"
                 android:layout_marginBottom="12dp"
-                android:background="#FFFFFF"
+                android:background="@color/md_theme_surfaceContainerLow"
                 android:elevation="4dp">
 
                 <TextView
@@ -112,14 +114,14 @@
                     android:text="Gestionar Citas"
                     android:textSize="17sp"
                     android:textStyle="bold"
-                    android:textColor="#1F4B8B"/>
+                    android:textColor="?attr/colorPrimary"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Visualiza, edita o cancela citas existentes."
                     android:textSize="14sp"
-                    android:textColor="#666666"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:paddingTop="6dp"
                     android:paddingBottom="10dp"/>
 
@@ -127,6 +129,8 @@
                     android:id="@+id/btnGestionCitas"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:textColor="?attr/colorOnPrimary"
                     android:text="Ingresar" />
             </LinearLayout>
 
@@ -138,7 +142,7 @@
                 android:orientation="vertical"
                 android:padding="18dp"
                 android:layout_marginBottom="20dp"
-                android:background="#FFFFFF"
+                android:background="@color/md_theme_surfaceContainerLow"
                 android:elevation="4dp">
 
                 <TextView
@@ -147,14 +151,14 @@
                     android:text="Calendario"
                     android:textSize="17sp"
                     android:textStyle="bold"
-                    android:textColor="#1F4B8B"/>
+                    android:textColor="?attr/colorPrimary"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Visualiza todas las citas en el calendario del centro."
                     android:textSize="14sp"
-                    android:textColor="#666666"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:paddingTop="6dp"
                     android:paddingBottom="10dp"/>
 
@@ -162,6 +166,8 @@
                     android:id="@+id/btnCalendario"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:textColor="?attr/colorOnPrimary"
                     android:text="Ingresar" />
             </LinearLayout>
 

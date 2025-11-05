@@ -16,6 +16,7 @@ import com.test.mysede.MainActivity;
 import com.test.mysede.R;
 import com.test.mysede.model.Usuario;
 import com.test.mysede.usuarios.UsuarioAdapter;
+import com.test.mysede.ui.SystemBarsHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,7 @@ public class SelectorRolActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selector_rol);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         sessionManager = new SessionManager(this);
         usuariosDAO = new UsuariosDAO();

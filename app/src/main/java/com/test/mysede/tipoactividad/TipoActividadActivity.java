@@ -8,7 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
-
+import com.test.mysede.ui.SystemBarsHelper;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,6 +34,7 @@ public class TipoActividadActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tipo_actividad);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         recyclerView = findViewById(R.id.recyclerTipos);
         btnNuevaActividad = findViewById(R.id.btnNuevaActividad);

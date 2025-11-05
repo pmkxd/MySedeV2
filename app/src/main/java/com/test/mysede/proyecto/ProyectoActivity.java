@@ -16,7 +16,7 @@ import com.test.mysede.DAO.FirestoreOperationCallback;
 import com.test.mysede.DAO.ProyectoDAO;
 import com.test.mysede.R;
 import com.test.mysede.model.Proyecto;
-
+import com.test.mysede.ui.SystemBarsHelper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +32,7 @@ public class ProyectoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_proyecto);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         recyclerProyectos = findViewById(R.id.recyclerProyectos);
         btnNuevoProyecto = findViewById(R.id.btnNuevoProyecto);

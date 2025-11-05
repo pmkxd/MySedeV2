@@ -22,7 +22,7 @@ import com.test.mysede.DAO.UsuariosDAO;
 import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.auth.Permiso;
 import com.test.mysede.model.Usuario;
-
+import com.test.mysede.ui.SystemBarsHelper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +46,7 @@ public class GestionUsuariosActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gestion_usuarios);
-
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
         // Verificar permisos
         if (!PermissionManager.tienePermiso(Permiso.VER_USUARIOS)) {
             Toast.makeText(this, "No tienes permiso para acceder a esta sección", Toast.LENGTH_SHORT).show();
