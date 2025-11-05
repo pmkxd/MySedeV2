@@ -1,15 +1,18 @@
 package com.test.mysede.actividades;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
+import android.provider.OpenableColumns;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -21,28 +24,17 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
-import com.test.mysede.AdjuntarArchivosActivity;
-import com.test.mysede.DAO.ActividadDAO;
-import com.test.mysede.DAO.CitaDAO;
-import com.test.mysede.DAO.FirestoreOperationCallback;
-import com.test.mysede.DAO.LugarDAO;
-import com.test.mysede.DAO.OferenteActividadDAO;
-import com.test.mysede.DAO.ProyectoDAO;
-import com.test.mysede.DAO.SocioComunitarioDAO;
-import com.test.mysede.DAO.TipoActividadDAO;
 import com.test.mysede.R;
 import com.test.mysede.model.Actividad;
-import com.test.mysede.model.Cita;
-import com.test.mysede.model.Lugar;
 import com.test.mysede.model.OferenteActividad;
 import com.test.mysede.model.Periodicidad;
 import com.test.mysede.model.Proyecto;
 import com.test.mysede.model.SocioComunitario;
 import com.test.mysede.model.TipoActividad;
+import com.test.mysede.model.Lugar;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -51,49 +43,22 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 
 public class CrearActividadActivity extends AppCompatActivity {
 
     private TextInputEditText etNombre, etCupo, etDiasAviso;
     private TextInputEditText etFechaPuntual, etHoraPuntual, etFechaInicio, etHoraPeriodica, etRepeticiones;
     private Spinner spinnerTipo, spinnerProyecto, spinnerOferente, spinnerSocio, spinnerLugar;
-    private ChipGroup chipGroupDias;
     private RadioGroup rgPeriodicidad;
-    private RadioButton rbPuntual;
-    private RadioButton rbPeriodica;
-
-    private Button btnGuardar;
-    private MaterialButton btnAdjuntarArchivo;
-    private LinearLayout layoutArchivosAdjuntos;
+    private RadioButton rbPuntual, rbPeriodica;
     private View layoutFechaPuntual, layoutFechasPeriodicas;
-
-    private final ActividadDAO actividadDAO = new ActividadDAO();
-    private final TipoActividadDAO tipoActividadDAO = new TipoActividadDAO();
-    private final ProyectoDAO proyectoDAO = new ProyectoDAO();
-    private final OferenteActividadDAO oferenteDAO = new OferenteActividadDAO();
-    private final SocioComunitarioDAO socioDAO = new SocioComunitarioDAO();
-    private final LugarDAO lugarDAO = new LugarDAO();
-    private final CitaDAO citaDAO = new CitaDAO();
-
-    private final List<TipoActividad> tiposActividad = new ArrayList<>();
-    private final List<Proyecto> proyectos = new ArrayList<>();
-    private final List<OferenteActividad> oferentes = new ArrayList<>();
-    private final List<SocioComunitario> socios = new ArrayList<>();
-    private final List<Lugar> lugares = new ArrayList<>();
-
-    private ArrayList<? extends Parcelable> archivosAdjuntos = new ArrayList<>();
+    private Button btnGuardar;
+    private ChipGroup chipGroupDias;
 
     private boolean modoEditar = false;
-    private String actividadId;
+    private int posicion = -1;
     private Actividad actividadEditar;
 
     private LocalDate fechaPuntualSeleccionada;
@@ -101,14 +66,10 @@ public class CrearActividadActivity extends AppCompatActivity {
     private LocalTime horaPuntualSeleccionada;
     private LocalTime horaPeriodicaSeleccionada;
 
-    private boolean tiposCargados;
-    private boolean proyectosCargados;
-    private boolean oferentesCargados;
-    private boolean sociosCargados;
-    private boolean lugaresCargados;
-    private boolean actividadCargada;
-    private boolean citasCargadas;
-
+    private static final int PICK_FILE_REQUEST = 123;
+    private Button btnAdjuntarArchivo;
+    private LinearLayout layoutArchivosAdjuntos;
+    private ArrayList<Uri> urisDeArchivos = new ArrayList<>();
 
     private final DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy", new Locale("es", "CL"));
     private final DateTimeFormatter formatoHora = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault());
@@ -118,14 +79,11 @@ public class CrearActividadActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_crear_actividad);
 
+        // Verificar si es modo editar
         modoEditar = "editar".equals(getIntent().getStringExtra("modo"));
-        actividadId = getIntent().getStringExtra("actividadId");
-        if (modoEditar && actividadId == null) {
-            Toast.makeText(this, "No se encontró la actividad a editar", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
+        posicion = getIntent().getIntExtra("posicion", -1);
 
+        // Configurar toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -134,32 +92,89 @@ public class CrearActividadActivity extends AppCompatActivity {
         }
 
         inicializarVistas();
+        configurarSpinners();
         configurarEventos();
-
         btnAdjuntarArchivo = findViewById(R.id.btnAdjuntarArchivo);
         layoutArchivosAdjuntos = findViewById(R.id.layoutArchivosAdjuntos);
-        btnAdjuntarArchivo.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AdjuntarArchivosActivity.class);
-            intent.putParcelableArrayListExtra("archivosAdjuntos", (ArrayList<? extends Parcelable>) archivosAdjuntos);
-            startActivityForResult(intent, 200);
-        });
 
-        cargarMantenedores();
-        if (modoEditar) {
-            cargarActividadExistente();
+        btnAdjuntarArchivo.setOnClickListener(v -> {
+            abrirSelectorDeArchivos();
+        });
+        if (modoEditar && posicion != -1) {
+            actividadEditar = ActividadHelper.obtenerActividadPorIndice(posicion);
+            cargarDatosActividad();
         }
     }
-
+    private void abrirSelectorDeArchivos() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*"); // Permite seleccionar cualquier tipo de archivo
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // Permite selección múltiple
+        startActivityForResult(Intent.createChooser(intent, "Selecciona los archivos"), PICK_FILE_REQUEST);
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 200 && resultCode == RESULT_OK && data != null) {
-            archivosAdjuntos = data.getParcelableArrayListExtra("archivosAdjuntos");
-            mostrarResumenArchivos();
+
+        if (requestCode == PICK_FILE_REQUEST && resultCode == RESULT_OK) {
+            if (data != null) {
+                urisDeArchivos.clear(); // Limpiar la lista anterior por si se vuelve a seleccionar
+                if (data.getClipData() != null) {
+                    // El usuario seleccionó múltiples archivos
+                    int count = data.getClipData().getItemCount();
+                    for (int i = 0; i < count; i++) {
+                        Uri uri = data.getClipData().getItemAt(i).getUri();
+                        urisDeArchivos.add(uri);
+                    }
+                } else if (data.getData() != null) {
+                    // El usuario seleccionó un solo archivo
+                    Uri uri = data.getData();
+                    urisDeArchivos.add(uri);
+                }
+                actualizarVistaDeArchivosAdjuntos();
+            }
         }
     }
 
+    private void actualizarVistaDeArchivosAdjuntos() {
+        layoutArchivosAdjuntos.removeAllViews(); // Limpiar vistas anteriores
 
+        if (urisDeArchivos.isEmpty()) {
+            layoutArchivosAdjuntos.setVisibility(View.GONE);
+            return;
+        }
+
+        layoutArchivosAdjuntos.setVisibility(View.VISIBLE);
+
+        for (Uri uri : urisDeArchivos) {
+            // Crea un TextView para mostrar el nombre del archivo
+            TextView tvNombreArchivo = new TextView(this);
+            // Aquí podrías implementar una función para obtener el nombre del archivo a partir de la Uri
+            tvNombreArchivo.setText("Archivo: " + getFileName(uri));
+            tvNombreArchivo.setPadding(8, 8, 8, 8);
+            layoutArchivosAdjuntos.addView(tvNombreArchivo);
+        }
+    }
+
+    // Método auxiliar para obtener el nombre del archivo desde una Uri
+    @SuppressLint("Range")
+    private String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
     private void inicializarVistas() {
         etNombre = findViewById(R.id.etNombre);
         etCupo = findViewById(R.id.etCupo);
@@ -176,31 +191,59 @@ public class CrearActividadActivity extends AppCompatActivity {
         spinnerSocio = findViewById(R.id.spinnerSocio);
         spinnerLugar = findViewById(R.id.spinnerLugar);
 
-        chipGroupDias = findViewById(R.id.chipGroupDias);
-        btnGuardar = findViewById(R.id.btnGuardar);
-
+        rgPeriodicidad = findViewById(R.id.rgPeriodicidad);
+        rbPuntual = findViewById(R.id.rbPuntual);
+        rbPeriodica = findViewById(R.id.rbPeriodica);
 
         layoutFechaPuntual = findViewById(R.id.layoutFechaPuntual);
         layoutFechasPeriodicas = findViewById(R.id.layoutFechasPeriodicas);
 
-        rgPeriodicidad = findViewById(R.id.rgPeriodicidad);
-        rbPuntual = findViewById(R.id.rbPuntual);
-        rbPeriodica = findViewById(R.id.rbPeriodica);
+        btnGuardar = findViewById(R.id.btnGuardar);
+        chipGroupDias = findViewById(R.id.chipGroupDias);
+    }
+
+    private void configurarSpinners() {
+        // Spinner Tipo de Actividad
+        String[] tipos = {"Taller", "Capacitación", "Charla", "Operativo", "Diagnóstico"};
+        ArrayAdapter<String> adapterTipo = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, tipos);
+        adapterTipo.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerTipo.setAdapter(adapterTipo);
+
+        // Spinner Proyecto
+        String[] proyectos = {"Salud Comunitaria", "Desarrollo Económico Local",
+                "Fortalecimiento Comunitario", "Salud en Territorio", "Planificación Territorial"};
+        ArrayAdapter<String> adapterProyecto = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, proyectos);
+        adapterProyecto.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerProyecto.setAdapter(adapterProyecto);
+
+        // Spinner Oferente
+        String[] oferentes = {"Cruz Roja", "INACAP", "Universidad de Los Lagos",
+                "Universidad Austral", "Centro de Salud Alerce"};
+        ArrayAdapter<String> adapterOferente = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, oferentes);
+        adapterOferente.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerOferente.setAdapter(adapterOferente);
+
+        // Spinner Socio Comunitario
+        String[] socios = {"Junta de Vecinos N°5", "Asociación de Microempresarios",
+                "Centro de Adultos Mayores", "Comité de Salud Rural", "Mesa Territorial Alerce"};
+        ArrayAdapter<String> adapterSocio = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, socios);
+        adapterSocio.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerSocio.setAdapter(adapterSocio);
+
+        // Spinner Lugar
+        String[] lugares = getResources().getStringArray(R.array.lugares_demo);
+        ArrayAdapter<String> adapterLugar = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, lugares);
+        adapterLugar.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerLugar.setAdapter(adapterLugar);
     }
 
     private void configurarEventos() {
-        spinnerLugar.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                actualizarCupoDesdeLugar();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // no-op
-            }
-        });
-
+        // RadioGroup periodicidad
         rgPeriodicidad.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.rbPuntual) {
                 layoutFechaPuntual.setVisibility(View.VISIBLE);
@@ -211,47 +254,35 @@ public class CrearActividadActivity extends AppCompatActivity {
             }
         });
 
-
+        // DatePickers
         etFechaPuntual.setOnClickListener(v -> mostrarDatePicker(1));
         etHoraPuntual.setOnClickListener(v -> mostrarTimePicker(1));
-        etHoraPuntual.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) mostrarTimePicker(1);
-        });
+        etHoraPuntual.setOnFocusChangeListener((v, hasFocus) -> { if (hasFocus) mostrarTimePicker(1); });
         etFechaInicio.setOnClickListener(v -> mostrarDatePicker(2));
         etHoraPeriodica.setOnClickListener(v -> mostrarTimePicker(2));
-        etHoraPeriodica.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) mostrarTimePicker(2);
-        });
+        etHoraPeriodica.setOnFocusChangeListener((v, hasFocus) -> { if (hasFocus) mostrarTimePicker(2); });
 
+        // Botón guardar
         btnGuardar.setOnClickListener(v -> guardarActividad());
     }
-    private void mostrarResumenArchivos() {
-        layoutArchivosAdjuntos.removeAllViews();
-        if (archivosAdjuntos == null || archivosAdjuntos.isEmpty()) {
-            layoutArchivosAdjuntos.setVisibility(View.GONE);
-            return;
-        }
-        layoutArchivosAdjuntos.setVisibility(View.VISIBLE);
-        for (Parcelable archivo : archivosAdjuntos) {
-            TextView tvArchivo = new TextView(this);
-            tvArchivo.setText("📄 " + archivo.getClass().getSimpleName());
-            tvArchivo.setPadding(8, 8, 8, 8);
-            layoutArchivosAdjuntos.addView(tvArchivo);
-        }
-    }
+
     private void mostrarDatePicker(int tipo) {
         Calendar calendario = Calendar.getInstance();
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 this,
                 (view, year, month, dayOfMonth) -> {
                     LocalDate fechaSeleccionada = LocalDate.of(year, month + 1, dayOfMonth);
-                    String fechaFormateada = String.format(Locale.getDefault(), "%02d/%02d/%d", dayOfMonth, month + 1, year);
-                    if (tipo == 1) {
-                        fechaPuntualSeleccionada = fechaSeleccionada;
-                        etFechaPuntual.setText(fechaFormateada);
-                    } else {
-                        fechaInicioSeleccionada = fechaSeleccionada;
-                        etFechaInicio.setText(fechaFormateada);
+                    String fechaFormateada = String.format("%02d/%02d/%d", dayOfMonth, month + 1, year);
+
+                    switch (tipo) {
+                        case 1: // Fecha puntual
+                            fechaPuntualSeleccionada = fechaSeleccionada;
+                            etFechaPuntual.setText(fechaFormateada);
+                            break;
+                        case 2: // Fecha inicio
+                            fechaInicioSeleccionada = fechaSeleccionada;
+                            etFechaInicio.setText(fechaFormateada);
+                            break;
                     }
                 },
                 calendario.get(Calendar.YEAR),
@@ -289,602 +320,307 @@ public class CrearActividadActivity extends AppCompatActivity {
         timePickerDialog.show();
     }
 
-    private void cargarMantenedores() {
-        tipoActividadDAO.getAllTiposActividad(new TipoActividadDAO.OnTiposActividadLoadedListener() {
-            @Override
-            public void onTiposActividadLoaded(ArrayList<TipoActividad> tipos) {
-                tiposActividad.clear();
-                tiposActividad.addAll(tipos);
-                poblarSpinner(spinnerTipo, extraerNombres(tiposActividad, TipoActividad::getNombre));
-                tiposCargados = true;
-                intentarConfigurarDatosEdicion();
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Toast.makeText(CrearActividadActivity.this, "Error al cargar tipos de actividad", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        proyectoDAO.getAllProyectos(new ProyectoDAO.OnProyectosLoadedListener() {
-            @Override
-            public void onProyectosLoaded(ArrayList<Proyecto> lista) {
-                proyectos.clear();
-                proyectos.addAll(lista);
-                poblarSpinner(spinnerProyecto, extraerNombres(proyectos, Proyecto::getNombre));
-                proyectosCargados = true;
-                intentarConfigurarDatosEdicion();
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Toast.makeText(CrearActividadActivity.this, "Error al cargar proyectos", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        oferenteDAO.getAllOferentes(new OferenteActividadDAO.OnOferentesLoadedListener() {
-            @Override
-            public void onOferentesLoaded(ArrayList<OferenteActividad> lista) {
-                oferentes.clear();
-                oferentes.addAll(lista);
-                poblarSpinner(spinnerOferente, extraerNombres(oferentes, OferenteActividad::getNombre));
-                oferentesCargados = true;
-                intentarConfigurarDatosEdicion();
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Toast.makeText(CrearActividadActivity.this, "Error al cargar oferentes", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        socioDAO.getAllSociosComunitarios(new SocioComunitarioDAO.OnSociosComunitariosLoadedListener() {
-            @Override
-            public void onSociosComunitariosLoaded(ArrayList<SocioComunitario> lista) {
-                socios.clear();
-                socios.addAll(lista);
-                poblarSpinner(spinnerSocio, extraerNombres(socios, SocioComunitario::getNombre));
-                sociosCargados = true;
-                intentarConfigurarDatosEdicion();
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Toast.makeText(CrearActividadActivity.this, "Error al cargar socios comunitarios", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        lugarDAO.getAllLugares(new LugarDAO.OnLugaresLoadedListener() {
-            @Override
-            public void onLugaresLoaded(ArrayList<Lugar> lista) {
-                lugares.clear();
-                lugares.addAll(lista);
-                poblarSpinner(spinnerLugar, extraerNombres(lugares, Lugar::getNombre));
-                lugaresCargados = true;
-                intentarConfigurarDatosEdicion();
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Toast.makeText(CrearActividadActivity.this, "Error al cargar lugares", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void poblarSpinner(Spinner spinner, List<String> valores) {
-        List<String> opciones = new ArrayList<>();
-        opciones.add("Selecciona una opción");
-        for (String valor : valores) {
-            opciones.add(valor);
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, opciones);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-    }
-
-    private <T> List<String> extraerNombres(List<T> lista, Function<T, String> extractor) {
-        List<String> nombres = new ArrayList<>();
-        for (T item : lista) {
-            nombres.add(extractor.apply(item));
-        }
-        return nombres;
-    }
-
-    private void cargarActividadExistente() {
-        actividadDAO.getActividadById(actividadId, new ActividadDAO.OnActividadLoadedListener() {
-            @Override
-            public void onActividadLoaded(Actividad actividad) {
-                if (actividad == null) {
-                    Toast.makeText(CrearActividadActivity.this, "No se pudo cargar la actividad", Toast.LENGTH_SHORT).show();
-                    finish();
-                    return;
-                }
-                actividadEditar = actividad;
-                actividadCargada = true;
-                citaDAO.getCitasPorActividad(actividadEditar, new CitaDAO.OnCitasLoadedListener() {
-                    @Override
-                    public void onCitasLoaded(ArrayList<Cita> citas) {
-                        citasCargadas = true;
-                        intentarConfigurarDatosEdicion();
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        Toast.makeText(CrearActividadActivity.this, "No fue posible cargar las citas", Toast.LENGTH_SHORT).show();
-                        citasCargadas = true;
-                        intentarConfigurarDatosEdicion();
-                    }
-                });
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Toast.makeText(CrearActividadActivity.this, "Error al cargar la actividad", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-    private void intentarConfigurarDatosEdicion() {
-        if (!modoEditar) {
-            return;
-        }
-        if (actividadCargada && citasCargadas && tiposCargados && proyectosCargados && oferentesCargados && sociosCargados && lugaresCargados) {
-            cargarDatosActividad();
-        }
-    }
-
     private void cargarDatosActividad() {
-        if (actividadEditar == null) {
-            return;
-        }
+        if (actividadEditar == null) return;
+
         etNombre.setText(actividadEditar.getNombre());
+
         if (actividadEditar.getCupo() != null) {
             etCupo.setText(String.valueOf(actividadEditar.getCupo()));
         }
-        etDiasAviso.setText(String.valueOf(actividadEditar.getDiasAvisoPrevio()));
-        if (actividadEditar.getProyecto() != null) {
-            seleccionarItemEnSpinner(spinnerProyecto, proyectos, actividadEditar.getProyecto().getId(), Proyecto::getId);
-        }
-        if (!actividadEditar.getTiposActividad().isEmpty()) {
-            TipoActividad tipo = actividadEditar.getTiposActividad().get(0);
-            seleccionarItemEnSpinner(spinnerTipo, tiposActividad, tipo.getId(), TipoActividad::getId);
-        }
-        if (!actividadEditar.getOferentes().isEmpty()) {
-            OferenteActividad oferente = actividadEditar.getOferentes().get(0);
-            seleccionarItemEnSpinner(spinnerOferente, oferentes, oferente.getId(), OferenteActividad::getId);
-        }
-        if (actividadEditar.getSocioComunitario() != null) {
-            seleccionarItemEnSpinner(spinnerSocio, socios, actividadEditar.getSocioComunitario().getId(), SocioComunitario::getId);
-        }
 
+        etDiasAviso.setText(String.valueOf(actividadEditar.getDiasAvisoPrevio()));
+
+        // Periodicidad
         if (actividadEditar.getPeriodicidad().getTipo() == Periodicidad.Tipo.PUNTUAL) {
             rbPuntual.setChecked(true);
-            actividadEditar.getPeriodicidad().getFechaInicio().ifPresent(fecha -> {
-                fechaPuntualSeleccionada = fecha;
-                etFechaPuntual.setText(fecha.format(formatoFecha));
-            });
-            if (!actividadEditar.getCitas().isEmpty()) {
-                Cita cita = actividadEditar.getCitas().get(0);
-                horaPuntualSeleccionada = cita.getHora();
-                etHoraPuntual.setText(cita.getHora().format(formatoHora));
-                seleccionarLugarDesdeCita(cita);
+            if (actividadEditar.getPeriodicidad().getFechaInicio().isPresent()) {
+                fechaPuntualSeleccionada = actividadEditar.getPeriodicidad().getFechaInicio().get();
+                etFechaPuntual.setText(fechaPuntualSeleccionada.format(formatoFecha));
+            }
+            List<com.test.mysede.model.Cita> citas = actividadEditar.getCitas();
+            if (!citas.isEmpty()) {
+                horaPuntualSeleccionada = citas.get(0).getHora();
+                etHoraPuntual.setText(horaPuntualSeleccionada.format(formatoHora));
             }
         } else {
             rbPeriodica.setChecked(true);
-            actividadEditar.getPeriodicidad().getFechaInicio().ifPresent(fecha -> {
-                fechaInicioSeleccionada = fecha;
-                etFechaInicio.setText(fecha.format(formatoFecha));
-            });
-            if (!actividadEditar.getCitas().isEmpty()) {
-                Cita primera = actividadEditar.getCitas().get(0);
-                horaPeriodicaSeleccionada = primera.getHora();
-                etHoraPeriodica.setText(primera.getHora().format(formatoHora));
-                seleccionarLugarDesdeCita(primera);
+                actividadEditar.getPeriodicidad().getFechaInicio().ifPresent(fechaInicio -> {
+                    fechaInicioSeleccionada = fechaInicio;
+                    etFechaInicio.setText(fechaInicioSeleccionada.format(formatoFecha));
+                });
 
-                Map<DayOfWeek, Integer> conteoDias = new EnumMap<>(DayOfWeek.class);
-                for (Cita cita : actividadEditar.getCitas()) {
-                    marcarChipParaDia(cita.getFecha().getDayOfWeek(), true);
-                    conteoDias.put(cita.getFecha().getDayOfWeek(), conteoDias.getOrDefault(cita.getFecha().getDayOfWeek(), 0) + 1);
-                }
-                int maxRepeticiones = conteoDias.values().stream().max(Integer::compareTo).orElse(0);
-                if (maxRepeticiones > 0) {
-                    etRepeticiones.setText(String.valueOf(maxRepeticiones));
-                }
-            }
-        }
-    }
+                List<com.test.mysede.model.Cita> citas = actividadEditar.getCitas();
+                if (!citas.isEmpty()) {
+                    horaPeriodicaSeleccionada = citas.get(0).getHora();
+                    etHoraPeriodica.setText(horaPeriodicaSeleccionada.format(formatoHora));
 
-    private void seleccionarLugarDesdeCita(Cita cita) {
-        if (cita.getLugar() == null) {
-            return;
-        }
-        seleccionarItemEnSpinner(spinnerLugar, lugares, cita.getLugar().getId(), Lugar::getId);
-    }
+                    // Mapear días seleccionados y contar repeticiones
+                    java.util.Map<DayOfWeek, Integer> conteoDias = new java.util.EnumMap<>(DayOfWeek.class);
+                    int maxRepeticiones = 0;
+                    for (com.test.mysede.model.Cita cita : citas) {
+                        DayOfWeek dia = cita.getFecha().getDayOfWeek();
+                        int conteo = conteoDias.containsKey(dia) ? conteoDias.get(dia) + 1 : 1;
+                        conteoDias.put(dia, conteo);
+                        if (conteo > maxRepeticiones) {
+                            maxRepeticiones = conteo;
+                        }
+                    }
 
-    private <T> void seleccionarItemEnSpinner(Spinner spinner, List<T> lista, String id, java.util.function.Function<T, String> extractor) {
-        if (id == null) {
-            return;
-        }
-        for (int i = 0; i < lista.size(); i++) {
-            String itemId = extractor.apply(lista.get(i));
-            if (Objects.equals(id, itemId)) {
-                spinner.setSelection(i + 1);
-                break;
-            }
-        }
-    }
+                    for (DayOfWeek dia : conteoDias.keySet()) {
+                        marcarChipParaDia(dia, true);
+                    }
 
-    private void actualizarCupoDesdeLugar() {
-        int indice = spinnerLugar.getSelectedItemPosition();
-        if (indice <= 0) {
-            etCupo.setEnabled(true);
-            return;
-        }
-        Lugar lugarSeleccionado = lugares.get(indice - 1);
-        Optional<Integer> cupoLugar = lugarSeleccionado.getCupo();
-        if (cupoLugar.isPresent()) {
-            etCupo.setText(String.valueOf(cupoLugar.get()));
-            etCupo.setEnabled(false);
-        } else {
-            etCupo.setEnabled(true);
-        }
-    }
-
-    private void guardarActividad() {
-        String nombre = etNombre.getText() != null ? etNombre.getText().toString().trim() : "";
-        if (nombre.isEmpty()) {
-            Toast.makeText(this, "Ingrese el nombre de la actividad", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Lugar lugarSeleccionado = obtenerLugarSeleccionado();
-        if (lugarSeleccionado == null) {
-            Toast.makeText(this, "Seleccione un lugar", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Periodicidad periodicidad = crearPeriodicidad();
-        if (periodicidad == null) {
-            return;
-        }
-
-        List<LocalDate> fechasCitas = generarFechasDeCitas(periodicidad.getTipo());
-        if (fechasCitas == null) {
-            return;
-        }
-
-        Actividad actividad = modoEditar ? actividadEditar : new Actividad(nombre, periodicidad);
-        actividad.setNombre(nombre);
-        actividad.setPeriodicidad(periodicidad);
-        actividad.limpiarCitas();
-
-        Integer cupo;
-        try {
-            cupo = obtenerCupoDesdeFormulario(lugarSeleccionado);
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "El cupo debe ser numérico", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        actividad.setCupo(cupo);
-
-        int diasAviso = 0;
-        String diasAvisoStr = etDiasAviso.getText() != null ? etDiasAviso.getText().toString().trim() : "";
-        if (!diasAvisoStr.isEmpty()) {
-            try {
-                diasAviso = Integer.parseInt(diasAvisoStr);
-            } catch (NumberFormatException e) {
-                Toast.makeText(this, "Los días de aviso deben ser numéricos", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (diasAviso < 0) {
-                Toast.makeText(this, "Los días de aviso no pueden ser negativos", Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }
-        actividad.setDiasAvisoPrevio(diasAviso);
-
-        Proyecto proyecto = obtenerProyectoSeleccionado();
-        if (proyecto == null) {
-            Toast.makeText(this, "Seleccione un proyecto", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        actividad.setProyecto(proyecto);
-
-        TipoActividad tipo = obtenerTipoSeleccionado();
-        if (tipo == null) {
-            Toast.makeText(this, "Seleccione un tipo de actividad", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        List<TipoActividad> tiposSeleccionados = new ArrayList<>();
-        tiposSeleccionados.add(tipo);
-        actividad.setTiposActividad(tiposSeleccionados);
-
-        OferenteActividad oferente = obtenerOferenteSeleccionado();
-        if (oferente == null) {
-            Toast.makeText(this, "Seleccione un oferente", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        List<OferenteActividad> oferentesSeleccionados = new ArrayList<>();
-        oferentesSeleccionados.add(oferente);
-        actividad.setOferentes(oferentesSeleccionados);
-
-        SocioComunitario socio = obtenerSocioSeleccionado();
-        if (socio == null) {
-            Toast.makeText(this, "Seleccione un socio comunitario", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        actividad.setSocioComunitario(socio);
-
-        if (periodicidad.getTipo() == Periodicidad.Tipo.PUNTUAL) {
-            actividad.crearCita(lugarSeleccionado, fechaPuntualSeleccionada, horaPuntualSeleccionada);
-        } else {
-            for (LocalDate fecha : fechasCitas) {
-                actividad.crearCita(lugarSeleccionado, fecha, horaPeriodicaSeleccionada);
-            }
-        }
-        btnGuardar.setEnabled(false);
-        actividadDAO.saveActividad(actividad, new FirestoreOperationCallback() {
-                    @Override
-                    public void onSuccess() {
-                        sincronizarCitas(actividad);
-            }
-
-                    @Override
-                    public void onFailure(Exception exception) {
-                        btnGuardar.setEnabled(true);
-                        Toast.makeText(CrearActividadActivity.this, "Error al guardar la actividad", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void sincronizarCitas(Actividad actividad) {
-        citaDAO.deleteCitasPorActividad(actividad, new FirestoreOperationCallback() {
-                    @Override
-                    public void onSuccess() {
-                        guardarCitas(actividad);
-            }
-                    @Override
-                    public void onFailure(Exception exception) {
-                        btnGuardar.setEnabled(true);
-                        Toast.makeText(CrearActividadActivity.this, "No fue posible actualizar las citas", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-    private void guardarCitas(Actividad actividad) {
-        List<Cita> citas = actividad.getCitas();
-        if (citas.isEmpty()) {
-            finalizarEdicion();
-            return;
-        }
-        AtomicInteger pendientes = new AtomicInteger(citas.size());
-        AtomicBoolean errorReportado = new AtomicBoolean(false);
-        for (Cita cita : citas) {
-            citaDAO.saveCita(cita, new FirestoreOperationCallback() {
-                @Override
-                public void onSuccess() {
-                    if (pendientes.decrementAndGet() == 0 && !errorReportado.get()) {
-                        finalizarEdicion();
+                    if (maxRepeticiones > 0) {
+                        etRepeticiones.setText(String.valueOf(maxRepeticiones));
                     }
                 }
-                @Override
-                public void onFailure(Exception exception) {
-                    if (errorReportado.compareAndSet(false, true)) {
-                        btnGuardar.setEnabled(true);
-                        Toast.makeText(CrearActividadActivity.this, "Error al guardar las citas", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        private void guardarActividad() {
+            // Validar campos
+            String nombre = etNombre.getText().toString().trim();
+            if (nombre.isEmpty()) {
+                Toast.makeText(this, "Ingrese el nombre de la actividad", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String lugarNombre = spinnerLugar.getSelectedItem().toString();
+            Lugar.Tipo tipoLugar = obtenerTipoLugarPorNombre(lugarNombre);
+
+            // Crear periodicidad
+            Periodicidad periodicidad;
+            List<LocalDate> fechasCitas = new ArrayList<>();
+            if (rbPuntual.isChecked()) {
+                if (fechaPuntualSeleccionada == null) {
+                    Toast.makeText(this, "Seleccione la fecha de la actividad", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (horaPuntualSeleccionada == null) {
+                    Toast.makeText(this, "Seleccione la hora de la actividad", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                periodicidad = Periodicidad.puntual("Única vez", fechaPuntualSeleccionada);
+                fechasCitas.add(fechaPuntualSeleccionada);
+            } else {
+                    if (fechaInicioSeleccionada == null) {
+                        Toast.makeText(this, "Seleccione la fecha de inicio", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (horaPeriodicaSeleccionada == null) {
+                        Toast.makeText(this, "Seleccione la hora de la actividad", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    List<DayOfWeek> diasSeleccionados = obtenerDiasSeleccionados();
+                    if (diasSeleccionados.isEmpty()) {
+                        Toast.makeText(this, "Seleccione al menos un día", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    String repeticionesStr = etRepeticiones.getText().toString().trim();
+                    if (repeticionesStr.isEmpty()) {
+                        Toast.makeText(this, "Ingrese la cantidad de repeticiones", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    int repeticiones = Integer.parseInt(repeticionesStr);
+                    if (repeticiones <= 0) {
+                        Toast.makeText(this, "La cantidad de repeticiones debe ser mayor a cero", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    fechasCitas = generarFechasPeriodicas(fechaInicioSeleccionada, diasSeleccionados, repeticiones);
+                    if (fechasCitas.isEmpty()) {
+                        Toast.makeText(this, "No fue posible generar las citas", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    LocalDate fechaInicio = fechasCitas.stream().min(LocalDate::compareTo).orElse(fechaInicioSeleccionada);
+                    LocalDate fechaFin = fechasCitas.stream().max(LocalDate::compareTo).orElse(fechaInicioSeleccionada);
+                    periodicidad = Periodicidad.periodica("Periódica", fechaInicio, fechaFin);
+                }
+
+                // Crear o actualizar actividad
+                Actividad actividad;
+                if (modoEditar) {
+                    actividad = actividadEditar;
+                    actividad.setNombre(nombre);
+                    actividad.setPeriodicidad(periodicidad);
+                    actividad.limpiarCitas();
+                } else {
+                    actividad = new Actividad(nombre, periodicidad);
+                }
+
+                // Configurar cupo
+                String cupoStr = etCupo.getText().toString().trim();
+                if (!cupoStr.isEmpty()) {
+                    actividad.setCupo(Integer.parseInt(cupoStr));
+                }
+
+                // Configurar días de aviso
+                String diasAvisoStr = etDiasAviso.getText().toString().trim();
+                if (!diasAvisoStr.isEmpty()) {
+                    actividad.setDiasAvisoPrevio(Integer.parseInt(diasAvisoStr));
+                }
+
+                // Configurar proyecto
+                String proyectoNombre = spinnerProyecto.getSelectedItem().toString();
+                actividad.setProyecto(new Proyecto(proyectoNombre));
+
+                // Configurar tipo de actividad
+                String tipoNombre = spinnerTipo.getSelectedItem().toString();
+                TipoActividad.Categoria categoria = obtenerCategoriaPorNombre(tipoNombre);
+                List<TipoActividad> tipos = new ArrayList<>();
+                tipos.add(new TipoActividad(tipoNombre, "Descripción de " + tipoNombre, categoria));
+                actividad.setTiposActividad(tipos);
+
+                // Configurar oferente
+                String oferenteNombre = spinnerOferente.getSelectedItem().toString();
+                OferenteActividad.Institucion institucion = obtenerInstitucionPorNombre(oferenteNombre);
+                List<OferenteActividad> oferentes = new ArrayList<>();
+                oferentes.add(new OferenteActividad(oferenteNombre, "Docente Responsable", institucion));
+                actividad.setOferentes(oferentes);
+
+                // Configurar socio comunitario
+                String socioNombre = spinnerSocio.getSelectedItem().toString();
+                actividad.setSocioComunitario(new SocioComunitario(socioNombre));
+
+                // Crear citas asociadas
+                Lugar lugar = new Lugar(lugarNombre, tipoLugar, actividad.getCupo());
+                if (rbPuntual.isChecked()) {
+                    actividad.crearCita(lugar, fechaPuntualSeleccionada, horaPuntualSeleccionada);
+                } else {
+                    for (LocalDate fechaCita : fechasCitas) {
+                        actividad.crearCita(lugar, fechaCita, horaPeriodicaSeleccionada);
                     }
                 }
-            });
-        }
-    }
-    private void finalizarEdicion() {
-        Toast.makeText(this, modoEditar ? "Actividad actualizada correctamente" : "Actividad creada correctamente", Toast.LENGTH_SHORT).show();
-        btnGuardar.setEnabled(true);
-        finish();
-    }
 
-    private Integer obtenerCupoDesdeFormulario(Lugar lugarSeleccionado) throws NumberFormatException {
-        Optional<Integer> cupoLugar = lugarSeleccionado.getCupo();
-        if (cupoLugar.isPresent()) {
-            return cupoLugar.get();
-        }
-        String cupoStr = etCupo.getText() != null ? etCupo.getText().toString().trim() : "";
-        if (cupoStr.isEmpty()) {
-            return null;
-        }
-        return Integer.parseInt(cupoStr);
-    }
-    private Periodicidad crearPeriodicidad() {
-        if (rbPuntual.isChecked()) {
-            if (fechaPuntualSeleccionada == null) {
-                Toast.makeText(this, "Seleccione la fecha de la actividad", Toast.LENGTH_SHORT).show();
+                // Guardar
+                if (modoEditar) {
+                    ActividadHelper.actualizarActividad(posicion, actividad);
+                    Toast.makeText(this, "Actividad actualizada correctamente", Toast.LENGTH_SHORT).show();
+                } else {
+                    ActividadHelper.agregarActividad(actividad);
+                    Toast.makeText(this, "Actividad creada correctamente", Toast.LENGTH_SHORT).show();
+                }
+
+                finish();
+            }
+
+            private TipoActividad.Categoria obtenerCategoriaPorNombre(String nombre) {
+                switch (nombre) {
+                    case "Taller":
+                        return TipoActividad.Categoria.TALLER;
+                    case "Capacitación":
+                        return TipoActividad.Categoria.CAPACITACION;
+                    case "Charla":
+                        return TipoActividad.Categoria.CHARLA;
+                    case "Operativo":
+                        return TipoActividad.Categoria.OPERATIVO;
+                    case "Diagnóstico":
+                        return TipoActividad.Categoria.DIAGNOSTICO;
+                    default:
+                        return TipoActividad.Categoria.TALLER;
+                }
+            }
+
+            private OferenteActividad.Institucion obtenerInstitucionPorNombre(String nombre) {
+                if (nombre.contains("INACAP") || nombre.contains("Centro de Salud")) {
+                    return OferenteActividad.Institucion.CFT;
+                } else if (nombre.contains("Universidad")) {
+                    return OferenteActividad.Institucion.UNIVERSIDAD;
+                } else {
+                    return OferenteActividad.Institucion.IP;
+                }
+            }
+
+            private Lugar.Tipo obtenerTipoLugarPorNombre(String nombre) {
+                if (nombre.toLowerCase(Locale.getDefault()).contains("sede")) {
+                    return Lugar.Tipo.OFICINA_DEL_CENTRO;
+                }
+                return Lugar.Tipo.LUGAR_DEL_TERRITORIO;
+            }
+
+            private List<DayOfWeek> obtenerDiasSeleccionados() {
+                List<DayOfWeek> dias = new ArrayList<>();
+                for (int i = 0; i < chipGroupDias.getChildCount(); i++) {
+                    View chipView = chipGroupDias.getChildAt(i);
+                    if (chipView instanceof Chip) {
+                        Chip chip = (Chip) chipView;
+                        if (chip.isChecked()) {
+                            DayOfWeek dia = obtenerDiaPorChipId(chip.getId());
+                            if (dia != null) {
+                                dias.add(dia);
+                            }
+                        }
+                    }
+                }
+                return dias;
+            }
+
+            private DayOfWeek obtenerDiaPorChipId(int id) {
+                if (id == R.id.chipLunes) return DayOfWeek.MONDAY;
+                if (id == R.id.chipMartes) return DayOfWeek.TUESDAY;
+                if (id == R.id.chipMiercoles) return DayOfWeek.WEDNESDAY;
+                if (id == R.id.chipJueves) return DayOfWeek.THURSDAY;
+                if (id == R.id.chipViernes) return DayOfWeek.FRIDAY;
+                if (id == R.id.chipSabado) return DayOfWeek.SATURDAY;
+                if (id == R.id.chipDomingo) return DayOfWeek.SUNDAY;
                 return null;
             }
-            if (horaPuntualSeleccionada == null) {
-                Toast.makeText(this, "Seleccione la hora de la actividad", Toast.LENGTH_SHORT).show();
-                return null;
-            }
-            return Periodicidad.puntual("Única vez", fechaPuntualSeleccionada);
-        }
-        if (!rbPeriodica.isChecked()) {
-            Toast.makeText(this, "Seleccione la periodicidad", Toast.LENGTH_SHORT).show();
-            return null;
-        }
-        if (fechaInicioSeleccionada == null) {
-            Toast.makeText(this, "Seleccione la fecha de inicio", Toast.LENGTH_SHORT).show();
-            return null;
-        }
-        if (horaPeriodicaSeleccionada == null) {
-            Toast.makeText(this, "Seleccione la hora de la actividad", Toast.LENGTH_SHORT).show();
-            return null;
-        }
-        List<DayOfWeek> diasSeleccionados = obtenerDiasSeleccionados();
-        if (diasSeleccionados.isEmpty()) {
-            Toast.makeText(this, "Seleccione al menos un día", Toast.LENGTH_SHORT).show();
-            return null;
-        }
-        int repeticiones = obtenerRepeticiones();
-        if (repeticiones <= 0) {
-            return null;
-        }
-        List<LocalDate> fechas = generarFechasPeriodicas(fechaInicioSeleccionada, diasSeleccionados, repeticiones);
-        if (fechas.isEmpty()) {
-            Toast.makeText(this, "No fue posible generar las citas", Toast.LENGTH_SHORT).show();
-            return null;
-        }
-        LocalDate fechaInicio = fechas.stream().min(LocalDate::compareTo).orElse(fechaInicioSeleccionada);
-        LocalDate fechaFin = fechas.stream().max(LocalDate::compareTo).orElse(fechaInicioSeleccionada);
-        return Periodicidad.periodica("Periódica", fechaInicio, fechaFin);
-    }
-    private List<LocalDate> generarFechasDeCitas(Periodicidad.Tipo tipo) {
-        if (tipo == Periodicidad.Tipo.PUNTUAL) {
-            List<LocalDate> fechas = new ArrayList<>();
-            fechas.add(fechaPuntualSeleccionada);
-            return fechas;
-        }
-        List<DayOfWeek> diasSeleccionados = obtenerDiasSeleccionados();
-        if (diasSeleccionados.isEmpty()) {
-            Toast.makeText(this, "Seleccione al menos un día", Toast.LENGTH_SHORT).show();
-            return null;
-        }
-        int repeticiones = obtenerRepeticiones();
-        if (repeticiones <= 0) {
-            return null;
-        }
-        return generarFechasPeriodicas(fechaInicioSeleccionada, diasSeleccionados, repeticiones);
-    }
-    private int obtenerRepeticiones() {
-        String repeticionesStr = etRepeticiones.getText() != null ? etRepeticiones.getText().toString().trim() : "";
-        if (repeticionesStr.isEmpty()) {
-            Toast.makeText(this, "Ingrese la cantidad de repeticiones", Toast.LENGTH_SHORT).show();
-            return -1;
-        }
-        try {
-            int repeticiones = Integer.parseInt(repeticionesStr);
-            if (repeticiones <= 0) {
-                Toast.makeText(this, "La cantidad de repeticiones debe ser mayor a cero", Toast.LENGTH_SHORT).show();
-                return -1;
-            }
-            return repeticiones;
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "La cantidad de repeticiones debe ser numérica", Toast.LENGTH_SHORT).show();
-            return -1;
-        }
-    }
-    private Lugar obtenerLugarSeleccionado() {
-        int indice = spinnerLugar.getSelectedItemPosition();
-        if (indice <= 0) {
-            return null;
-        }
-        return lugares.get(indice - 1);
-    }
-    private Proyecto obtenerProyectoSeleccionado() {
-        int indice = spinnerProyecto.getSelectedItemPosition();
-        if (indice <= 0) {
-            return null;
-        }
-        return proyectos.get(indice - 1);
-    }
-    private TipoActividad obtenerTipoSeleccionado() {
-        int indice = spinnerTipo.getSelectedItemPosition();
-        if (indice <= 0) {
-            return null;
-        }
-        return tiposActividad.get(indice - 1);
-    }
 
-    private OferenteActividad obtenerOferenteSeleccionado() {
-        int indice = spinnerOferente.getSelectedItemPosition();
-        if (indice <= 0) {
-            return null;
-        }
-
-        return oferentes.get(indice - 1);
-    }
-
-    private SocioComunitario obtenerSocioSeleccionado() {
-        int indice = spinnerSocio.getSelectedItemPosition();
-        if (indice <= 0) {
-            return null;
-        }
-        return socios.get(indice - 1);
-    }
-
-    private List<DayOfWeek> obtenerDiasSeleccionados() {
-        List<DayOfWeek> dias = new ArrayList<>();
-        for (int i = 0; i < chipGroupDias.getChildCount(); i++) {
-            View chipView = chipGroupDias.getChildAt(i);
-            if (chipView instanceof Chip) {
-                Chip chip = (Chip) chipView;
-                if (chip.isChecked()) {
-                    DayOfWeek dia = obtenerDiaPorChipId(chip.getId());
-                    if (dia != null) {
-                        dias.add(dia);
-                    }
+            private void marcarChipParaDia(DayOfWeek dia, boolean seleccionado) {
+                int chipId;
+                switch (dia) {
+                    case MONDAY:
+                        chipId = R.id.chipLunes;
+                        break;
+                    case TUESDAY:
+                        chipId = R.id.chipMartes;
+                        break;
+                    case WEDNESDAY:
+                        chipId = R.id.chipMiercoles;
+                        break;
+                    case THURSDAY:
+                        chipId = R.id.chipJueves;
+                        break;
+                    case FRIDAY:
+                        chipId = R.id.chipViernes;
+                        break;
+                    case SATURDAY:
+                        chipId = R.id.chipSabado;
+                        break;
+                    case SUNDAY:
+                        chipId = R.id.chipDomingo;
+                        break;
+                    default:
+                        return;
+                }
+                Chip chip = chipGroupDias.findViewById(chipId);
+                if (chip != null) {
+                    chip.setChecked(seleccionado);
                 }
             }
-        }
-        return dias;
-    }
 
-    private DayOfWeek obtenerDiaPorChipId(int id) {
-        if (id == R.id.chipLunes) return DayOfWeek.MONDAY;
-        if (id == R.id.chipMartes) return DayOfWeek.TUESDAY;
-        if (id == R.id.chipMiercoles) return DayOfWeek.WEDNESDAY;
-        if (id == R.id.chipJueves) return DayOfWeek.THURSDAY;
-        if (id == R.id.chipViernes) return DayOfWeek.FRIDAY;
-        if (id == R.id.chipSabado) return DayOfWeek.SATURDAY;
-        if (id == R.id.chipDomingo) return DayOfWeek.SUNDAY;
-        return null;
-    }
+            private List<LocalDate> generarFechasPeriodicas(LocalDate fechaInicio, List<DayOfWeek> dias, int repeticiones) {
+                List<LocalDate> fechas = new ArrayList<>();
+                for (DayOfWeek dia : dias) {
+                    LocalDate primeraFecha = fechaInicio.with(TemporalAdjusters.nextOrSame(dia));
+                    for (int i = 0; i < repeticiones; i++) {
+                        fechas.add(primeraFecha.plusWeeks(i));
+                    }
+                }
+                return fechas;
+            }
 
-    private void marcarChipParaDia(DayOfWeek dia, boolean seleccionado) {
-        int chipId;
-        switch (dia) {
-            case MONDAY:
-                chipId = R.id.chipLunes;
-                break;
-            case TUESDAY:
-                chipId = R.id.chipMartes;
-                break;
-            case WEDNESDAY:
-                chipId = R.id.chipMiercoles;
-                break;
-            case THURSDAY:
-                chipId = R.id.chipJueves;
-                break;
-            case FRIDAY:
-                chipId = R.id.chipViernes;
-                break;
-            case SATURDAY:
-                chipId = R.id.chipSabado;
-                break;
-            case SUNDAY:
-                chipId = R.id.chipDomingo;
-                break;
-            default:
-                return;
-        }
-        Chip chip = chipGroupDias.findViewById(chipId);
-        if (chip != null) {
-            chip.setChecked(seleccionado);
-        }
-    }
-
-    private List<LocalDate> generarFechasPeriodicas(LocalDate fechaInicio, List<DayOfWeek> dias, int repeticiones) {
-        List<LocalDate> fechas = new ArrayList<>();
-        for (DayOfWeek dia : dias) {
-            LocalDate primeraFecha = fechaInicio.with(TemporalAdjusters.nextOrSame(dia));
-            for (int i = 0; i < repeticiones; i++) {
-                fechas.add(primeraFecha.plusWeeks(i));
+            @Override
+            public boolean onOptionsItemSelected(MenuItem item) {
+                if (item.getItemId() == android.R.id.home) {
+                    finish();
+                    return true;
+                }
+                return super.onOptionsItemSelected(item);
             }
         }
-        return fechas;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-}

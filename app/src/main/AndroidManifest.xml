@@ -1,146 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permisos de almacenamiento-->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-
     <application
         android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <!-- LOGIN como pantalla inicial -->
         <activity
-            android:name=".login.ActivityLogin"
+            android:name=".citas.CrearCitaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- Forgot Password -->
-        <activity
-            android:name=".login.ActivityForgotPassword"
-            android:exported="false"/>
-
-        <!-- MainActivity (ya no es launcher, pero accesible) -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"/>
-
-        <!-- Perfiles / roles -->
-        <activity
-            android:name=".admin.AdminActivity"
-            android:exported="true"/>
-        <activity
-            android:name=".organizador.OrganizadorActivity"
-            android:exported="true"/>
-        <activity
-            android:name=".programador.ProgramadorActivity"
-            android:exported="true"/>
-        <activity
-            android:name=".publicista.PublicistaActivity"
-            android:exported="true"/>
-
-        <!-- Citas, Actividades y Calendar -->
-        <activity
-            android:name=".citas.CrearCitaActivity"
-            android:exported="false"/>
         <activity
             android:name=".actividades.ListarActividadesActivity"
             android:exported="false"
             android:label="Actividades"
-            android:parentActivityName=".MainActivity"/>
-        <activity
-            android:name=".CalendarActivity"
-            android:exported="false"/>
+            android:parentActivityName=".MainActivity" />
 
-        <!-- Adjuntar Archivos -->
-        <activity
-            android:name=".AdjuntarArchivosActivity"
-            android:label="Adjuntar Archivos"
-            android:exported="false"
-            android:parentActivityName=".actividades.CrearActividadActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".actividades.CrearActividadActivity" />
-        </activity>
-
-        <!-- Mantenedores (mantén las versiones con label/parent) -->
-        <activity
-            android:name=".mantenedores.mantenedoresActivity"
-            android:label="Gestión de Mantenedores"
-            android:exported="false"
-            android:theme="@style/AppTheme"/>
-
-        <!-- Actividades (crear/ver, con labels y parent) -->
         <activity
             android:name=".actividades.CrearActividadActivity"
             android:exported="false"
             android:label="Crear Actividad"
-            android:parentActivityName=".actividades.ListarActividadesActivity"/>
+            android:parentActivityName=".actividades.ListarActividadesActivity" />
+
         <activity
             android:name=".actividades.VerActividadActivity"
             android:exported="false"
             android:label="Detalle de Actividad"
-            android:parentActivityName=".actividades.ListarActividadesActivity"/>
+            android:parentActivityName=".actividades.ListarActividadesActivity" />
 
-        <!-- Sistema de Roles y Permisos -->
-        <activity
-            android:name=".auth.SelectorRolActivity"
-            android:exported="true"
-            android:label="Selector de Rol"
-            android:theme="@style/AppTheme"/>
-
-        <!-- Usuarios -->
-        <activity
-            android:name=".usuarios.GestionUsuariosActivity"
-            android:exported="false"
-            android:label="Gestión de Usuarios"
-            android:parentActivityName=".MainActivity"/>
-        <activity
-            android:name=".usuarios.CrearUsuarioActivity"
-            android:exported="false"
-            android:label="Crear Usuario"
-            android:parentActivityName=".usuarios.GestionUsuariosActivity"/>
-        <activity
-            android:name=".usuarios.DetalleUsuarioActivity"
-            android:exported="false"
-            android:label="Detalle Usuario"
-            android:parentActivityName=".usuarios.GestionUsuariosActivity"/>
-
-        <!-- Otros módulos -->
         <activity
             android:name=".tipoactividad.TipoActividadActivity"
             android:exported="false"
             android:label="Tipos de Actividad"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".lugar.LugarActivity"
             android:exported="false"
             android:label="Lugares"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity" />
+
+
         <activity
             android:name=".socio.SocioComunitarioActivity"
             android:exported="false"
             android:label="Socios Comunitarios"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".proyecto.ProyectoActivity"
             android:exported="false"
             android:label="Proyectos"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".oferente.OferenteActivity"
             android:exported="false"
             android:label="Oferentes"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".mantenedores.mantenedoresActivity"
+            android:label="Gestión de Mantenedores"
+            android:exported="false"
+            android:theme="@style/AppTheme" />
 
+        <activity
+            android:name=".CalendarActivity"
+            android:exported="false" />
     </application>
+
+
+
+
+
 </manifest>

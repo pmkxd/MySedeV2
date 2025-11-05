@@ -21,7 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="#004F44"
-            android:padding="2dp"
+            android:padding="16dp"
             app:navigationIcon="@drawable/ic_arrow_back"
             app:title="Adjuntar Archivos"
             app:titleCentered="true"
@@ -42,7 +42,19 @@
             android:orientation="vertical"
             android:gravity="center_horizontal">
 
-            <!-- BOTÓN DE SELECCIONAR ARCHIVOS -->
+            <!-- SPINNER -->
+            <Spinner
+                android:id="@+id/spinner"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="40dp"
+                android:background="@drawable/spinner_background"
+                android:entries="@array/actividades_demo"
+                android:paddingHorizontal="16dp"
+                android:popupBackground="@android:color/white"
+                android:spinnerMode="dropdown" />
+
+            <!-- BOTÓN DE SELECCIONAR ARCHIVO -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSeleccionarArchivo"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -50,7 +62,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
                 android:paddingHorizontal="24dp"
-                android:text="Seleccionar archivos"
+                android:text="Seleccionar archivo"
                 android:textAllCaps="false"
                 android:textColor="#004F44"
                 app:icon="@android:drawable/ic_menu_upload"
@@ -59,14 +71,32 @@
                 app:strokeColor="#004F44"
                 app:strokeWidth="1dp" />
 
-            <!-- LISTADO DE ARCHIVOS ADJUNTOS -->
-            <LinearLayout
-                android:id="@+id/layoutArchivosAdjuntos"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="20dp"
-                android:visibility="gone" />
+            <!-- CONTENEDOR DE IMAGEN Y BOTÓN ELIMINAR -->
+            <FrameLayout
+                android:id="@+id/contenedorImagen"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:layout_marginTop="30dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/imagePreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/image_preview_bg" />
+
+                <ImageButton
+                    android:id="@+id/btnEliminarImagen"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="end|top"
+                    android:layout_margin="8dp"
+                    android:backgroundTint="#CCFFFFFF"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    android:contentDescription="Eliminar imagen" />
+            </FrameLayout>
 
             <!-- BOTÓN GUARDAR -->
             <com.google.android.material.button.MaterialButton
@@ -84,3 +114,4 @@
         </LinearLayout>
     </ScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+

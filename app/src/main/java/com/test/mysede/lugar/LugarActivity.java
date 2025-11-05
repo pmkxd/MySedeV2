@@ -14,8 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.test.mysede.DAO.FirestoreOperationCallback;
-import com.test.mysede.DAO.LugarDAO;
 import com.test.mysede.R;
 import com.test.mysede.model.Lugar;
 
@@ -28,7 +26,6 @@ public class LugarActivity extends AppCompatActivity {
     private LugarAdapter adapter;
     private List<Lugar> listaLugares;
     private FloatingActionButton btnNuevoLugar;
-    private LugarDAO lugarDAO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,9 +35,9 @@ public class LugarActivity extends AppCompatActivity {
         recyclerLugares = findViewById(R.id.recyclerLugares);
         btnNuevoLugar = findViewById(R.id.btnNuevoLugar);
 
-        lugarDAO = new LugarDAO();
         listaLugares = new ArrayList<>();
-
+        listaLugares.add(new Lugar("Centro Comunitario", Lugar.Tipo.OFICINA_DEL_CENTRO, 25));
+        listaLugares.add(new Lugar("Sede Vecinal Norte", Lugar.Tipo.LUGAR_DEL_TERRITORIO, 40));
 
         adapter = new LugarAdapter(this, listaLugares, new LugarAdapter.OnItemClickListener() {
             @Override
@@ -63,27 +60,6 @@ public class LugarActivity extends AppCompatActivity {
         recyclerLugares.setAdapter(adapter);
 
         btnNuevoLugar.setOnClickListener(v -> mostrarDialogoAgregar());
-
-        cargarLugares();
-    }
-
-    private void cargarLugares() {
-        lugarDAO.getAllLugares(new LugarDAO.OnLugaresLoadedListener() {
-            @Override
-            public void onLugaresLoaded(ArrayList<Lugar> lugares) {
-                runOnUiThread(() -> {
-                    listaLugares.clear();
-                    listaLugares.addAll(lugares);
-                    adapter.notifyDataSetChanged();
-                });
-            }
-
-            @Override
-            public void onError(Exception e) {
-                runOnUiThread(() -> Toast.makeText(LugarActivity.this,
-                        "Error al cargar los lugares", Toast.LENGTH_SHORT).show());
-            }
-        });
     }
 
     // 👁️ Ver detalles
@@ -121,26 +97,9 @@ public class LugarActivity extends AppCompatActivity {
                         return;
                     }
 
-                    Integer cupo = parseCupo(cupoStr);
-                    if (!cupoStr.isEmpty() && cupo == null) {
-                        return;
-                    }
-                    Lugar nuevoLugar = new Lugar(nombre, tipo, cupo);
-                    lugarDAO.saveLugar(nuevoLugar, new FirestoreOperationCallback() {
-                        @Override
-                        public void onSuccess() {
-                            runOnUiThread(() -> {
-                                Toast.makeText(LugarActivity.this, "Lugar registrado", Toast.LENGTH_SHORT).show();
-                                cargarLugares();
-                            });
-                        }
-
-                        @Override
-                        public void onFailure(Exception exception) {
-                            runOnUiThread(() -> Toast.makeText(LugarActivity.this,
-                                    "No fue posible registrar el lugar", Toast.LENGTH_SHORT).show());
-                        }
-                    });
+                    Integer cupo = cupoStr.isEmpty() ? null : Integer.parseInt(cupoStr);
+                    listaLugares.add(new Lugar(nombre, tipo, cupo));
+                    adapter.notifyItemInserted(listaLugares.size() - 1);
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
@@ -174,27 +133,10 @@ public class LugarActivity extends AppCompatActivity {
                         return;
                     }
 
-                    Integer nuevoCupo = parseCupo(nuevoCupoStr);
-                    if (!nuevoCupoStr.isEmpty() && nuevoCupo == null) {
-                        return;
-                    }
-                    Lugar lugarActualizado = new Lugar(nuevoNombre, nuevoTipo, nuevoCupo);
-                    lugarActualizado.setId(lugar.getId());
-                    lugarDAO.saveLugar(lugarActualizado, new FirestoreOperationCallback() {
-                        @Override
-                        public void onSuccess() {
-                            runOnUiThread(() -> {
-                                Toast.makeText(LugarActivity.this, "Lugar actualizado", Toast.LENGTH_SHORT).show();
-                                cargarLugares();
-                            });
-                        }
-
-                        @Override
-                        public void onFailure(Exception exception) {
-                            runOnUiThread(() -> Toast.makeText(LugarActivity.this,
-                                    "No fue posible actualizar el lugar", Toast.LENGTH_SHORT).show());
-                        }
-                    });
+                    Integer nuevoCupo = nuevoCupoStr.isEmpty() ? null : Integer.parseInt(nuevoCupoStr);
+                    listaLugares.set(position, new Lugar(nuevoNombre, nuevoTipo, nuevoCupo));
+                    adapter.notifyItemChanged(position);
+                    Toast.makeText(this, "Lugar actualizado", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
@@ -202,40 +144,15 @@ public class LugarActivity extends AppCompatActivity {
 
     // 🗑️ Eliminar lugar
     private void confirmarEliminar(int position) {
-        Lugar lugar = listaLugares.get(position);
         new AlertDialog.Builder(this)
                 .setTitle("Eliminar")
                 .setMessage("¿Seguro que deseas eliminar este lugar?")
                 .setPositiveButton("Sí", (dialog, which) -> {
-                    lugarDAO.deleteLugar(lugar, new FirestoreOperationCallback() {
-                        @Override
-                        public void onSuccess() {
-                            runOnUiThread(() -> {
-                                Toast.makeText(LugarActivity.this, "Lugar eliminado", Toast.LENGTH_SHORT).show();
-                                cargarLugares();
-                            });
-                        }
-
-                        @Override
-                        public void onFailure(Exception exception) {
-                            runOnUiThread(() -> Toast.makeText(LugarActivity.this,
-                                    "No fue posible eliminar el lugar", Toast.LENGTH_SHORT).show());
-                        }
-                    });
+                    listaLugares.remove(position);
+                    adapter.notifyItemRemoved(position);
+                    Toast.makeText(this, "Lugar eliminado", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("No", null)
                 .show();
-    }
-
-    private Integer parseCupo(String cupoStr) {
-        if (cupoStr.isEmpty()) {
-            return null;
-        }
-        try {
-            return Integer.parseInt(cupoStr);
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Cupo inválido", Toast.LENGTH_SHORT).show();
-            return null;
-        }
     }
 }

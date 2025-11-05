@@ -18,7 +18,7 @@ public class TipoActividad {
         PRACTICA_PROFESIONAL,
         DIAGNOSTICO
     }
-    private String id;
+
     private final String nombre;
     private final String descripcion;
     private final Categoria categoria;
@@ -40,11 +40,4 @@ public class TipoActividad {
     public Categoria getCategoria() {
         return categoria;
     }
-    public String getId() {
-        return id;
-    }
-    public void setId(String id) {
-        this.id = id;
-    }
-
 }
