@@ -5,13 +5,9 @@ import android.content.SharedPreferences;
 
 import com.test.mysede.model.Usuario;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Gestor de sesión temporal del usuario
  * Guarda y recupera información del usuario en SharedPreferences
- * Este es un sistema temporal hasta que se implemente Firebase Auth
  */
 public class SessionManager {
 
@@ -54,29 +50,28 @@ public class SessionManager {
 
     /**
      * Obtiene el usuario de la sesión actual
-     * Nota: Los permisos se asignan según la plantilla del rol
+     * Mantiene los permisos reales del usuario
      */
     public Usuario obtenerUsuarioSesion() {
-        if (!haySesionActiva()) {
-            return null;
-        }
+        if (!haySesionActiva()) return null;
 
+        Usuario usuarioActual = PermissionManager.getUsuarioActual();
+        if (usuarioActual != null) return usuarioActual;
+
+        // Si no hay usuario en memoria, reconstruir desde SharedPreferences
         String id = prefs.getString(KEY_USER_ID, null);
         String nombre = prefs.getString(KEY_USER_NAME, null);
         String email = prefs.getString(KEY_USER_EMAIL, null);
         String rolString = prefs.getString(KEY_USER_ROL, null);
 
-        if (id == null || nombre == null || email == null || rolString == null) {
-            return null;
-        }
+        if (id == null || nombre == null || email == null || rolString == null) return null;
 
         Rol rol = Rol.valueOf(rolString);
         Usuario usuario = new Usuario(nombre, email, rol);
         usuario.setId(id);
 
-        // Asignar permisos según plantilla
-        Set<Permiso> permisos = PlantillaPermisos.obtenerPermisosPorRol(rol);
-        usuario.setPermisos(permisos);
+        // Asignar usuario reconstruido a PermissionManager
+        PermissionManager.setUsuarioActual(usuario);
 
         return usuario;
     }
@@ -90,35 +85,20 @@ public class SessionManager {
         PermissionManager.cerrarSesion();
     }
 
-    /**
-     * Obtiene el ID del usuario logueado
-     */
     public String getUserId() {
         return prefs.getString(KEY_USER_ID, null);
     }
 
-    /**
-     * Obtiene el nombre del usuario logueado
-     */
     public String getUserName() {
         return prefs.getString(KEY_USER_NAME, "Invitado");
     }
 
-    /**
-     * Obtiene el email del usuario logueado
-     */
     public String getUserEmail() {
         return prefs.getString(KEY_USER_EMAIL, "");
     }
 
-    /**
-     * Obtiene el rol del usuario logueado
-     */
     public Rol getUserRol() {
         String rolString = prefs.getString(KEY_USER_ROL, null);
-        if (rolString != null) {
-            return Rol.valueOf(rolString);
-        }
-        return null;
+        return (rolString != null) ? Rol.valueOf(rolString) : null;
     }
 }

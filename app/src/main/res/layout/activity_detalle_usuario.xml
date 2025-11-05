@@ -70,6 +70,24 @@
                         android:textColor="@color/md_theme_onSurfaceVariant"
                         android:layout_marginBottom="16dp" />
 
+                    <!-- RUT -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="RUT"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/md_theme_primary" />
+
+                    <TextView
+                        android:id="@+id/tvRutDetalle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="12345678-9"
+                        android:textSize="16sp"
+                        android:textColor="@color/md_theme_onSurface"
+                        android:layout_marginBottom="12dp" />
+
                     <!-- Rol -->
                     <TextView
                         android:layout_width="match_parent"
@@ -113,6 +131,16 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Creado: 00/00/0000"
+                        android:textSize="12sp"
+                        android:textColor="@color/md_theme_onSurfaceVariant"
+                        android:layout_marginBottom="4dp" />
+
+                    <!-- Último acceso -->
+                    <TextView
+                        android:id="@+id/tvUltimoAccesoDetalle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Último acceso: 00/00/0000"
                         android:textSize="12sp"
                         android:textColor="@color/md_theme_onSurfaceVariant" />
 
