@@ -22,6 +22,7 @@ import com.test.mysede.auth.Permiso;
 import com.test.mysede.auth.Rol;
 import com.test.mysede.auth.SessionManager;
 import com.test.mysede.model.Usuario;
+import com.test.mysede.ui.SystemBarsHelper;
 
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +42,7 @@ public class ActivityLogin extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();

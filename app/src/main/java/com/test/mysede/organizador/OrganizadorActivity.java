@@ -19,6 +19,7 @@ import com.test.mysede.login.ActivityLogin;
 import com.test.mysede.model.Usuario;
 import com.test.mysede.actividades.ListarActividadesActivity;
 import com.test.mysede.CalendarActivity;
+import com.test.mysede.ui.SystemBarsHelper;
 
 public class OrganizadorActivity extends AppCompatActivity {
 
@@ -29,6 +30,7 @@ public class OrganizadorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_organizador);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         // Configurar Toolbar
         MaterialToolbar toolbar = findViewById(R.id.toolbar);

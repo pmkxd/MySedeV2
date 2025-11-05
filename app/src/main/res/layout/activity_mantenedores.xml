@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_container"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/verde_principal">
+    android:background="?attr/colorSurface">
 
     <!-- Toolbar superior -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/verde_principal"
+        android:background="?attr/colorPrimary"
         app:title="Panel de Mantenedores"
         app:titleCentered="true"
-        app:titleTextColor="@android:color/white"
+        app:titleTextColor="?attr/colorOnPrimary"
         app:navigationIcon="@drawable/ic_arrow_back_24" />
 
     <!-- Contenido desplazable -->
@@ -22,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp"
-        android:background="@color/verde_principal">
+        android:background="?attr/colorSurface">
 
         <LinearLayout
             android:orientation="vertical"
@@ -35,7 +36,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:cardBackgroundColor="#FDFDFD"
+                app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
                 app:cardElevation="6dp"
                 app:cardCornerRadius="12dp">
 
@@ -62,14 +63,14 @@
                             android:text="Tipos de Actividad"
                             android:textStyle="bold"
                             android:textSize="18sp"
-                            android:textColor="@color/verde_principal"
+                            android:textColor="?attr/colorPrimary"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
 
                         <TextView
                             android:text="Gestión de categorías de actividades"
                             android:textSize="14sp"
-                            android:textColor="#666"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
                     </LinearLayout>
@@ -82,7 +83,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:cardBackgroundColor="#FDFDFD"
+                app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
                 app:cardElevation="6dp"
                 app:cardCornerRadius="12dp">
 
@@ -109,14 +110,14 @@
                             android:text="Lugares"
                             android:textStyle="bold"
                             android:textSize="18sp"
-                            android:textColor="@color/verde_principal"
+                            android:textColor="?attr/colorPrimary"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
 
                         <TextView
                             android:text="Salas y espacios disponibles"
                             android:textSize="14sp"
-                            android:textColor="#666"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
                     </LinearLayout>
@@ -129,7 +130,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:cardBackgroundColor="#FDFDFD"
+                app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
                 app:cardElevation="6dp"
                 app:cardCornerRadius="12dp">
 
@@ -156,14 +157,14 @@
                             android:text="Oferentes"
                             android:textStyle="bold"
                             android:textSize="18sp"
-                            android:textColor="@color/verde_principal"
+                            android:textColor="?attr/colorPrimary"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
 
                         <TextView
                             android:text="Personas o instituciones que dictan actividades"
                             android:textSize="14sp"
-                            android:textColor="#666"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
                     </LinearLayout>
@@ -176,7 +177,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:cardBackgroundColor="#FDFDFD"
+                app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
                 app:cardElevation="6dp"
                 app:cardCornerRadius="12dp">
 
@@ -203,14 +204,14 @@
                             android:text="Socios Comunitarios"
                             android:textStyle="bold"
                             android:textSize="18sp"
-                            android:textColor="@color/verde_principal"
+                            android:textColor="?attr/colorPrimary"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
 
                         <TextView
                             android:text="Organizaciones externas asociadas"
                             android:textSize="14sp"
-                            android:textColor="#666"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
                     </LinearLayout>
@@ -222,7 +223,7 @@
                 android:id="@+id/card_proyectos"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#FDFDFD"
+                app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
                 app:cardElevation="6dp"
                 app:cardCornerRadius="12dp">
 
@@ -249,14 +250,14 @@
                             android:text="Proyectos"
                             android:textStyle="bold"
                             android:textSize="18sp"
-                            android:textColor="@color/verde_principal"
+                            android:textColor="?attr/colorPrimary"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
 
                         <TextView
                             android:text="Programas y convocatorias"
                             android:textSize="14sp"
-                            android:textColor="#666"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
                     </LinearLayout>

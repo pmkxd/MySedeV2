@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+import com.test.mysede.ui.SystemBarsHelper;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,7 +35,7 @@ public class LugarActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lugar);
-
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
         recyclerLugares = findViewById(R.id.recyclerLugares);
         btnNuevoLugar = findViewById(R.id.btnNuevoLugar);
 

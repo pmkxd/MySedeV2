@@ -12,7 +12,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.test.mysede.ui.SystemBarsHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.test.mysede.DAO.FirestoreOperationCallback;
 import com.test.mysede.DAO.OferenteActividadDAO;
@@ -36,6 +36,7 @@ public class OferenteActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_oferente);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         recyclerOferentes = findViewById(R.id.recyclerOferentes);
         btnNuevoOferente = findViewById(R.id.btnNuevoOferente);
