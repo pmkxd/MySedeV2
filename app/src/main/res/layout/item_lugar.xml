@@ -6,7 +6,7 @@
     android:layout_margin="8dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="4dp"
-    app:cardBackgroundColor="@android:color/white">
+    app:cardBackgroundColor="@color/md_theme_surface">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,7 +27,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Centro Comunitario"
-                android:textColor="#000000"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -36,7 +36,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Tipo: Oficina"
-                android:textColor="#555555"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="14sp" />
 
             <TextView
@@ -44,7 +44,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Cupo: 20"
-                android:textColor="#555555"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="14sp" />
         </LinearLayout>
 
@@ -56,7 +56,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/ver"
             android:src="@drawable/ic_visibility"
-            app:tint="@color/teal_700" />
+            app:tint="?attr/colorPrimary" />
 
         <ImageButton
             android:id="@+id/btnEditarLugar"
@@ -65,7 +65,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/editar"
             android:src="@drawable/ic_edit"
-            app:tint="@color/yellow_700" />
+            app:tint="?attr/colorSecondary" />
 
         <ImageButton
             android:id="@+id/btnEliminarLugar"
@@ -74,6 +74,6 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/eliminar"
             android:src="@drawable/ic_delete"
-            app:tint="@color/red_700" />
+            app:tint="?attr/colorError" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

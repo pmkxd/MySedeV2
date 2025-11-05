@@ -7,7 +7,7 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
-
+import com.test.mysede.ui.SystemBarsHelper;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -43,6 +43,7 @@ public class CrearUsuarioActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_crear_usuario);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         if (!PermissionManager.tienePermiso(Permiso.CREAR_USUARIO)) {
             Toast.makeText(this, "Acceso denegado", Toast.LENGTH_SHORT).show();
