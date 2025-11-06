@@ -1,4 +1,4 @@
-package com.test.mysede;
+package com.test.mysede.calendar;
 
 import androidx.annotation.Nullable;
 

@@ -1,176 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".publicista.PublicistaActivity">
+    android:layout_height="match_parent">
 
-    <!-- Toolbar -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
+        android:layout_height="wrap_content">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:elevation="4dp"
-            app:title="Publicista"
-            app:titleTextColor="?attr/colorOnPrimary"
-            app:menu="@menu/menu_user_options" />
+            android:background="@color/md_theme_primary"
+            android:title="Panel de Publicista"
+            android:titleTextColor="@color/md_theme_onPrimary" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <ScrollView
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="20dp"
-        android:background="?attr/colorSurface">
+        android:layout_marginBottom="72dp"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        app:defaultNavHost="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:navGraph="@navigation/nav_publicista" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal">
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/md_theme_surface"
+        app:menu="@menu/menu_simple_bottom" />
 
-            <!-- Bienvenida -->
-            <TextView
-                android:id="@+id/txtBienvenida"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Bienvenido"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface"
-                android:paddingBottom="6dp"/>
-
-            <!-- Nombre Usuario -->
-            <TextView
-                android:id="@+id/txtNombreUsuario"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Nombre Apellido"
-                android:textSize="18sp"
-                android:textStyle="italic"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:paddingBottom="24dp"/>
-
-            <!-- Tarjeta: Actividades -->
-            <LinearLayout
-                android:id="@+id/cardActividades"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="18dp"
-                android:layout_marginBottom="12dp"
-                android:background="@color/md_theme_surfaceContainerLow"
-                android:elevation="4dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Actividades"
-                    android:textSize="17sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorPrimary"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Visualiza las actividades del centro."
-                    android:textSize="14sp"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="10dp"/>
-
-                <Button
-                    android:id="@+id/btnActividades"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="?attr/colorPrimary"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:text="Ingresar" />
-            </LinearLayout>
-
-            <!-- Tarjeta: Calendario -->
-            <LinearLayout
-                android:id="@+id/cardCalendario"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="18dp"
-                android:layout_marginBottom="12dp"
-                android:background="@color/md_theme_surfaceContainerLow"
-                android:elevation="4dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Calendario"
-                    android:textSize="17sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorPrimary"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Consulta el calendario de citas del centro."
-                    android:textSize="14sp"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="10dp"/>
-
-                <Button
-                    android:id="@+id/btnCalendario"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="?attr/colorPrimary"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:text="Ingresar" />
-            </LinearLayout>
-
-            <!-- Tarjeta: Adjuntar Archivos -->
-            <LinearLayout
-                android:id="@+id/cardAdjuntar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="18dp"
-                android:layout_marginBottom="20dp"
-                android:background="@color/md_theme_surfaceContainerLow"
-                android:elevation="4dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Adjuntar Archivos"
-                    android:textSize="17sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorPrimary"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Agrega archivos relacionados con las actividades."
-                    android:textSize="14sp"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="10dp"/>
-
-                <Button
-                    android:id="@+id/btnAdjuntar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="?attr/colorPrimary"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:text="Adjuntar" />
-            </LinearLayout>
-
-        </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

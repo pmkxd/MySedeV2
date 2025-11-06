@@ -14,8 +14,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/md_theme_primary"
-            android:title="Panel de Organizador"
-            android:titleTextColor="@color/md_theme_onPrimary" />
+            android:titleTextColor="@color/md_theme_onPrimary"
+            app:title="Panel Administrativo" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -27,7 +27,7 @@
         android:name="androidx.navigation.fragment.NavHostFragment"
         app:defaultNavHost="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:navGraph="@navigation/nav_organizador" />
+        app:navGraph="@navigation/nav_admin" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
@@ -35,6 +35,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@color/md_theme_surface"
-        app:menu="@menu/menu_simple_bottom" />
+        app:menu="@menu/menu_admin_bottom" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

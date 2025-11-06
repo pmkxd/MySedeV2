@@ -1,24 +1,20 @@
-package com.test.mysede;
+package com.test.mysede.calendar;
 
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
@@ -29,12 +25,17 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
+import com.test.mysede.calendar.CalendarDayAppointmentsAdapter;
+import com.test.mysede.calendar.CalendarMonthAdapter;
+import com.test.mysede.calendar.CalendarUiCita;
+import com.test.mysede.calendar.CalendarWeekAdapter;
 import com.test.mysede.DAO.ActividadDAO;
 import com.test.mysede.DAO.CitaDAO;
 import com.test.mysede.DAO.FirestoreOperationCallback;
+import com.test.mysede.calendar.DaySchedule;
+import com.test.mysede.R;
 import com.test.mysede.model.Actividad;
 import com.test.mysede.model.Cita;
-import com.test.mysede.model.Lugar;
 
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -55,15 +56,28 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CalendarActivity extends AppCompatActivity implements
+/**
+ * Fragment que muestra el calendario de actividades/citas.
+ */
+public class CalendarFragment extends Fragment implements
         CalendarWeekAdapter.OnEventInteractionListener,
         CalendarMonthAdapter.OnDayClickListener {
 
-    public static final String EXTRA_INITIAL_MODE = "com.test.mysede.calendar.EXTRA_INITIAL_MODE";
+    public static final String ARG_INITIAL_MODE = "com.test.mysede.calendar.ARG_INITIAL_MODE";
     public static final String MODE_WEEK = "WEEK";
     public static final String MODE_MONTH = "MONTH";
 
     private enum ViewMode { WEEK, MONTH }
+
+    public static CalendarFragment newInstance(@Nullable String initialMode) {
+        CalendarFragment fragment = new CalendarFragment();
+        if (initialMode != null) {
+            Bundle args = new Bundle();
+            args.putString(ARG_INITIAL_MODE, initialMode);
+            fragment.setArguments(args);
+        }
+        return fragment;
+    }
 
     private final Locale locale = new Locale("es", "ES");
     private final DateTimeFormatter dayTitleFormatter = DateTimeFormatter.ofPattern("EEE d", locale);
@@ -98,41 +112,35 @@ public class CalendarActivity extends AppCompatActivity implements
     private LocalDate currentWeekStart = selectedDate.with(DayOfWeek.MONDAY);
     private YearMonth currentMonth = YearMonth.from(selectedDate);
 
+    @Nullable
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_calendar);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_calendar, container, false);
+    }
 
-        root = findViewById(R.id.calendar_root);
-        viewToggle = findViewById(R.id.calendar_view_toggle);
-        weekContainer = findViewById(R.id.calendar_week_container);
-        monthContainer = findViewById(R.id.calendar_month_container);
-        weekTitle = findViewById(R.id.calendar_week_title);
-        weekRecycler = findViewById(R.id.calendar_week_recycler);
-        previousWeekButton = findViewById(R.id.calendar_week_previous);
-        nextWeekButton = findViewById(R.id.calendar_week_next);
-        previousMonthButton = findViewById(R.id.calendar_month_previous);
-        nextMonthButton = findViewById(R.id.calendar_month_next);
-        monthTitle = findViewById(R.id.calendar_month_title);
-        monthRecycler = findViewById(R.id.calendar_month_recycler);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        ViewCompat.setOnApplyWindowInsetsListener(root, (view, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-            view.setPadding(insets.left, insets.top, insets.right, insets.bottom);
-            return windowInsets;
-        });
-
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
-        toolbar.setNavigationOnClickListener(v -> finish());
+        root = view.findViewById(R.id.calendar_root);
+        viewToggle = view.findViewById(R.id.calendar_view_toggle);
+        weekContainer = view.findViewById(R.id.calendar_week_container);
+        monthContainer = view.findViewById(R.id.calendar_month_container);
+        weekTitle = view.findViewById(R.id.calendar_week_title);
+        weekRecycler = view.findViewById(R.id.calendar_week_recycler);
+        previousWeekButton = view.findViewById(R.id.calendar_week_previous);
+        nextWeekButton = view.findViewById(R.id.calendar_week_next);
+        previousMonthButton = view.findViewById(R.id.calendar_month_previous);
+        nextMonthButton = view.findViewById(R.id.calendar_month_next);
+        monthTitle = view.findViewById(R.id.calendar_month_title);
+        monthRecycler = view.findViewById(R.id.calendar_month_recycler);
 
         weekAdapter = new CalendarWeekAdapter(currentWeekDays, dayTitleFormatter, this);
-        weekRecycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        weekRecycler.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         weekRecycler.setAdapter(weekAdapter);
 
         monthAdapter = new CalendarMonthAdapter(this);
-        monthRecycler.setLayoutManager(new GridLayoutManager(this, 7));
+        monthRecycler.setLayoutManager(new GridLayoutManager(requireContext(), 7));
         monthRecycler.setAdapter(monthAdapter);
 
         previousWeekButton.setOnClickListener(v -> navegarSemana(-1));
@@ -149,7 +157,11 @@ public class CalendarActivity extends AppCompatActivity implements
             }
         });
 
-        String initialMode = getIntent().getStringExtra(EXTRA_INITIAL_MODE);
+        String initialMode = null;
+        Bundle args = getArguments();
+        if (args != null) {
+            initialMode = args.getString(ARG_INITIAL_MODE);
+        }
         if (MODE_MONTH.equals(initialMode)) {
             viewToggle.check(R.id.calendar_toggle_month);
         } else {
@@ -247,7 +259,7 @@ public class CalendarActivity extends AppCompatActivity implements
             @Override
             public void onActividadesLoaded(ArrayList<Actividad> actividades) {
                 if (actividades == null || actividades.isEmpty()) {
-                    runOnUiThread(() -> {
+                    requireActivity().runOnUiThread(() -> {
                         allAppointments.clear();
                         actualizarIndicePorFecha();
                         refrescarSemana();
@@ -275,8 +287,9 @@ public class CalendarActivity extends AppCompatActivity implements
                         @Override
                         public void onError(Exception e) {
                             if (errorReportado.compareAndSet(false, true)) {
-                                runOnUiThread(() ->
-                                        Snackbar.make(root, R.string.calendario_error_cargar_citas, Snackbar.LENGTH_LONG).show());
+                                requireActivity().runOnUiThread(() ->
+                                        Snackbar.make(root, R.string.calendario_error_cargar_citas, Snackbar.LENGTH_LONG).show()
+                                );
                             }
                             verificarFinalizacion();
                         }
@@ -287,7 +300,7 @@ public class CalendarActivity extends AppCompatActivity implements
                                 synchronized (citasRecolectadas) {
                                     snapshot = new ArrayList<>(citasRecolectadas);
                                 }
-                                runOnUiThread(() -> actualizarCalendario(snapshot));
+                                requireActivity().runOnUiThread(() -> actualizarCalendario(snapshot));
                             }
                         }
                     });
@@ -296,7 +309,7 @@ public class CalendarActivity extends AppCompatActivity implements
 
             @Override
             public void onError(Exception e) {
-                runOnUiThread(() -> {
+                requireActivity().runOnUiThread(() -> {
                     Snackbar.make(root, R.string.calendario_error_cargar_citas, Snackbar.LENGTH_LONG).show();
                     allAppointments.clear();
                     actualizarIndicePorFecha();
@@ -334,18 +347,18 @@ public class CalendarActivity extends AppCompatActivity implements
     }
 
     private void mostrarCitasDelDia(LocalDate fecha) {
-        BottomSheetDialog dialog = new BottomSheetDialog(this);
-        View view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_calendar_day, null, false);
-        MaterialTextView titulo = view.findViewById(R.id.calendar_day_sheet_title);
-        MaterialTextView subtitulo = view.findViewById(R.id.calendar_day_sheet_subtitle);
-        RecyclerView lista = view.findViewById(R.id.calendar_day_sheet_list);
-        MaterialTextView emptyView = view.findViewById(R.id.calendar_day_sheet_empty);
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.bottom_sheet_calendar_day, null, false);
+        MaterialTextView titulo = dialogView.findViewById(R.id.calendar_day_sheet_title);
+        MaterialTextView subtitulo = dialogView.findViewById(R.id.calendar_day_sheet_subtitle);
+        RecyclerView lista = dialogView.findViewById(R.id.calendar_day_sheet_list);
+        MaterialTextView emptyView = dialogView.findViewById(R.id.calendar_day_sheet_empty);
 
         titulo.setText(capitalizar(fecha.format(dateDetailFormatter)));
         List<CalendarUiCita> citas = obtenerCitasPorFecha(fecha);
         subtitulo.setText(getResources().getQuantityString(R.plurals.calendario_citas_count, citas.size(), citas.size()));
 
-        lista.setLayoutManager(new LinearLayoutManager(this));
+        lista.setLayoutManager(new LinearLayoutManager(requireContext()));
         CalendarDayAppointmentsAdapter adapter = new CalendarDayAppointmentsAdapter(cita -> {
             dialog.dismiss();
             mostrarDialogoDetalle(cita);
@@ -355,7 +368,7 @@ public class CalendarActivity extends AppCompatActivity implements
 
         emptyView.setVisibility(citas.isEmpty() ? View.VISIBLE : View.GONE);
 
-        dialog.setContentView(view);
+        dialog.setContentView(dialogView);
         dialog.show();
     }
 
@@ -391,7 +404,7 @@ public class CalendarActivity extends AppCompatActivity implements
         citaDAO.saveCita(citaActualizada, new FirestoreOperationCallback() {
             @Override
             public void onSuccess() {
-                runOnUiThread(() -> {
+                requireActivity().runOnUiThread(() -> {
                     cita.actualizarModelo(citaActualizada);
                     actualizarIndicePorFecha();
                     actualizarSeleccion(nuevaFecha);
@@ -404,7 +417,7 @@ public class CalendarActivity extends AppCompatActivity implements
 
             @Override
             public void onFailure(Exception exception) {
-                runOnUiThread(() ->
+                requireActivity().runOnUiThread(() ->
                         Snackbar.make(root, R.string.calendario_error_actualizar_cita, Snackbar.LENGTH_LONG).show());
             }
         });
@@ -437,7 +450,7 @@ public class CalendarActivity extends AppCompatActivity implements
         citaDAO.deleteCita(finalModelo, new FirestoreOperationCallback() {
             @Override
             public void onSuccess() {
-                runOnUiThread(() -> {
+                requireActivity().runOnUiThread(() -> {
                     allAppointments.remove(cita);
                     actualizarIndicePorFecha();
                     refrescarSemana();
@@ -448,14 +461,14 @@ public class CalendarActivity extends AppCompatActivity implements
 
             @Override
             public void onFailure(Exception exception) {
-                runOnUiThread(() ->
+                requireActivity().runOnUiThread(() ->
                         Snackbar.make(root, R.string.calendario_error_eliminar_cita, Snackbar.LENGTH_LONG).show());
             }
         });
     }
 
     private void mostrarDialogoDetalle(CalendarUiCita cita) {
-        View view = LayoutInflater.from(this).inflate(R.layout.dialog_cita_detalle, null, false);
+        View view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_cita_detalle, null, false);
         MaterialTextView titulo = view.findViewById(R.id.calendario_detalle_titulo);
         MaterialTextView horario = view.findViewById(R.id.calendario_detalle_horario);
         MaterialTextView descripcion = view.findViewById(R.id.calendario_detalle_descripcion);
@@ -469,7 +482,7 @@ public class CalendarActivity extends AppCompatActivity implements
                 cita.getHora().format(timeFormatter)));
         descripcion.setText(getString(R.string.calendario_detalle_lugar, cita.getLugarNombre()));
 
-        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+        AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
                 .create();
 
@@ -496,7 +509,7 @@ public class CalendarActivity extends AppCompatActivity implements
             LocalDate nuevaFecha = Instant.ofEpochMilli(selection).atZone(ZoneId.systemDefault()).toLocalDate();
             mostrarSelectorHora(cita, nuevaFecha, notificar);
         });
-        datePicker.show(getSupportFragmentManager(), "calendario_reagendar_fecha");
+        datePicker.show(getParentFragmentManager(), "calendario_reagendar_fecha");
     }
 
     private void mostrarSelectorHora(CalendarUiCita cita, LocalDate nuevaFecha, boolean notificar) {
@@ -513,11 +526,11 @@ public class CalendarActivity extends AppCompatActivity implements
                 Snackbar.make(root, R.string.calendario_snackbar_notificacion, Snackbar.LENGTH_SHORT).show();
             }
         });
-        picker.show(getSupportFragmentManager(), "calendario_reagendar_hora");
+        picker.show(getParentFragmentManager(), "calendario_reagendar_hora");
     }
 
     private void mostrarDialogoEliminar(CalendarUiCita cita, boolean notificar) {
-        new MaterialAlertDialogBuilder(this)
+        new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.calendario_dialogo_eliminar_titulo)
                 .setMessage(getString(R.string.calendario_dialogo_eliminar_mensaje, cita.getActividadNombre()))
                 .setPositiveButton(R.string.calendario_dialogo_eliminar_confirmar, (dialog, which) -> {

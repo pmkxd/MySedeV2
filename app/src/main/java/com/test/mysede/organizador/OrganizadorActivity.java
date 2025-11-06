@@ -4,74 +4,74 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.button.MaterialButton;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.test.mysede.R;
 import com.test.mysede.auth.PermissionManager;
-import com.test.mysede.auth.Rol;
 import com.test.mysede.auth.SessionManager;
 import com.test.mysede.login.ActivityLogin;
 import com.test.mysede.model.Usuario;
-import com.test.mysede.actividades.ListarActividadesActivity;
-import com.test.mysede.CalendarActivity;
-import com.test.mysede.ui.SystemBarsHelper;
 
 public class OrganizadorActivity extends AppCompatActivity {
 
     private SessionManager sessionManager;
-    private Usuario usuario;
+    private AppBarConfiguration appBarConfiguration;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_organizador);
-        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
-
-        // Configurar Toolbar
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-        }
 
         sessionManager = new SessionManager(this);
-        usuario = sessionManager.obtenerUsuarioSesion();
-
-        TextView txtBienvenida = findViewById(R.id.txtBienvenida);
-        TextView txtNombreUsuario = findViewById(R.id.txtNombreUsuario);
-
-        if (usuario != null) {
-            txtBienvenida.setText("Bienvenido");
-            txtNombreUsuario.setText(usuario.getNombre());
+        Usuario usuario = PermissionManager.getUsuarioActual();
+        if (usuario == null) {
+            usuario = sessionManager.obtenerUsuarioSesion();
+            if (usuario != null) {
+                PermissionManager.setUsuarioActual(usuario);
+            }
+        }
+        if (usuario == null) {
+            Toast.makeText(this, "Sesión inválida, por favor ingresa nuevamente", Toast.LENGTH_LONG).show();
+            startActivity(new Intent(this, ActivityLogin.class));
+            finish();
+            return;
         }
 
-        configurarBotones();
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setSubtitle(usuario.getNombre());
+
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        if (navHostFragment != null) {
+            NavController navController = navHostFragment.getNavController();
+            BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+            appBarConfiguration = new AppBarConfiguration.Builder(
+                    R.id.nav_calendar,
+                    R.id.nav_activities
+            ).build();
+            NavigationUI.setupWithNavController(bottomNavigationView, navController);
+            NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        }
     }
 
-    private void configurarBotones() {
-        // Actividades
-        MaterialButton btnActividades = findViewById(R.id.btnActividades);
-        if (PermissionManager.tienePermiso(com.test.mysede.auth.Permiso.VER_ACTIVIDADES)) {
-            btnActividades.setOnClickListener(v ->
-                    startActivity(new Intent(this, ListarActividadesActivity.class))
-            );
-        } else {
-            btnActividades.setEnabled(false);
+    @Override
+    public boolean onSupportNavigateUp() {
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        if (navHostFragment != null) {
+            NavController navController = navHostFragment.getNavController();
+            return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
         }
-
-        // Calendario
-        MaterialButton btnCalendario = findViewById(R.id.btnCalendario);
-        if (PermissionManager.tienePermiso(com.test.mysede.auth.Permiso.VER_CALENDARIO)) {
-            btnCalendario.setOnClickListener(v ->
-                    startActivity(new Intent(this, CalendarActivity.class))
-            );
-        } else {
-            btnCalendario.setEnabled(false);
-        }
+        return super.onSupportNavigateUp();
     }
 
     @Override
@@ -96,12 +96,5 @@ public class OrganizadorActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        usuario = sessionManager.obtenerUsuarioSesion();
-        PermissionManager.setUsuarioActual(usuario);
     }
 }
