@@ -45,9 +45,9 @@ final class FirestoreModelMapper {
         data.put("tiposActividad", tiposActividadToList(actividad.getTiposActividad()));
         data.put("oferentes", oferentesToList(actividad.getOferentes()));
         data.put("socioComunitario", socioComunitarioToMap(actividad.getSocioComunitario()));
-        // data.put("archivosAdjuntos", archivosAdjuntosToList(actividad.getArchivosAdjuntos()));
+        data.put("archivosAdjuntos", archivosAdjuntosToList(actividad.getArchivosAdjuntos()));
         // Mientras no exista soporte para adjuntar archivos, se almacena como null
-        data.put("archivosAdjuntos", null);
+        //data.put("archivosAdjuntos", null);
         data.put("citas", citasToList(actividad.getCitas()));
         return data;
     }

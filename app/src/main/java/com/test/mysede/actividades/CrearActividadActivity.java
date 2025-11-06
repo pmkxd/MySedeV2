@@ -28,6 +28,7 @@ import com.google.android.material.chip.ChipGroup;
 import com.test.mysede.AdjuntarArchivosActivity;
 import com.test.mysede.ArchivoAdjunto;
 import com.test.mysede.DAO.ActividadDAO;
+import com.test.mysede.DAO.ArchivoAdjuntoDAO;
 import com.test.mysede.DAO.CitaDAO;
 import com.test.mysede.DAO.FirestoreOperationCallback;
 import com.test.mysede.DAO.LugarDAO;
@@ -92,6 +93,8 @@ public class CrearActividadActivity extends AppCompatActivity {
     private final List<Lugar> lugares = new ArrayList<>();
 
     private ArrayList<ArchivoAdjunto> archivosAdjuntos = new ArrayList<>();
+    private final ArchivoAdjuntoDAO archivoDAO = new ArchivoAdjuntoDAO();
+
 
 
     private boolean modoEditar = false;
@@ -225,7 +228,32 @@ public class CrearActividadActivity extends AppCompatActivity {
             if (hasFocus) mostrarTimePicker(2);
         });
 
-        btnGuardar.setOnClickListener(v -> guardarActividad());
+        //
+
+        btnGuardar.setOnClickListener(v -> {
+            if (archivosAdjuntos != null && !archivosAdjuntos.isEmpty()) {
+                for (ArchivoAdjunto archivo : archivosAdjuntos) {
+                    archivoDAO.subirArchivo(archivo)
+                            .addOnSuccessListener(taskSnapshot -> {
+                                archivoDAO.guardarArchivo(archivo)
+                                        .addOnSuccessListener(ref ->
+                                                Toast.makeText(this, "Archivo subido: " + archivo.getNombre(), Toast.LENGTH_SHORT).show()
+                                        )
+                                        .addOnFailureListener(e ->
+                                                Toast.makeText(this, "Error al guardar en Firestore", Toast.LENGTH_SHORT).show()
+                                        );
+                            })
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this, "Error al subir archivo: " + archivo.getNombre(), Toast.LENGTH_SHORT).show()
+                            );
+                }
+            }
+
+            guardarActividad();
+            Toast.makeText(this, "Actividad guardada correctamente", Toast.LENGTH_SHORT).show();
+            finish();
+        });
+
     }
     private void mostrarResumenArchivos() {
         layoutArchivosAdjuntos.removeAllViews();

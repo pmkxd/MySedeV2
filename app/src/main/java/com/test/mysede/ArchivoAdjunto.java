@@ -5,6 +5,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class ArchivoAdjunto implements Parcelable {
+    private int id;
+
     private String nombre;
     private String tipo;
     private long tamaño;
