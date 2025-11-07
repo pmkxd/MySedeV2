@@ -10,12 +10,14 @@ public class ArchivoAdjunto implements Parcelable {
     private String nombre;
     private String tipo;
     private long tamaño;
+    private String url;
     private Uri uri; // Aún no se sube a Storage, pero se usa localmente
 
-    public ArchivoAdjunto(String nombre, String tipo, long tamaño, Uri uri) {
+    public ArchivoAdjunto(String nombre, String tipo, long tamaño, Uri uri, String url) {
         this.nombre = nombre;
         this.tipo = tipo;
         this.tamaño = tamaño;
+        this.url = url;
         this.uri = uri;
     }
 
@@ -25,6 +27,7 @@ public class ArchivoAdjunto implements Parcelable {
         tipo = in.readString();
         tamaño = in.readLong();
         uri = in.readParcelable(Uri.class.getClassLoader());
+        url = in.readString();
     }
 
     public static final Creator<ArchivoAdjunto> CREATOR = new Creator<ArchivoAdjunto>() {
@@ -44,6 +47,10 @@ public class ArchivoAdjunto implements Parcelable {
     public String getNombre() { return nombre; }
     public String getTipo() { return tipo; }
     public long getTamaño() { return tamaño; }
+    public String getUrl() {
+        url = "http://firebase.com";
+        return url;
+    }
     public Uri getUri() { return uri; }
 
     // Setters
@@ -51,6 +58,7 @@ public class ArchivoAdjunto implements Parcelable {
     public void setNombre(String nombre) { this.nombre = nombre; }
     public void setTipo(String tipo) { this.tipo = tipo; }
     public void setTamaño(long tamaño) { this.tamaño = tamaño; }
+    public void setUrl(String url) { this.url = url; }
     public void setUri(Uri uri) { this.uri = uri; }
 
     @Override

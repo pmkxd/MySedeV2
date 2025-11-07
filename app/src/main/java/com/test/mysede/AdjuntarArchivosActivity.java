@@ -200,6 +200,8 @@ public class AdjuntarArchivosActivity extends AppCompatActivity {
         String nombre = "Archivo desconocido";
         String tipo = getContentResolver().getType(uri);
         long tamaño = 0;
+        String url = "?";
+
 
         try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
@@ -209,7 +211,7 @@ public class AdjuntarArchivosActivity extends AppCompatActivity {
                 if (sizeIndex != -1) tamaño = cursor.getLong(sizeIndex);
             }
         }
-        return new ArchivoAdjunto(nombre, tipo, tamaño, uri);
+        return new ArchivoAdjunto(nombre, tipo, tamaño, uri, null);
     }
 
     @SuppressLint("Range")
