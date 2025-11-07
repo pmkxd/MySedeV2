@@ -43,7 +43,6 @@ public class UsuariosDAO {
         Map<String, Object> usuario_nuevo = new HashMap<>();
         usuario_nuevo.put("nombre", usuario.getNombre());
         usuario_nuevo.put("email", usuario.getEmail());
-        usuario_nuevo.put("contrasena_hash", usuario.getContrasena_hash());
         usuario_nuevo.put("rut", usuario.getRut());
         usuario_nuevo.put("rol", usuario.getRol() != null ? usuario.getRol().name() : null);
         usuario_nuevo.put("permisos", convertirPermisosALista(usuario.getPermisos()));
@@ -73,7 +72,6 @@ public class UsuariosDAO {
         usuario_mod.put("nombre", usuario.getNombre());
         usuario_mod.put("email", usuario.getEmail());
         usuario_mod.put("rol", usuario.getRol() != null ? usuario.getRol().name() : null);
-        usuario_mod.put("contrasena_hash", usuario.getContrasena_hash());
         usuario_mod.put("rut", usuario.getRut());
         usuario_mod.put("permisos", convertirPermisosALista(usuario.getPermisos()));
         usuario_mod.put("activo", usuario.isActivo());
@@ -180,7 +178,6 @@ public class UsuariosDAO {
         usuario.setNombre(document.getString("nombre"));
         usuario.setEmail(document.getString("email"));
         usuario.setRut(document.getString("rut"));
-        usuario.setContrasena_hash(document.getString("contrasena_hash"));
 
         // Estado
         Boolean activo = document.getBoolean("activo");

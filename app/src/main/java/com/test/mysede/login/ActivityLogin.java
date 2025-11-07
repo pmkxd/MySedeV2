@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.test.mysede.MainActivity;
 import com.test.mysede.R;
 import com.test.mysede.admin.AdminActivity;
 import com.test.mysede.organizador.OrganizadorActivity;
@@ -152,9 +151,6 @@ public class ActivityLogin extends AppCompatActivity {
                             break;
                         case PUBLICISTA:
                             startActivity(new Intent(ActivityLogin.this, PublicistaActivity.class));
-                            break;
-                        default:
-                            startActivity(new Intent(ActivityLogin.this, MainActivity.class));
                             break;
                     }
                     finish();

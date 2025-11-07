@@ -28,12 +28,6 @@
         <activity
             android:name=".login.ActivityForgotPassword"
             android:exported="false"/>
-
-        <!-- MainActivity (ya no es launcher, pero accesible) -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"/>
-
         <!-- Perfiles / roles -->
         <activity
             android:name=".admin.AdminActivity"
@@ -55,10 +49,9 @@
         <activity
             android:name=".actividades.ListarActividadesActivity"
             android:exported="false"
-            android:label="Actividades"
-            android:parentActivityName=".MainActivity"/>
+            android:label="Actividades"/>
         <activity
-            android:name=".CalendarActivity"
+            android:name=".calendar.CalendarActivity"
             android:exported="false"/>
 
         <!-- Adjuntar Archivos -->
@@ -102,8 +95,7 @@
         <activity
             android:name=".usuarios.GestionUsuariosActivity"
             android:exported="false"
-            android:label="Gestión de Usuarios"
-            android:parentActivityName=".MainActivity"/>
+            android:label="Gestión de Usuarios"/>
         <activity
             android:name=".usuarios.CrearUsuarioActivity"
             android:exported="false"
@@ -119,28 +111,23 @@
         <activity
             android:name=".tipoactividad.TipoActividadActivity"
             android:exported="false"
-            android:label="Tipos de Actividad"
-            android:parentActivityName=".MainActivity"/>
+            android:label="Tipos de Actividad"/>
         <activity
             android:name=".lugar.LugarActivity"
             android:exported="false"
-            android:label="Lugares"
-            android:parentActivityName=".MainActivity"/>
+            android:label="Lugares"/>
         <activity
             android:name=".socio.SocioComunitarioActivity"
             android:exported="false"
-            android:label="Socios Comunitarios"
-            android:parentActivityName=".MainActivity"/>
+            android:label="Socios Comunitarios"/>
         <activity
             android:name=".proyecto.ProyectoActivity"
             android:exported="false"
-            android:label="Proyectos"
-            android:parentActivityName=".MainActivity"/>
+            android:label="Proyectos"/>
         <activity
             android:name=".oferente.OferenteActivity"
             android:exported="false"
-            android:label="Oferentes"
-            android:parentActivityName=".MainActivity"/>
+            android:label="Oferentes"/>
 
     </application>
 </manifest>
