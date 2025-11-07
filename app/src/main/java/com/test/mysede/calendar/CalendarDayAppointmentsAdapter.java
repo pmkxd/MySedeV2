@@ -1,4 +1,4 @@
-package com.test.mysede;
+package com.test.mysede.calendar;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textview.MaterialTextView;
+import com.test.mysede.calendar.CalendarUiCita;
+import com.test.mysede.R;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;

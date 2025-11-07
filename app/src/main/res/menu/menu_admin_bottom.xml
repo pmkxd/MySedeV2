@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_calendar"
+        android:icon="@drawable/ic_calendar"
+        android:title="Calendario" />
+    <item
+        android:id="@+id/nav_users"
+        android:icon="@drawable/ic_people"
+        android:title="Usuarios" />
+    <item
+        android:id="@+id/nav_maintainers"
+        android:icon="@drawable/ic_nav_settings"
+        android:title="Mantenedores" />
+    <item
+        android:id="@+id/nav_activities"
+        android:icon="@drawable/ic_nav_activities"
+        android:title="Actividades" />
+</menu>

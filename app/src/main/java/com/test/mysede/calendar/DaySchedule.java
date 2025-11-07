@@ -1,4 +1,4 @@
-package com.test.mysede;
+package com.test.mysede.calendar;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

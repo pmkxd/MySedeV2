@@ -1,6 +1,5 @@
 package com.test.mysede.auth;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -12,14 +11,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.test.mysede.DAO.UsuariosDAO;
-import com.test.mysede.MainActivity;
 import com.test.mysede.R;
 import com.test.mysede.model.Usuario;
 import com.test.mysede.usuarios.UsuarioAdapter;
 import com.test.mysede.ui.SystemBarsHelper;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Activity temporal para seleccionar un usuario y probar el sistema de permisos
@@ -124,11 +121,6 @@ public class SelectorRolActivity extends AppCompatActivity {
 
         Toast.makeText(this, "Sesión iniciada como " + usuario.getNombre(), Toast.LENGTH_SHORT).show();
 
-        // Ir a MainActivity
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
     }
 
     @Override
