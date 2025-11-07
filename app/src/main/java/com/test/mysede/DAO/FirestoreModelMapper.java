@@ -134,24 +134,27 @@ final class FirestoreModelMapper {
         Map<String, Object> data = new HashMap<>();
         data.put("id", archivoAdjunto.getId());
         data.put("nombre", archivoAdjunto.getNombre());
-        data.put("ubicacion", archivoAdjunto.getUbicacion());
+        data.put("tipo", archivoAdjunto.getTipo());
+        data.put("tamaño", archivoAdjunto.getTamaño());
         return data;
     }
 
     static ArchivoAdjunto archivoAdjuntoFromMap(@Nullable Map<String, Object> data) {
-        if (data == null) {
-            return null;
-        }
+        if (data == null) return null;
+
         String nombre = (String) data.get("nombre");
-        String ubicacion = (String) data.get("ubicacion");
-        if (nombre == null || ubicacion == null) {
+        String tipo = (String) data.get("tipo");
+        Long tamaño = (Long) data.get("tamaño");
+
+        if (nombre == null || tipo == null || tamaño == null) {
             return null;
         }
-        ArchivoAdjunto archivoAdjunto = new ArchivoAdjunto(nombre, ubicacion);
+
+        ArchivoAdjunto archivoAdjunto = new ArchivoAdjunto(nombre, tipo, tamaño, null);
+
         Object id = data.get("id");
-        if (id instanceof String) {
-            archivoAdjunto.setId((String) id);
-        }
+        if (id instanceof String) archivoAdjunto.setId((String) id);
+
         return archivoAdjunto;
     }
 

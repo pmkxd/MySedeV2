@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.test.mysede.AdjuntarArchivosActivity;
-import com.test.mysede.ArchivoAdjunto;
+import com.test.mysede.model.ArchivoAdjunto;
 import com.test.mysede.CalendarActivity;
 import com.test.mysede.R;
 import com.test.mysede.actividades.ListarActividadesActivity;

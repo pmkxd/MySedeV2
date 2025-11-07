@@ -26,7 +26,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.test.mysede.AdjuntarArchivosActivity;
-import com.test.mysede.ArchivoAdjunto;
+import com.test.mysede.model.ArchivoAdjunto;
 import com.test.mysede.DAO.ActividadDAO;
 import com.test.mysede.DAO.ArchivoAdjuntoDAO;
 import com.test.mysede.DAO.CitaDAO;
@@ -228,23 +228,15 @@ public class CrearActividadActivity extends AppCompatActivity {
             if (hasFocus) mostrarTimePicker(2);
         });
 
-        //
-
         btnGuardar.setOnClickListener(v -> {
             if (archivosAdjuntos != null && !archivosAdjuntos.isEmpty()) {
                 for (ArchivoAdjunto archivo : archivosAdjuntos) {
-                    archivoDAO.subirArchivo(archivo)
-                            .addOnSuccessListener(taskSnapshot -> {
-                                archivoDAO.guardarArchivo(archivo)
-                                        .addOnSuccessListener(ref ->
-                                                Toast.makeText(this, "Archivo subido: " + archivo.getNombre(), Toast.LENGTH_SHORT).show()
-                                        )
-                                        .addOnFailureListener(e ->
-                                                Toast.makeText(this, "Error al guardar en Firestore", Toast.LENGTH_SHORT).show()
-                                        );
-                            })
+                    archivoDAO.guardarArchivo(archivo)
+                            .addOnSuccessListener(ref ->
+                                    Toast.makeText(this, "Archivo guardado: " + archivo.getNombre(), Toast.LENGTH_SHORT).show()
+                            )
                             .addOnFailureListener(e ->
-                                    Toast.makeText(this, "Error al subir archivo: " + archivo.getNombre(), Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this, "Error al guardar en Firestore", Toast.LENGTH_SHORT).show()
                             );
                 }
             }
