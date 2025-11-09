@@ -488,6 +488,10 @@ public class CalendarFragment extends Fragment implements
         });
     }
 
+    // ========================================
+// REEMPLAZA el método mostrarDialogoDetalle COMPLETO
+// ========================================
+
     private void mostrarDialogoDetalle(CalendarUiCita cita) {
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_cita_detalle, null, false);
         MaterialTextView titulo = view.findViewById(R.id.calendario_detalle_titulo);
@@ -505,15 +509,23 @@ public class CalendarFragment extends Fragment implements
 
         // ============================================
         // CREAR EL DIALOG PRIMERO (antes de los listeners)
-        // Usamos un array para poder modificarlo dentro de las lambdas
         // ============================================
         final AlertDialog[] dialogHolder = new AlertDialog[1];
 
         // ============================================
-        // VALIDACIÓN DE PERMISOS PARA BOTONES
+        // VALIDACIÓN DE PERMISOS
         // ============================================
+        boolean puedeEditar = PermissionManager.tienePermiso(Permiso.EDITAR_CITA);
+        boolean puedeEliminar = PermissionManager.tienePermiso(Permiso.ELIMINAR_CITA);
+        boolean puedeRecibirNotificaciones = PermissionManager.tienePermiso(Permiso.RECIBIR_NOTIFICACIONES);
+
+        // Ocultar switch de notificación si NO tiene permiso o si no puede hacer ninguna acción
+        if (!puedeRecibirNotificaciones || (!puedeEditar && !puedeEliminar)) {
+            notificarSwitch.setVisibility(View.GONE);
+        }
+
         // Botón Reagendar - Solo visible si tiene permiso EDITAR_CITA
-        if (PermissionManager.tienePermiso(Permiso.EDITAR_CITA)) {
+        if (puedeEditar) {
             reagendarButton.setVisibility(View.VISIBLE);
             reagendarButton.setOnClickListener(v -> {
                 if (dialogHolder[0] != null) {
@@ -526,7 +538,7 @@ public class CalendarFragment extends Fragment implements
         }
 
         // Botón Eliminar - Solo visible si tiene permiso ELIMINAR_CITA
-        if (PermissionManager.tienePermiso(Permiso.ELIMINAR_CITA)) {
+        if (puedeEliminar) {
             eliminarButton.setVisibility(View.VISIBLE);
             eliminarButton.setOnClickListener(v -> {
                 if (dialogHolder[0] != null) {
