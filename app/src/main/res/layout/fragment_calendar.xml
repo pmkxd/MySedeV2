@@ -165,4 +165,16 @@
             android:textColor="@color/md_theme_onSurfaceVariant" />
     </LinearLayout>
 
+    <!-- Botón FAB para crear cita -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/calendar_fab_crear_cita"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="Crear Cita"
+        app:srcCompat="@drawable/ic_add"
+        app:tint="@color/md_theme_onPrimaryContainer" />
+
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

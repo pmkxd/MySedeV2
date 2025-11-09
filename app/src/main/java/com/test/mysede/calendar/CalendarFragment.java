@@ -5,6 +5,9 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.content.Intent;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.test.mysede.citas.CrearCitaActivity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -103,6 +106,7 @@ public class CalendarFragment extends Fragment implements
     private MaterialButton nextMonthButton;
     private MaterialTextView monthTitle;
     private RecyclerView monthRecycler;
+    private FloatingActionButton fabCrearCita;
 
     private final List<CalendarUiCita> allAppointments = new ArrayList<>();
     private final List<DaySchedule> currentWeekDays = new ArrayList<>();
@@ -145,6 +149,8 @@ public class CalendarFragment extends Fragment implements
         monthAdapter = new CalendarMonthAdapter(this);
         monthRecycler.setLayoutManager(new GridLayoutManager(requireContext(), 7));
         monthRecycler.setAdapter(monthAdapter);
+        fabCrearCita = view.findViewById(R.id.calendar_fab_crear_cita);
+        configurarFabCrearCita();
 
         previousWeekButton.setOnClickListener(v -> navegarSemana(-1));
         nextWeekButton.setOnClickListener(v -> navegarSemana(1));
@@ -173,6 +179,20 @@ public class CalendarFragment extends Fragment implements
 
         actualizarSeleccion(selectedDate);
         cargarCitasDesdeDao();
+    }
+
+    private void configurarFabCrearCita() {
+        boolean puedeCrearCita = PermissionManager.tienePermiso(Permiso.CREAR_CITA);
+
+        if (puedeCrearCita) {
+            fabCrearCita.setVisibility(View.VISIBLE);
+            fabCrearCita.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), CrearCitaActivity.class);
+                startActivity(intent);
+            });
+        } else {
+            fabCrearCita.setVisibility(View.GONE);
+        }
     }
 
     private void cambiarModo(ViewMode mode) {
