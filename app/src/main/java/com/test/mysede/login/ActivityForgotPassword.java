@@ -6,7 +6,7 @@ import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
+import com.test.mysede.ui.SystemBarsHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.test.mysede.R;
 
@@ -20,6 +20,7 @@ public class ActivityForgotPassword extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recuperar_contrasena);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         inputCorreoReset = findViewById(R.id.inputEmailResetMiSede);
         btnResetPassword = findViewById(R.id.btnResetPasswordMiSede);

@@ -1,62 +1,45 @@
 package com.test.mysede.publicista;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
+
 import com.google.android.material.appbar.MaterialToolbar;
-import com.test.mysede.AdjuntarArchivosActivity;
-import com.test.mysede.model.ArchivoAdjunto;
-import com.test.mysede.CalendarActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.test.mysede.R;
-import com.test.mysede.actividades.ListarActividadesActivity;
 import com.test.mysede.auth.PermissionManager;
-import com.test.mysede.auth.Permiso;
 import com.test.mysede.auth.SessionManager;
-import com.test.mysede.model.Usuario;
 import com.test.mysede.login.ActivityLogin;
+import com.test.mysede.model.Usuario;
 
 public class PublicistaActivity extends AppCompatActivity {
 
-    private TextView txtBienvenida, txtNombreUsuario;
-    private Button btnActividades, btnCalendario, btnAdjuntar;
-
-    private Usuario usuarioActual;
     private SessionManager sessionManager;
+    private AppBarConfiguration appBarConfiguration;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_publicista);
 
-        // Toolbar
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) setSupportActionBar(toolbar);
-
         sessionManager = new SessionManager(this);
-
-        txtBienvenida = findViewById(R.id.txtBienvenida);
-        txtNombreUsuario = findViewById(R.id.txtNombreUsuario);
-
-        btnActividades = findViewById(R.id.btnActividades);
-        btnCalendario = findViewById(R.id.btnCalendario);
-        btnAdjuntar = findViewById(R.id.btnAdjuntar);
-
-        // Recuperar usuario
-        usuarioActual = PermissionManager.getUsuarioActual();
+        Usuario usuarioActual = PermissionManager.getUsuarioActual();
         if (usuarioActual == null) {
             usuarioActual = sessionManager.obtenerUsuarioSesion();
             if (usuarioActual != null) {
                 PermissionManager.setUsuarioActual(usuarioActual);
             }
         }
-
         if (usuarioActual == null) {
             Toast.makeText(this, "Sesión inválida, por favor ingresa nuevamente", Toast.LENGTH_LONG).show();
             startActivity(new Intent(this, ActivityLogin.class));
@@ -64,39 +47,31 @@ public class PublicistaActivity extends AppCompatActivity {
             return;
         }
 
-        // Mostrar datos
-        txtNombreUsuario.setText(usuarioActual.getNombre());
-        txtBienvenida.setText("Bienvenido, " + usuarioActual.getNombre());
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setSubtitle(usuarioActual.getNombre());
 
-        // Configurar botones y habilitarlos para abrir Activities
-        btnActividades.setEnabled(usuarioActual.tienePermiso(Permiso.VER_ACTIVIDADES));
-        btnCalendario.setEnabled(usuarioActual.tienePermiso(Permiso.VER_CALENDARIO));
-        btnAdjuntar.setEnabled(usuarioActual.tienePermiso(Permiso.ADJUNTAR_ARCHIVOS));
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        if (navHostFragment != null) {
+            NavController navController = navHostFragment.getNavController();
+            BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+            appBarConfiguration = new AppBarConfiguration.Builder(
+                    R.id.nav_calendar,
+                    R.id.nav_activities
+            ).build();
+            NavigationUI.setupWithNavController(bottomNavigationView, navController);
+            NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        }
+    }
 
-        // Listeners con navegación real
-        btnActividades.setOnClickListener(v -> {
-            if (!usuarioActual.tienePermiso(Permiso.VER_ACTIVIDADES)) {
-                Toast.makeText(this, "No tienes permiso para ver actividades", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            startActivity(new Intent(this, ListarActividadesActivity.class));
-        });
-
-        btnCalendario.setOnClickListener(v -> {
-            if (!usuarioActual.tienePermiso(Permiso.VER_CALENDARIO)) {
-                Toast.makeText(this, "No tienes permiso para ver el calendario", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            startActivity(new Intent(this, CalendarActivity.class));
-        });
-
-        btnAdjuntar.setOnClickListener(v -> {
-            if (!usuarioActual.tienePermiso(Permiso.ADJUNTAR_ARCHIVOS)) {
-                Toast.makeText(this, "No tienes permiso para adjuntar archivos", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            startActivity(new Intent(this, AdjuntarArchivosActivity.class));
-        });
+    @Override
+    public boolean onSupportNavigateUp() {
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        if (navHostFragment != null) {
+            NavController navController = navHostFragment.getNavController();
+            return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
+        }
+        return super.onSupportNavigateUp();
     }
 
     @Override

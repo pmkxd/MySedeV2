@@ -1,170 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:fitsSystemWindows="true"
-    tools:context=".programador.ProgramadorActivity">
+    android:fitsSystemWindows="true">
 
-    <!-- Toolbar -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
+        android:layout_height="wrap_content">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorPrimary"
-            android:elevation="4dp"
-            app:title="Programador de Citas"
-            app:titleTextColor="@android:color/white"
-            app:menu="@menu/menu_user_options" />
+            android:background="@color/md_theme_primary"
+            android:title="Programador de Citas"
+            android:titleTextColor="@color/md_theme_onPrimary" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <ScrollView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="20dp"
-        android:background="#F6F6F8">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/nav_host_fragment"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            app:defaultNavHost="true"
+            app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:navGraph="@navigation/nav_programador" />
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal">
+            android:background="@color/md_theme_surface"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:menu="@menu/menu_simple_bottom" />
 
-            <!-- Bienvenida -->
-            <TextView
-                android:id="@+id/txtBienvenida"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Bienvenido"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:textColor="#2B2B2B"
-                android:paddingBottom="6dp"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Nombre Usuario -->
-            <TextView
-                android:id="@+id/txtNombreUsuario"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Nombre Apellido"
-                android:textSize="18sp"
-                android:textStyle="italic"
-                android:textColor="#666666"
-                android:paddingBottom="24dp"/>
-
-            <!-- Tarjeta: Crear Cita -->
-            <LinearLayout
-                android:id="@+id/cardCrearCita"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="18dp"
-                android:layout_marginBottom="12dp"
-                android:background="#FFFFFF"
-                android:elevation="4dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Crear Cita"
-                    android:textSize="17sp"
-                    android:textStyle="bold"
-                    android:textColor="#1F4B8B"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Permite crear nuevas citas para usuarios."
-                    android:textSize="14sp"
-                    android:textColor="#666666"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="10dp"/>
-
-                <Button
-                    android:id="@+id/btnCrearCita"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ingresar" />
-            </LinearLayout>
-
-            <!-- Tarjeta: Listar/Editar Citas -->
-            <LinearLayout
-                android:id="@+id/cardListarCitas"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="18dp"
-                android:layout_marginBottom="12dp"
-                android:background="#FFFFFF"
-                android:elevation="4dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Gestionar Citas"
-                    android:textSize="17sp"
-                    android:textStyle="bold"
-                    android:textColor="#1F4B8B"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Visualiza, edita o cancela citas existentes."
-                    android:textSize="14sp"
-                    android:textColor="#666666"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="10dp"/>
-
-                <Button
-                    android:id="@+id/btnGestionCitas"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ingresar" />
-            </LinearLayout>
-
-            <!-- Tarjeta: Calendario -->
-            <LinearLayout
-                android:id="@+id/cardCalendario"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="18dp"
-                android:layout_marginBottom="20dp"
-                android:background="#FFFFFF"
-                android:elevation="4dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Calendario"
-                    android:textSize="17sp"
-                    android:textStyle="bold"
-                    android:textColor="#1F4B8B"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Visualiza todas las citas en el calendario del centro."
-                    android:textSize="14sp"
-                    android:textColor="#666666"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="10dp"/>
-
-                <Button
-                    android:id="@+id/btnCalendario"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ingresar" />
-            </LinearLayout>
-
-        </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

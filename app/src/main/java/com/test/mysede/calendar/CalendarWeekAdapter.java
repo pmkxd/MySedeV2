@@ -1,7 +1,6 @@
-package com.test.mysede;
+package com.test.mysede.calendar;
 
 import android.content.ClipData;
-import android.graphics.Color;
 import android.text.TextUtils;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
@@ -14,6 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textview.MaterialTextView;
+import com.test.mysede.calendar.CalendarUiCita;
+import com.test.mysede.calendar.DaySchedule;
+import com.test.mysede.R;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

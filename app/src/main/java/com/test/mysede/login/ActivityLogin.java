@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.test.mysede.MainActivity;
 import com.test.mysede.R;
 import com.test.mysede.admin.AdminActivity;
 import com.test.mysede.organizador.OrganizadorActivity;
@@ -22,6 +21,7 @@ import com.test.mysede.auth.Permiso;
 import com.test.mysede.auth.Rol;
 import com.test.mysede.auth.SessionManager;
 import com.test.mysede.model.Usuario;
+import com.test.mysede.ui.SystemBarsHelper;
 
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +41,7 @@ public class ActivityLogin extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -150,9 +151,6 @@ public class ActivityLogin extends AppCompatActivity {
                             break;
                         case PUBLICISTA:
                             startActivity(new Intent(ActivityLogin.this, PublicistaActivity.class));
-                            break;
-                        default:
-                            startActivity(new Intent(ActivityLogin.this, MainActivity.class));
                             break;
                     }
                     finish();

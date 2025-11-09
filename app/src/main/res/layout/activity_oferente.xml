@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#F5FBF7">
+    android:id="@+id/root_container"
+    android:background="?attr/colorSurface">
 
     <TextView
         android:id="@+id/tvTitulo"
@@ -12,7 +13,7 @@
         android:text="Oferentes"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="#036B5D"
+        android:textColor="?attr/colorPrimary"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="24dp" />
 
@@ -35,7 +36,7 @@
         android:layout_marginBottom="19dp"
         android:contentDescription="Crear nuevo oferente"
         android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="@color/md_theme_primary"
-        app:tint="@color/md_theme_onPrimary" />
+        app:backgroundTint="?attr/colorPrimary"
+        app:tint="?attr/colorOnPrimary" />
 
 </RelativeLayout>

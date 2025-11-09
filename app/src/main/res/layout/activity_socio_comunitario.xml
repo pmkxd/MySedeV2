@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5FBF7">
+    android:background="?attr/colorSurface">
 
     <!-- Título -->
     <TextView
@@ -13,7 +14,7 @@
         android:text="Socios Comunitarios"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="#036B5D"
+        android:textColor="?attr/colorPrimary"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="24dp" />
 
@@ -37,7 +38,7 @@
         android:layout_margin="16dp"
         android:contentDescription="Agregar Socio"
         app:srcCompat="@android:drawable/ic_input_add"
-        app:tint="@android:color/white"
-        android:backgroundTint="@color/md_theme_primary"/>
+        app:tint="?attr/colorOnPrimary"
+        android:backgroundTint="?attr/colorPrimary"/>
 
 </RelativeLayout>

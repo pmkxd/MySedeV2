@@ -2,10 +2,10 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/coordinatorLayout"
+    android:id="@+id/root_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E3E6E6"
+    android:background="?attr/colorSurface"
     tools:context=".AdjuntarArchivosActivity">
 
     <!-- CABECERA -->
@@ -13,19 +13,19 @@
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#004F44"
+        android:background="?attr/colorPrimary"
         android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="#004F44"
+            android:background="?attr/colorPrimary"
             android:padding="2dp"
             app:navigationIcon="@drawable/ic_arrow_back"
             app:title="Adjuntar Archivos"
             app:titleCentered="true"
-            app:titleTextColor="@android:color/white" />
+            app:titleTextColor="?attr/colorOnPrimary" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- CONTENIDO -->
@@ -52,11 +52,11 @@
                 android:paddingHorizontal="24dp"
                 android:text="Seleccionar archivos"
                 android:textAllCaps="false"
-                android:textColor="#004F44"
+                android:textColor="?attr/colorPrimary"
                 app:icon="@android:drawable/ic_menu_upload"
                 app:iconGravity="textStart"
-                app:iconTint="#004F44"
-                app:strokeColor="#004F44"
+                app:iconTint="?attr/colorPrimary"
+                app:strokeColor="?attr/colorPrimary"
                 app:strokeWidth="1dp" />
 
             <!-- LISTADO DE ARCHIVOS ADJUNTOS -->
@@ -76,8 +76,8 @@
                 android:layout_marginTop="60dp"
                 android:text="Guardar archivo"
                 android:textAllCaps="false"
-                android:textColor="@android:color/white"
-                android:backgroundTint="#004F44"
+                android:textColor="?attr/colorOnPrimary"
+                android:backgroundTint="?attr/colorPrimary"
                 app:cornerRadius="12dp"
                 android:paddingVertical="14dp" />
 

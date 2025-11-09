@@ -2,18 +2,19 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F6F6F8">
+    android:background="?attr/colorSurface">
 
     <!-- Toolbar -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbarUsuarios"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/md_theme_primary"
+        android:background="?attr/colorPrimary"
         android:title="Seleccionar Usuario"
-        android:titleTextColor="@color/md_theme_onPrimary"
+        android:titleTextColor="?attr/colorOnPrimary"
         app:titleCentered="true" />
 
     <!-- Contenido -->

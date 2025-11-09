@@ -24,6 +24,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -35,6 +36,9 @@ android {
 
 dependencies {
     implementation(libs.firebase.firestore)
+    implementation(libs.navigation.runtime)
+    implementation(libs.navigation.fragment)
+    implementation(libs.navigation.ui)
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation(libs.appcompat)
     implementation(libs.material)

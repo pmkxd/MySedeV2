@@ -16,6 +16,7 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.test.mysede.ui.SystemBarsHelper;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -122,7 +123,7 @@ public class CrearActividadActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_crear_actividad);
-
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
         modoEditar = "editar".equals(getIntent().getStringExtra("modo"));
         actividadId = getIntent().getStringExtra("actividadId");
         if (modoEditar && actividadId == null) {

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_admin"
+    app:startDestination="@id/nav_calendar">
+
+    <fragment
+        android:id="@+id/nav_calendar"
+        android:name="com.test.mysede.calendar.CalendarFragment"
+        android:label="Calendario" />
+
+    <fragment
+        android:id="@+id/nav_users"
+        android:name="com.test.mysede.usuarios.GestionUsuariosFragment"
+        android:label="Usuarios" />
+
+    <fragment
+        android:id="@+id/nav_maintainers"
+        android:name="com.test.mysede.mantenedores.MantenedoresFragment"
+        android:label="Mantenedores" />
+
+    <fragment
+        android:id="@+id/nav_activities"
+        android:name="com.test.mysede.actividades.ListarActividadesFragment"
+        android:label="Actividades" />
+</navigation>

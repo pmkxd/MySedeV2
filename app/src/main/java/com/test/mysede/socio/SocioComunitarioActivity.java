@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
+import com.test.mysede.ui.SystemBarsHelper;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,6 +32,7 @@ public class SocioComunitarioActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_socio_comunitario);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         recyclerSocios = findViewById(R.id.recyclerSocios);
         btnNuevoSocio = findViewById(R.id.btnNuevoSocio);

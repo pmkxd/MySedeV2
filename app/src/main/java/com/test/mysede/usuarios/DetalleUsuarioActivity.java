@@ -6,7 +6,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
+import com.test.mysede.ui.SystemBarsHelper;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -33,6 +33,7 @@ public class DetalleUsuarioActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detalle_usuario);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         // Configurar toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);

@@ -7,7 +7,7 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
-
+import com.test.mysede.ui.SystemBarsHelper;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -30,7 +30,7 @@ import java.util.Set;
 
 public class CrearUsuarioActivity extends AppCompatActivity {
 
-    private TextInputEditText etNombreUsuario, etEmailUsuario, etPasswordUsuario;
+    private TextInputEditText etNombreUsuario, etEmailUsuario, etPasswordUsuario, etRutUsuario;
     private Spinner spinnerRolUsuario;
     private LinearLayout layoutPermisos;
     private Button btnGuardarUsuario, btnCargarPlantilla;
@@ -43,6 +43,7 @@ public class CrearUsuarioActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_crear_usuario);
+        SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
 
         if (!PermissionManager.tienePermiso(Permiso.CREAR_USUARIO)) {
             Toast.makeText(this, "Acceso denegado", Toast.LENGTH_SHORT).show();
@@ -67,6 +68,7 @@ public class CrearUsuarioActivity extends AppCompatActivity {
         etNombreUsuario = findViewById(R.id.etNombreUsuario);
         etEmailUsuario = findViewById(R.id.etEmailUsuario);
         etPasswordUsuario = findViewById(R.id.etPasswordUsuario);
+        etRutUsuario = findViewById(R.id.etRutUsuario); // ✅ Nuevo campo RUT
         spinnerRolUsuario = findViewById(R.id.spinnerRolUsuario);
         layoutPermisos = findViewById(R.id.layoutPermisos);
         btnGuardarUsuario = findViewById(R.id.btnGuardarUsuario);
@@ -125,8 +127,9 @@ public class CrearUsuarioActivity extends AppCompatActivity {
         String nombre = etNombreUsuario.getText().toString().trim();
         String email = etEmailUsuario.getText().toString().trim();
         String password = etPasswordUsuario.getText().toString().trim();
+        String rut = etRutUsuario.getText().toString().trim(); // ✅ RUT
 
-        if (nombre.isEmpty() || email.isEmpty() || password.isEmpty()) {
+        if (nombre.isEmpty() || email.isEmpty() || password.isEmpty() || rut.isEmpty()) {
             Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -134,14 +137,14 @@ public class CrearUsuarioActivity extends AppCompatActivity {
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(authResult -> {
                     String uid = authResult.getUser().getUid();
-                    guardarUsuarioEnFirestore(uid, nombre, email, password);
+                    guardarUsuarioEnFirestore(uid, nombre, email, rut, password);
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Error Auth: " + e.getMessage(), Toast.LENGTH_LONG).show()
                 );
     }
 
-    private void guardarUsuarioEnFirestore(String uid, String nombre, String email, String pass) {
+    private void guardarUsuarioEnFirestore(String uid, String nombre, String email, String rut, String pass) {
 
         Rol rol = Rol.fromNombreCompleto(spinnerRolUsuario.getSelectedItem().toString());
         Set<Permiso> permisos = new HashSet<>();
@@ -156,6 +159,7 @@ public class CrearUsuarioActivity extends AppCompatActivity {
         data.put("id", uid);
         data.put("nombre", nombre);
         data.put("email", email);
+        data.put("rut", rut); // ✅ Guardando RUT
         data.put("rol", rol.name());
         data.put("permisos", user.getPermisosComoLista());
         data.put("activo", true);
