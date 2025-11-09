@@ -56,6 +56,9 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.test.mysede.auth.PermissionManager;
+import com.test.mysede.auth.Permiso;
+
 /**
  * Fragment que muestra el calendario de actividades/citas.
  */
@@ -377,6 +380,15 @@ public class CalendarFragment extends Fragment implements
         Objects.requireNonNull(nuevaFecha, "La fecha es obligatoria");
         Objects.requireNonNull(nuevaHora, "La hora es obligatoria");
 
+        // ============================================
+        // VALIDAR PERMISO PARA REAGENDAR CITAS
+        // ============================================
+        if (!PermissionManager.tienePermiso(Permiso.EDITAR_CITA)) {
+            Snackbar.make(root, "No tienes permiso para reagendar citas", Snackbar.LENGTH_LONG).show();
+            return;
+        }
+        // FIN VALIDACIÓN DE PERMISOS
+
         String firestoreId = cita.getFirestoreId();
         if (TextUtils.isEmpty(firestoreId)) {
             cita.actualizarFechaHora(nuevaFecha, nuevaHora);
@@ -424,6 +436,15 @@ public class CalendarFragment extends Fragment implements
     }
 
     private void eliminarCita(CalendarUiCita cita) {
+        // ============================================
+        // VALIDAR PERMISO PARA ELIMINAR CITAS
+        // ============================================
+        if (!PermissionManager.tienePermiso(Permiso.ELIMINAR_CITA)) {
+            Snackbar.make(root, "No tienes permiso para eliminar citas", Snackbar.LENGTH_LONG).show();
+            return;
+        }
+        // FIN VALIDACIÓN DE PERMISOS
+
         String firestoreId = cita.getFirestoreId();
         if (TextUtils.isEmpty(firestoreId)) {
             allAppointments.remove(cita);
@@ -482,18 +503,49 @@ public class CalendarFragment extends Fragment implements
                 cita.getHora().format(timeFormatter)));
         descripcion.setText(getString(R.string.calendario_detalle_lugar, cita.getLugarNombre()));
 
+        // ============================================
+        // CREAR EL DIALOG PRIMERO (antes de los listeners)
+        // Usamos un array para poder modificarlo dentro de las lambdas
+        // ============================================
+        final AlertDialog[] dialogHolder = new AlertDialog[1];
+
+        // ============================================
+        // VALIDACIÓN DE PERMISOS PARA BOTONES
+        // ============================================
+        // Botón Reagendar - Solo visible si tiene permiso EDITAR_CITA
+        if (PermissionManager.tienePermiso(Permiso.EDITAR_CITA)) {
+            reagendarButton.setVisibility(View.VISIBLE);
+            reagendarButton.setOnClickListener(v -> {
+                if (dialogHolder[0] != null) {
+                    dialogHolder[0].dismiss();
+                }
+                mostrarDialogoReagendar(cita, notificarSwitch.isChecked());
+            });
+        } else {
+            reagendarButton.setVisibility(View.GONE);
+        }
+
+        // Botón Eliminar - Solo visible si tiene permiso ELIMINAR_CITA
+        if (PermissionManager.tienePermiso(Permiso.ELIMINAR_CITA)) {
+            eliminarButton.setVisibility(View.VISIBLE);
+            eliminarButton.setOnClickListener(v -> {
+                if (dialogHolder[0] != null) {
+                    dialogHolder[0].dismiss();
+                }
+                mostrarDialogoEliminar(cita, notificarSwitch.isChecked());
+            });
+        } else {
+            eliminarButton.setVisibility(View.GONE);
+        }
+        // FIN VALIDACIÓN DE PERMISOS
+
+        // Ahora sí creamos y asignamos el dialog
         AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
                 .create();
 
-        reagendarButton.setOnClickListener(v -> {
-            dialog.dismiss();
-            mostrarDialogoReagendar(cita, notificarSwitch.isChecked());
-        });
-        eliminarButton.setOnClickListener(v -> {
-            dialog.dismiss();
-            mostrarDialogoEliminar(cita, notificarSwitch.isChecked());
-        });
+        // Guardamos la referencia en el array para que los listeners puedan usarla
+        dialogHolder[0] = dialog;
 
         dialog.show();
     }
