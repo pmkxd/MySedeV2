@@ -27,7 +27,9 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.test.mysede.AdjuntarArchivosActivity;
+import com.test.mysede.model.ArchivoAdjunto;
 import com.test.mysede.DAO.ActividadDAO;
+import com.test.mysede.DAO.ArchivoAdjuntoDAO;
 import com.test.mysede.DAO.CitaDAO;
 import com.test.mysede.DAO.FirestoreOperationCallback;
 import com.test.mysede.DAO.LugarDAO;
@@ -91,7 +93,10 @@ public class CrearActividadActivity extends AppCompatActivity {
     private final List<SocioComunitario> socios = new ArrayList<>();
     private final List<Lugar> lugares = new ArrayList<>();
 
-    private ArrayList<? extends Parcelable> archivosAdjuntos = new ArrayList<>();
+    private ArrayList<ArchivoAdjunto> archivosAdjuntos = new ArrayList<>();
+    private final ArchivoAdjuntoDAO archivoDAO = new ArchivoAdjuntoDAO();
+
+
 
     private boolean modoEditar = false;
     private String actividadId;
@@ -224,7 +229,24 @@ public class CrearActividadActivity extends AppCompatActivity {
             if (hasFocus) mostrarTimePicker(2);
         });
 
-        btnGuardar.setOnClickListener(v -> guardarActividad());
+        btnGuardar.setOnClickListener(v -> {
+            if (archivosAdjuntos != null && !archivosAdjuntos.isEmpty()) {
+                for (ArchivoAdjunto archivo : archivosAdjuntos) {
+                    archivoDAO.guardarArchivo(archivo)
+                            .addOnSuccessListener(ref ->
+                                    Toast.makeText(this, "Archivo guardado: " + archivo.getNombre(), Toast.LENGTH_SHORT).show()
+                            )
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this, "Error al guardar en Firestore", Toast.LENGTH_SHORT).show()
+                            );
+                }
+            }
+
+            guardarActividad();
+            Toast.makeText(this, "Actividad guardada correctamente", Toast.LENGTH_SHORT).show();
+            finish();
+        });
+
     }
     private void mostrarResumenArchivos() {
         layoutArchivosAdjuntos.removeAllViews();
@@ -233,10 +255,9 @@ public class CrearActividadActivity extends AppCompatActivity {
             return;
         }
         layoutArchivosAdjuntos.setVisibility(View.VISIBLE);
-        for (Parcelable archivo : archivosAdjuntos) {
+        for (ArchivoAdjunto archivo : archivosAdjuntos) {
             TextView tvArchivo = new TextView(this);
-            tvArchivo.setText("📄 " + archivo.getClass().getSimpleName());
-            tvArchivo.setPadding(8, 8, 8, 8);
+            tvArchivo.setText("📄 " + archivo.getNombre());
             layoutArchivosAdjuntos.addView(tvArchivo);
         }
     }

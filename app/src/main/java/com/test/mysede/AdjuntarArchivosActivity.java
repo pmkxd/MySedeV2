@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,11 +17,13 @@ import com.test.mysede.ui.SystemBarsHelper;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
 import com.google.android.material.button.MaterialButton;
+import com.test.mysede.model.ArchivoAdjunto;
 
 import java.util.ArrayList;
 
@@ -97,7 +101,9 @@ public class AdjuntarArchivosActivity extends AppCompatActivity {
 
         layoutArchivosAdjuntos.setVisibility(View.VISIBLE);
 
-        for (ArchivoAdjunto archivo : archivosSeleccionados) {
+        for (int i = 0; i < archivosSeleccionados.size(); i++) {
+            ArchivoAdjunto archivo = archivosSeleccionados.get(i);
+
             CardView card = new CardView(this);
             card.setRadius(16);
             card.setCardElevation(6);
@@ -116,9 +122,75 @@ public class AdjuntarArchivosActivity extends AppCompatActivity {
             TextView tamaño = new TextView(this);
             tamaño.setText("Tamaño: " + (archivo.getTamaño() / 1024) + " KB");
 
+            // Botones para renombrar y eliminar
+            LinearLayout acciones = new LinearLayout(this);
+            acciones.setOrientation(LinearLayout.HORIZONTAL);
+            acciones.setPadding(0, 8, 0, 0);
+
+            Button btnRenombrar = new Button(this);
+            btnRenombrar.setText("Renombrar");
+            btnRenombrar.setTextSize(12);
+
+            Button btnEliminar = new Button(this);
+            btnEliminar.setText("Eliminar");
+            btnEliminar.setTextSize(12);
+
+            // Acción: renombrar
+            btnRenombrar.setOnClickListener(v -> {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Renombrar archivo");
+
+                final EditText input = new EditText(this);
+                input.setText(archivo.getNombre());
+                builder.setView(input);
+
+                builder.setPositiveButton("Guardar", (dialog, which) -> {
+                    String nuevoNombre = input.getText().toString().trim();
+
+                    if (nuevoNombre.isEmpty()) {
+                        Toast.makeText(this, "El nombre no puede estar vacío", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Obtener la extensión del nombre original (por ejemplo, ".jpg")
+                    String nombreOriginal = archivo.getNombre();
+                    String extension = "";
+                    int puntoIndex = nombreOriginal.lastIndexOf('.');
+                    if (puntoIndex != -1) {
+                        extension = nombreOriginal.substring(puntoIndex); // incluye el punto
+                    }
+
+                    // Eliminar extensión si el usuario la escribió (por error)
+                    if (nuevoNombre.contains(".")) {
+                        nuevoNombre = nuevoNombre.substring(0, nuevoNombre.lastIndexOf('.'));
+                    }
+
+                    // Volver a agregar la extensión original
+                    String nombreFinal = nuevoNombre + extension;
+
+                    archivo.setNombre(nombreFinal);
+                    actualizarVistaDeArchivosAdjuntos();
+                    Toast.makeText(this, "Archivo renombrado a: " + nombreFinal, Toast.LENGTH_SHORT).show();
+                });
+
+                builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
+                builder.show();
+            });
+
+            // Acción: eliminar
+            btnEliminar.setOnClickListener(v -> {
+                archivosSeleccionados.remove(archivo);
+                actualizarVistaDeArchivosAdjuntos();
+            });
+
+            // Añadir botones
+            acciones.addView(btnRenombrar);
+            acciones.addView(btnEliminar);
+
             contenedor.addView(nombre);
             contenedor.addView(tipo);
             contenedor.addView(tamaño);
+            contenedor.addView(acciones);
 
             card.addView(contenedor);
             layoutArchivosAdjuntos.addView(card);
@@ -130,6 +202,8 @@ public class AdjuntarArchivosActivity extends AppCompatActivity {
         String nombre = "Archivo desconocido";
         String tipo = getContentResolver().getType(uri);
         long tamaño = 0;
+        String url = "?";
+
 
         try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
@@ -139,7 +213,7 @@ public class AdjuntarArchivosActivity extends AppCompatActivity {
                 if (sizeIndex != -1) tamaño = cursor.getLong(sizeIndex);
             }
         }
-        return new ArchivoAdjunto(nombre, tipo, tamaño, uri);
+        return new ArchivoAdjunto(nombre, tipo, tamaño, uri, null);
     }
 
     @SuppressLint("Range")
