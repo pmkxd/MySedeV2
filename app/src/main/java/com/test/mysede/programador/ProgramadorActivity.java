@@ -21,7 +21,13 @@ import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.auth.SessionManager;
 import com.test.mysede.login.ActivityLogin;
 import com.test.mysede.model.Usuario;
+import com.test.mysede.perfil.PerfilActivity; //  Import agregado para abrir el perfil
 
+/**
+ * Activity principal del rol Programador.
+ * Gestiona el panel de calendario y actividades mediante navegación inferior.
+ * Incluye un menú con opción de perfil y cierre de sesión.
+ */
 public class ProgramadorActivity extends AppCompatActivity {
 
     private SessionManager sessionManager;
@@ -33,6 +39,8 @@ public class ProgramadorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_programador);
 
         sessionManager = new SessionManager(this);
+
+        // Verificar usuario logeado
         Usuario usuarioActual = PermissionManager.getUsuarioActual();
         if (usuarioActual == null) {
             usuarioActual = sessionManager.obtenerUsuarioSesion();
@@ -40,6 +48,8 @@ public class ProgramadorActivity extends AppCompatActivity {
                 PermissionManager.setUsuarioActual(usuarioActual);
             }
         }
+
+        // Si no hay usuario válido, redirigir al login
         if (usuarioActual == null) {
             Toast.makeText(this, "Sesión inválida, por favor ingresa nuevamente", Toast.LENGTH_LONG).show();
             startActivity(new Intent(this, ActivityLogin.class));
@@ -47,18 +57,22 @@ public class ProgramadorActivity extends AppCompatActivity {
             return;
         }
 
+        //  Configurar Toolbar
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setSubtitle(usuarioActual.getNombre());
 
+        //  Configurar navegación inferior
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         if (navHostFragment != null) {
             NavController navController = navHostFragment.getNavController();
             BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+
             appBarConfiguration = new AppBarConfiguration.Builder(
                     R.id.nav_calendar,
                     R.id.nav_activities
             ).build();
+
             NavigationUI.setupWithNavController(bottomNavigationView, navController);
             NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         }
@@ -76,19 +90,30 @@ public class ProgramadorActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        //  Infla el menú con perfil y cierre de sesión
         getMenuInflater().inflate(R.menu.menu_user_options, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_cerrar_sesion) {
+        //  Acción al presionar elementos del menú superior
+        int id = item.getItemId();
+
+        if (id == R.id.menu_perfil) {
+            //  Abre la pantalla de perfil del usuario
+            startActivity(new Intent(this, PerfilActivity.class));
+            return true;
+        } else if (id == R.id.menu_cerrar_sesion) {
+            //  Cierra sesión
             cerrarSesion();
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
+    //  Lógica para cerrar sesión limpiamente
     private void cerrarSesion() {
         sessionManager.cerrarSesion();
         PermissionManager.setUsuarioActual(null);
