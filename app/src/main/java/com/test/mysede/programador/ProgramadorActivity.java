@@ -21,12 +21,12 @@ import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.auth.SessionManager;
 import com.test.mysede.login.ActivityLogin;
 import com.test.mysede.model.Usuario;
-import com.test.mysede.perfil.PerfilActivity; //  Import agregado para abrir el perfil
+import com.test.mysede.perfil.PerfilActivity; // Import agregado para el Perfil
 
 /**
  * Activity principal del rol Programador.
- * Gestiona el panel de calendario y actividades mediante navegación inferior.
- * Incluye un menú con opción de perfil y cierre de sesión.
+ * Gestiona el calendario y las actividades mediante navegación inferior.
+ * Incluye opciones de Perfil y Cierre de Sesión en el menú superior.
  */
 public class ProgramadorActivity extends AppCompatActivity {
 
@@ -40,7 +40,7 @@ public class ProgramadorActivity extends AppCompatActivity {
 
         sessionManager = new SessionManager(this);
 
-        // Verificar usuario logeado
+        // Verificar usuario logueado
         Usuario usuarioActual = PermissionManager.getUsuarioActual();
         if (usuarioActual == null) {
             usuarioActual = sessionManager.obtenerUsuarioSesion();
@@ -49,7 +49,7 @@ public class ProgramadorActivity extends AppCompatActivity {
             }
         }
 
-        // Si no hay usuario válido, redirigir al login
+        //  Si no hay usuario válido, redirigir al login
         if (usuarioActual == null) {
             Toast.makeText(this, "Sesión inválida, por favor ingresa nuevamente", Toast.LENGTH_LONG).show();
             startActivity(new Intent(this, ActivityLogin.class));
@@ -57,13 +57,14 @@ public class ProgramadorActivity extends AppCompatActivity {
             return;
         }
 
-        //  Configurar Toolbar
+        //  Configurar Toolbar con el nombre del usuario
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setSubtitle(usuarioActual.getNombre());
 
         //  Configurar navegación inferior
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
         if (navHostFragment != null) {
             NavController navController = navHostFragment.getNavController();
             BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -80,32 +81,35 @@ public class ProgramadorActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
         if (navHostFragment != null) {
             NavController navController = navHostFragment.getNavController();
-            return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
+            return NavigationUI.navigateUp(navController, appBarConfiguration)
+                    || super.onSupportNavigateUp();
         }
         return super.onSupportNavigateUp();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        //  Infla el menú con perfil y cierre de sesión
+        //  Infla el menú con las opciones de Perfil y Cerrar Sesión
         getMenuInflater().inflate(R.menu.menu_user_options, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        //  Acción al presionar elementos del menú superior
         int id = item.getItemId();
 
+        //  Abre la pantalla de perfil del usuario
         if (id == R.id.menu_perfil) {
-            //  Abre la pantalla de perfil del usuario
             startActivity(new Intent(this, PerfilActivity.class));
             return true;
-        } else if (id == R.id.menu_cerrar_sesion) {
-            //  Cierra sesión
+        }
+
+        //  Cierra sesión
+        if (id == R.id.menu_cerrar_sesion) {
             cerrarSesion();
             return true;
         }

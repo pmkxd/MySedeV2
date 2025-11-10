@@ -16,4 +16,9 @@
         android:id="@+id/nav_activities"
         android:icon="@drawable/ic_nav_activities"
         android:title="Actividades" />
+    <!-- Nuevo: acceso directo al perfil -->
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/ic_usuario"
+        android:title="Perfil" />
 </menu>

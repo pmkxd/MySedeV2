@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/menu_cerrar_sesion"
-        android:title="Cerrar sesión"
-        app:showAsAction="never" />
+
     <item
         android:id="@+id/menu_perfil"
+        android:title="Mi Perfil"
         android:icon="@drawable/ic_usuario"
-        android:title="Perfil"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_cerrar_sesion"
+        android:title="Cerrar Sesión"
+        android:icon="@drawable/ic_logout"
+        app:showAsAction="never" />
 </menu>
