@@ -5,6 +5,9 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.content.Intent;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.test.mysede.citas.CrearCitaActivity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -56,6 +59,9 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.test.mysede.auth.PermissionManager;
+import com.test.mysede.auth.Permiso;
+
 /**
  * Fragment que muestra el calendario de actividades/citas.
  */
@@ -100,6 +106,7 @@ public class CalendarFragment extends Fragment implements
     private MaterialButton nextMonthButton;
     private MaterialTextView monthTitle;
     private RecyclerView monthRecycler;
+    private FloatingActionButton fabCrearCita;
 
     private final List<CalendarUiCita> allAppointments = new ArrayList<>();
     private final List<DaySchedule> currentWeekDays = new ArrayList<>();
@@ -142,6 +149,8 @@ public class CalendarFragment extends Fragment implements
         monthAdapter = new CalendarMonthAdapter(this);
         monthRecycler.setLayoutManager(new GridLayoutManager(requireContext(), 7));
         monthRecycler.setAdapter(monthAdapter);
+        fabCrearCita = view.findViewById(R.id.calendar_fab_crear_cita);
+        configurarFabCrearCita();
 
         previousWeekButton.setOnClickListener(v -> navegarSemana(-1));
         nextWeekButton.setOnClickListener(v -> navegarSemana(1));
@@ -170,6 +179,20 @@ public class CalendarFragment extends Fragment implements
 
         actualizarSeleccion(selectedDate);
         cargarCitasDesdeDao();
+    }
+
+    private void configurarFabCrearCita() {
+        boolean puedeCrearCita = PermissionManager.tienePermiso(Permiso.CREAR_CITA);
+
+        if (puedeCrearCita) {
+            fabCrearCita.setVisibility(View.VISIBLE);
+            fabCrearCita.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), CrearCitaActivity.class);
+                startActivity(intent);
+            });
+        } else {
+            fabCrearCita.setVisibility(View.GONE);
+        }
     }
 
     private void cambiarModo(ViewMode mode) {
@@ -377,6 +400,15 @@ public class CalendarFragment extends Fragment implements
         Objects.requireNonNull(nuevaFecha, "La fecha es obligatoria");
         Objects.requireNonNull(nuevaHora, "La hora es obligatoria");
 
+        // ============================================
+        // VALIDAR PERMISO PARA REAGENDAR CITAS
+        // ============================================
+        if (!PermissionManager.tienePermiso(Permiso.EDITAR_CITA)) {
+            Snackbar.make(root, "No tienes permiso para reagendar citas", Snackbar.LENGTH_LONG).show();
+            return;
+        }
+        // FIN VALIDACIÓN DE PERMISOS
+
         String firestoreId = cita.getFirestoreId();
         if (TextUtils.isEmpty(firestoreId)) {
             cita.actualizarFechaHora(nuevaFecha, nuevaHora);
@@ -424,6 +456,15 @@ public class CalendarFragment extends Fragment implements
     }
 
     private void eliminarCita(CalendarUiCita cita) {
+        // ============================================
+        // VALIDAR PERMISO PARA ELIMINAR CITAS
+        // ============================================
+        if (!PermissionManager.tienePermiso(Permiso.ELIMINAR_CITA)) {
+            Snackbar.make(root, "No tienes permiso para eliminar citas", Snackbar.LENGTH_LONG).show();
+            return;
+        }
+        // FIN VALIDACIÓN DE PERMISOS
+
         String firestoreId = cita.getFirestoreId();
         if (TextUtils.isEmpty(firestoreId)) {
             allAppointments.remove(cita);
@@ -467,6 +508,10 @@ public class CalendarFragment extends Fragment implements
         });
     }
 
+    // ========================================
+// REEMPLAZA el método mostrarDialogoDetalle COMPLETO
+// ========================================
+
     private void mostrarDialogoDetalle(CalendarUiCita cita) {
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_cita_detalle, null, false);
         MaterialTextView titulo = view.findViewById(R.id.calendario_detalle_titulo);
@@ -482,18 +527,57 @@ public class CalendarFragment extends Fragment implements
                 cita.getHora().format(timeFormatter)));
         descripcion.setText(getString(R.string.calendario_detalle_lugar, cita.getLugarNombre()));
 
+        // ============================================
+        // CREAR EL DIALOG PRIMERO (antes de los listeners)
+        // ============================================
+        final AlertDialog[] dialogHolder = new AlertDialog[1];
+
+        // ============================================
+        // VALIDACIÓN DE PERMISOS
+        // ============================================
+        boolean puedeEditar = PermissionManager.tienePermiso(Permiso.EDITAR_CITA);
+        boolean puedeEliminar = PermissionManager.tienePermiso(Permiso.ELIMINAR_CITA);
+        boolean puedeRecibirNotificaciones = PermissionManager.tienePermiso(Permiso.RECIBIR_NOTIFICACIONES);
+
+        // Ocultar switch de notificación si NO tiene permiso o si no puede hacer ninguna acción
+        if (!puedeRecibirNotificaciones || (!puedeEditar && !puedeEliminar)) {
+            notificarSwitch.setVisibility(View.GONE);
+        }
+
+        // Botón Reagendar - Solo visible si tiene permiso EDITAR_CITA
+        if (puedeEditar) {
+            reagendarButton.setVisibility(View.VISIBLE);
+            reagendarButton.setOnClickListener(v -> {
+                if (dialogHolder[0] != null) {
+                    dialogHolder[0].dismiss();
+                }
+                mostrarDialogoReagendar(cita, notificarSwitch.isChecked());
+            });
+        } else {
+            reagendarButton.setVisibility(View.GONE);
+        }
+
+        // Botón Eliminar - Solo visible si tiene permiso ELIMINAR_CITA
+        if (puedeEliminar) {
+            eliminarButton.setVisibility(View.VISIBLE);
+            eliminarButton.setOnClickListener(v -> {
+                if (dialogHolder[0] != null) {
+                    dialogHolder[0].dismiss();
+                }
+                mostrarDialogoEliminar(cita, notificarSwitch.isChecked());
+            });
+        } else {
+            eliminarButton.setVisibility(View.GONE);
+        }
+        // FIN VALIDACIÓN DE PERMISOS
+
+        // Ahora sí creamos y asignamos el dialog
         AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
                 .create();
 
-        reagendarButton.setOnClickListener(v -> {
-            dialog.dismiss();
-            mostrarDialogoReagendar(cita, notificarSwitch.isChecked());
-        });
-        eliminarButton.setOnClickListener(v -> {
-            dialog.dismiss();
-            mostrarDialogoEliminar(cita, notificarSwitch.isChecked());
-        });
+        // Guardamos la referencia en el array para que los listeners puedan usarla
+        dialogHolder[0] = dialog;
 
         dialog.show();
     }
