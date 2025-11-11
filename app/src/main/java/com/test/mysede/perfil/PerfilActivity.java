@@ -3,6 +3,7 @@ package com.test.mysede.perfil;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,9 +63,11 @@ public class PerfilActivity extends AppCompatActivity {
         });
 
         // Botón para cambiar contraseña
-        btnCambiarContrasena.setOnClickListener(v ->
-                Toast.makeText(this, "Función de cambio de contraseña próximamente", Toast.LENGTH_SHORT).show()
-        );
+        Button btnCambiarContrasena = findViewById(R.id.btnCambiarContrasena);
+        btnCambiarContrasena.setOnClickListener(v -> {
+            startActivity(new Intent(this, CambiarContrasenaActivity.class));
+        });
+
 
         // Botón para ver notificaciones
         btnVerNotificaciones.setOnClickListener(v ->
