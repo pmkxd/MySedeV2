@@ -8,6 +8,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.google.android.material.appbar.MaterialToolbar;
 import com.test.mysede.ui.SystemBarsHelper;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,6 +38,12 @@ public class LugarActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lugar);
         SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        toolbar.setNavigationOnClickListener(v -> finish());
         recyclerLugares = findViewById(R.id.recyclerLugares);
         btnNuevoLugar = findViewById(R.id.btnNuevoLugar);
 

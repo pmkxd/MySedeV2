@@ -8,6 +8,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.google.android.material.appbar.MaterialToolbar;
 import com.test.mysede.ui.SystemBarsHelper;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,7 +37,12 @@ public class TipoActividadActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tipo_actividad);
         SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
-
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        toolbar.setNavigationOnClickListener(v -> finish());
         recyclerView = findViewById(R.id.recyclerTipos);
         btnNuevaActividad = findViewById(R.id.btnNuevaActividad);
         tipoActividadDAO = new TipoActividadDAO();

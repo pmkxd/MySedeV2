@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.google.android.material.appbar.MaterialToolbar;
 import com.test.mysede.ui.SystemBarsHelper;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -33,7 +35,12 @@ public class SocioComunitarioActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_socio_comunitario);
         SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
-
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        toolbar.setNavigationOnClickListener(v -> finish());
         recyclerSocios = findViewById(R.id.recyclerSocios);
         btnNuevoSocio = findViewById(R.id.btnNuevoSocio);
         socioComunitarioDAO = new SocioComunitarioDAO();

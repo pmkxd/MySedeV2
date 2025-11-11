@@ -5,13 +5,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSurface">
-
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:navigationIcon="@drawable/ic_arrow_back_24"
+        app:title="Socios Comunitarios"
+        app:titleTextColor="?attr/colorOnPrimary" />
     <!-- Título -->
     <TextView
         android:id="@+id/tvTituloSocio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Socios Comunitarios"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="?attr/colorPrimary"
