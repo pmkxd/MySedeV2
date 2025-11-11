@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.test.mysede.DAO.FirestoreOperationCallback;
 import com.test.mysede.DAO.ProyectoDAO;
@@ -33,7 +34,12 @@ public class ProyectoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_proyecto);
         SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
-
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        toolbar.setNavigationOnClickListener(v -> finish());
         recyclerProyectos = findViewById(R.id.recyclerProyectos);
         btnNuevoProyecto = findViewById(R.id.btnNuevoProyecto);
 
