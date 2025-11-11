@@ -16,6 +16,8 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
@@ -181,9 +183,14 @@ public class CrearCitaActivity extends AppCompatActivity {
             seleccionInicial = fechaSeleccionada.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
         }
 
+        // Configurar restricciones para bloquear fechas pasadas
+        CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder();
+        constraintsBuilder.setValidator(DateValidatorPointForward.now());
+
         MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
                 .setTitleText(R.string.crear_cita_hint_fecha)
                 .setSelection(seleccionInicial)
+                .setCalendarConstraints(constraintsBuilder.build())
                 .build();
         datePicker.addOnPositiveButtonClickListener(selection -> {
             if (selection == null) {
@@ -231,6 +238,14 @@ public class CrearCitaActivity extends AppCompatActivity {
         if (horaSeleccionada == null) {
             horaLayout.setError(getString(R.string.crear_cita_campos_obligatorios));
             valido = false;
+        }
+        // Validar que la combinación fecha + hora no esté en el pasado
+        if (fechaSeleccionada != null && horaSeleccionada != null) {
+            if (fechaSeleccionada.equals(LocalDate.now()) &&
+                horaSeleccionada.isBefore(LocalTime.now())) {
+                horaLayout.setError("La hora no puede ser anterior a la actual para hoy");
+                valido = false;
+            }
         }
         if (TextUtils.isEmpty(obtenerTexto(cupoInput))) {
             cupoLayout.setError(getString(R.string.crear_cita_campos_obligatorios));
