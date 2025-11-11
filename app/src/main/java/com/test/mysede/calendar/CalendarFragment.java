@@ -409,6 +409,13 @@ public class CalendarFragment extends Fragment implements
         }
         // FIN VALIDACIÓN DE PERMISOS
 
+
+        if (!nuevaFecha.isAfter(LocalDate.now())) {
+            Snackbar.make(root, R.string.calendario_error_fecha_pasada, Snackbar.LENGTH_LONG).show();
+            return;
+        }
+
+
         String firestoreId = cita.getFirestoreId();
         if (TextUtils.isEmpty(firestoreId)) {
             cita.actualizarFechaHora(nuevaFecha, nuevaHora);
@@ -591,6 +598,13 @@ public class CalendarFragment extends Fragment implements
         datePicker.addOnPositiveButtonClickListener(selection -> {
             if (selection == null) return;
             LocalDate nuevaFecha = Instant.ofEpochMilli(selection).atZone(ZoneId.systemDefault()).toLocalDate();
+
+            // Validar que la nueva fecha sea futura (no hoy ni fechas pasadas)
+            if (!nuevaFecha.isAfter(LocalDate.now())) {
+                Snackbar.make(root, R.string.calendario_error_fecha_pasada, Snackbar.LENGTH_LONG).show();
+                return;
+            }
+
             mostrarSelectorHora(cita, nuevaFecha, notificar);
         });
         datePicker.show(getParentFragmentManager(), "calendario_reagendar_fecha");
