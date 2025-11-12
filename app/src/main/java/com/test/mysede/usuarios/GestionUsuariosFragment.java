@@ -128,7 +128,7 @@ public class GestionUsuariosFragment extends Fragment {
 
         if (PermissionManager.tienePermiso(Permiso.EDITAR_USUARIO) &&
                 PermissionManager.tienePermiso(Permiso.ELIMINAR_USUARIO)) {
-            opciones = new String[]{"Ver Detalles", "Editar", "Eliminar"};
+            opciones = new String[]{"Ver Detalles", "Editar", "Deshabilitar"};
         } else if (PermissionManager.tienePermiso(Permiso.EDITAR_USUARIO)) {
             opciones = new String[]{"Ver Detalles", "Editar"};
         } else {
@@ -145,7 +145,7 @@ public class GestionUsuariosFragment extends Fragment {
                         case "Editar":
                             editarUsuario(usuario);
                             break;
-                        case "Eliminar":
+                        case "Deshabilitar":
                             confirmarEliminar(usuario, posicion);
                             break;
                     }
@@ -173,37 +173,35 @@ public class GestionUsuariosFragment extends Fragment {
         }
 
         new AlertDialog.Builder(requireContext())
-                .setTitle("Eliminar Usuario")
-                .setMessage("¿Está seguro que desea eliminar a " + usuario.getNombre() + "?\n\n" +
-                        "Esta acción eliminará:\n" +
-                        "• Los datos del usuario en Firestore\n" +
-                        "• La cuenta de autenticación en Firebase\n\n" +
-                        "Esta acción no se puede deshacer.")
-                .setPositiveButton("Eliminar", (dialog, which) -> eliminarUsuario(usuario, posicion))
+                .setTitle("Deshabilitar Usuario")
+                .setMessage("¿Está seguro que desea deshabilitar a " + usuario.getNombre() + "?\n\n" +
+                        "El usuario quedará inactivo y no podrá iniciar sesión.\n" +
+                        "Podrás reactivarlo más tarde si es necesario.")
+                .setPositiveButton("Deshabilitar", (dialog, which) -> deshabilitarUsuario(usuario, posicion))
                 .setNegativeButton("Cancelar", null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
 
-    private void eliminarUsuario(Usuario usuario, int posicion) {
+    private void deshabilitarUsuario(Usuario usuario, int posicion) {
         progressBar.setVisibility(View.VISIBLE);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Marcar como inactivo en lugar de eliminar
         db.collection("usuarios")
                 .document(usuario.getId())
-                .delete()
+                .update("activo", false)
                 .addOnSuccessListener(aVoid -> {
                     if (!isAdded()) {
                         return;
                     }
-                    Toast.makeText(requireContext(), "Usuario eliminado de Firestore", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(),
+                            "Usuario deshabilitado correctamente",
+                            Toast.LENGTH_SHORT).show();
 
-                    if (posicion >= 0 && posicion < usuariosList.size()) {
-                        usuariosList.remove(posicion);
-                        if (adapter != null) {
-                            adapter.notifyItemRemoved(posicion);
-                        }
-                    }
+                    // Actualizar el estado local
+                    usuario.setActivo(false);
 
                     progressBar.setVisibility(View.GONE);
                     cargarUsuarios();
@@ -214,7 +212,7 @@ public class GestionUsuariosFragment extends Fragment {
                     }
                     progressBar.setVisibility(View.GONE);
                     Toast.makeText(requireContext(),
-                            "Error al eliminar usuario: " + e.getMessage(),
+                            "Error al deshabilitar usuario: " + e.getMessage(),
                             Toast.LENGTH_LONG).show();
                 });
     }
