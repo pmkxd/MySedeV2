@@ -98,8 +98,22 @@ public class ActivityLogin extends AppCompatActivity {
                 .addOnSuccessListener(doc -> {
                     if (!doc.exists()) {
                         Toast.makeText(this, "Usuario no registrado en Firestore", Toast.LENGTH_LONG).show();
+                        auth.signOut(); // Cerrar sesión de Authentication
                         return;
                     }
+
+                    // ========================================
+                    // VALIDAR SI EL USUARIO ESTÁ ACTIVO
+                    // ========================================
+                    Boolean activo = doc.getBoolean("activo");
+                    if (activo == null || !activo) {
+                        Toast.makeText(this,
+                                "Tu cuenta ha sido deshabilitada. Contacta al administrador.",
+                                Toast.LENGTH_LONG).show();
+                        auth.signOut(); // Cerrar sesión de Authentication
+                        return;
+                    }
+                    // FIN VALIDACIÓN DE USUARIO ACTIVO
 
                     String nombre = doc.getString("nombre");
                     String email = doc.getString("email");
@@ -108,13 +122,13 @@ public class ActivityLogin extends AppCompatActivity {
                     List<String> permisosList = (List<String>) doc.get("permisos");
 
                     // Convertir rol de Firestore a enum Rol
-                    Rol rol = Rol.fromNombreCompleto(rolString); // intenta match legible
+                    Rol rol = Rol.fromNombreCompleto(rolString);
                     if (rol == null) {
-                        // fallback: convertir a formato enum
                         try {
                             rol = Rol.valueOf(rolString.toUpperCase().replace(" ", "_"));
                         } catch (Exception e) {
                             Toast.makeText(this, "Rol inválido para este usuario", Toast.LENGTH_LONG).show();
+                            auth.signOut();
                             return;
                         }
                     }
@@ -122,6 +136,7 @@ public class ActivityLogin extends AppCompatActivity {
                     Usuario usuario = new Usuario(nombre, email, rol);
                     usuario.setRut(rut);
                     usuario.setId(uid);
+                    usuario.setActivo(activo); // Guardar el estado activo
 
                     // Convertir permisos de String a Permiso
                     Set<Permiso> permisos = new HashSet<>();
@@ -156,8 +171,9 @@ public class ActivityLogin extends AppCompatActivity {
                     finish();
 
                 })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Error cargando datos del usuario: " + e.getMessage(), Toast.LENGTH_LONG).show()
-                );
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error cargando datos del usuario: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    auth.signOut();
+                });
     }
 }
