@@ -15,6 +15,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.test.mysede.DAO.FirestoreOperationCallback;
 import com.test.mysede.DAO.SocioComunitarioDAO;
 import com.test.mysede.R;
+import com.test.mysede.auth.Permiso;
+import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.model.SocioComunitario;
 
 import java.util.ArrayList;
@@ -59,7 +61,13 @@ public class SocioComunitarioActivity extends AppCompatActivity {
         recyclerSocios.setLayoutManager(new LinearLayoutManager(this));
         recyclerSocios.setAdapter(adapter);
 
-        btnNuevoSocio.setOnClickListener(v -> mostrarDialogoAgregar());
+        btnNuevoSocio.setOnClickListener(v -> {
+            if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_SOCIOS)) {
+                Toast.makeText(this, "No tienes permiso para crear socios comunitarios", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            mostrarDialogoAgregar();
+        });
 
         cargarSocios();
     }
@@ -109,10 +117,22 @@ public class SocioComunitarioActivity extends AppCompatActivity {
                 .setTitle("Nuevo Socio")
                 .setView(dialogView)
                 .setPositiveButton("Guardar", (dialog, which) -> {
+                    if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_SOCIOS)) {
+                        Toast.makeText(this, "No tienes permiso para crear socios comunitarios", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     String nombre = etNombre.getText().toString().trim();
 
                     if (nombre.isEmpty()) {
                         Toast.makeText(this, "El nombre es obligatorio", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (nombre.length() < 3) {
+                        Toast.makeText(this, "El nombre debe tener al menos 3 caracteres", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (existeSocioConNombre(nombre)) {
+                        Toast.makeText(this, "Ya existe un socio comunitario con este nombre", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     SocioComunitario nuevoSocio = new SocioComunitario(nombre);
@@ -147,10 +167,22 @@ public class SocioComunitarioActivity extends AppCompatActivity {
                 .setTitle("Editar Socio")
                 .setView(dialogView)
                 .setPositiveButton("Guardar", (dialog, which) -> {
+                    if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_SOCIOS)) {
+                        Toast.makeText(this, "No tienes permiso para editar socios comunitarios", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     String nuevoNombre = etNombre.getText().toString().trim();
 
                     if (nuevoNombre.isEmpty()) {
                         Toast.makeText(this, "El nombre es obligatorio", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (nuevoNombre.length() < 3) {
+                        Toast.makeText(this, "El nombre debe tener al menos 3 caracteres", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (existeSocioConNombreExcepto(nuevoNombre, socio.getId())) {
+                        Toast.makeText(this, "Ya existe un socio comunitario con este nombre", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     SocioComunitario socioActualizado = new SocioComunitario(nuevoNombre);
@@ -177,6 +209,10 @@ public class SocioComunitarioActivity extends AppCompatActivity {
 
     // 🗑️ Eliminar
     private void confirmarEliminar(int position) {
+        if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_SOCIOS)) {
+            Toast.makeText(this, "No tienes permiso para eliminar socios comunitarios", Toast.LENGTH_SHORT).show();
+            return;
+        }
         SocioComunitario socio = listaSocios.get(position);
         new AlertDialog.Builder(this)
                 .setTitle("Eliminar")
@@ -200,5 +236,23 @@ public class SocioComunitarioActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("No", null)
                 .show();
+    }
+
+    private boolean existeSocioConNombre(String nombre) {
+        for (SocioComunitario s : listaSocios) {
+            if (s.getNombre().equalsIgnoreCase(nombre)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean existeSocioConNombreExcepto(String nombre, String idExcluir) {
+        for (SocioComunitario s : listaSocios) {
+            if (s.getNombre().equalsIgnoreCase(nombre) && !s.getId().equals(idExcluir)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -15,6 +15,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.test.mysede.DAO.FirestoreOperationCallback;
 import com.test.mysede.DAO.ProyectoDAO;
 import com.test.mysede.R;
+import com.test.mysede.auth.Permiso;
+import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.model.Proyecto;
 import com.test.mysede.ui.SystemBarsHelper;
 import java.util.ArrayList;
@@ -60,7 +62,13 @@ public class ProyectoActivity extends AppCompatActivity {
         recyclerProyectos.setLayoutManager(new LinearLayoutManager(this));
         recyclerProyectos.setAdapter(adapter);
 
-        btnNuevoProyecto.setOnClickListener(v -> mostrarDialogoAgregar());
+        btnNuevoProyecto.setOnClickListener(v -> {
+            if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_PROYECTOS)) {
+                Toast.makeText(this, "No tienes permiso para crear proyectos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            mostrarDialogoAgregar();
+        });
         cargarProyectos();
     }
 
@@ -101,9 +109,22 @@ public class ProyectoActivity extends AppCompatActivity {
                 .setTitle("Nuevo Proyecto")
                 .setView(dialogView)
                 .setPositiveButton("Guardar", (dialog, which) -> {
+                    if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_PROYECTOS)) {
+                        Toast.makeText(this, "No tienes permiso para crear proyectos", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     String nombre = etNombre.getText().toString().trim();
                     if (nombre.isEmpty()) {
                         Toast.makeText(this, "El nombre es obligatorio", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (nombre.length() < 3) {
+                        Toast.makeText(this, "El nombre debe tener al menos 3 caracteres", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    // Validar duplicados
+                    if (existeProyectoConNombre(nombre)) {
+                        Toast.makeText(this, "Ya existe un proyecto con este nombre", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     Proyecto nuevoProyecto = new Proyecto(nombre);
@@ -137,9 +158,22 @@ public class ProyectoActivity extends AppCompatActivity {
                 .setTitle("Editar Proyecto")
                 .setView(dialogView)
                 .setPositiveButton("Guardar", (dialog, which) -> {
+                    if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_PROYECTOS)) {
+                        Toast.makeText(this, "No tienes permiso para editar proyectos", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     String nuevoNombre = etNombre.getText().toString().trim();
                     if (nuevoNombre.isEmpty()) {
                         Toast.makeText(this, "El nombre es obligatorio", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (nuevoNombre.length() < 3) {
+                        Toast.makeText(this, "El nombre debe tener al menos 3 caracteres", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    // Validar duplicados (excluir el proyecto actual)
+                    if (existeProyectoConNombreExcepto(nuevoNombre, proyecto.getId())) {
+                        Toast.makeText(this, "Ya existe un proyecto con este nombre", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     Proyecto proyectoActualizado = new Proyecto(nuevoNombre);
@@ -166,6 +200,10 @@ public class ProyectoActivity extends AppCompatActivity {
 
     // 🗑️ Eliminar
     private void confirmarEliminar(int position) {
+        if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_PROYECTOS)) {
+            Toast.makeText(this, "No tienes permiso para eliminar proyectos", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Proyecto proyecto = listaProyectos.get(position);
         new AlertDialog.Builder(this)
                 .setTitle("Eliminar")
@@ -189,5 +227,29 @@ public class ProyectoActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("No", null)
                 .show();
+    }
+
+    /**
+     * Verifica si ya existe un proyecto con el nombre dado
+     */
+    private boolean existeProyectoConNombre(String nombre) {
+        for (Proyecto p : listaProyectos) {
+            if (p.getNombre().equalsIgnoreCase(nombre)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Verifica si ya existe un proyecto con el nombre dado, excluyendo un ID específico
+     */
+    private boolean existeProyectoConNombreExcepto(String nombre, String idExcluir) {
+        for (Proyecto p : listaProyectos) {
+            if (p.getNombre().equalsIgnoreCase(nombre) && !p.getId().equals(idExcluir)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

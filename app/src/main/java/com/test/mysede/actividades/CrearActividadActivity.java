@@ -538,6 +538,10 @@ public class CrearActividadActivity extends AppCompatActivity {
             Toast.makeText(this, "Ingrese el nombre de la actividad", Toast.LENGTH_SHORT).show();
             return;
         }
+        if (nombre.length() < 3) {
+            Toast.makeText(this, "El nombre debe tener al menos 3 caracteres", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Lugar lugarSeleccionado = obtenerLugarSeleccionado();
         if (lugarSeleccionado == null) {
             Toast.makeText(this, "Seleccione un lugar", Toast.LENGTH_SHORT).show();
@@ -566,6 +570,10 @@ public class CrearActividadActivity extends AppCompatActivity {
             Toast.makeText(this, "El cupo debe ser numérico", Toast.LENGTH_SHORT).show();
             return;
         }
+        if (cupo != null && cupo <= 0) {
+            Toast.makeText(this, "El cupo debe ser mayor a cero", Toast.LENGTH_SHORT).show();
+            return;
+        }
         actividad.setCupo(cupo);
 
         int diasAviso = 0;
@@ -579,6 +587,10 @@ public class CrearActividadActivity extends AppCompatActivity {
             }
             if (diasAviso < 0) {
                 Toast.makeText(this, "Los días de aviso no pueden ser negativos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (diasAviso > 365) {
+                Toast.makeText(this, "Los días de aviso no pueden ser mayores a 365", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
@@ -771,6 +783,10 @@ public class CrearActividadActivity extends AppCompatActivity {
             int repeticiones = Integer.parseInt(repeticionesStr);
             if (repeticiones <= 0) {
                 Toast.makeText(this, "La cantidad de repeticiones debe ser mayor a cero", Toast.LENGTH_SHORT).show();
+                return -1;
+            }
+            if (repeticiones > 100) {
+                Toast.makeText(this, "La cantidad de repeticiones no puede ser mayor a 100", Toast.LENGTH_SHORT).show();
                 return -1;
             }
             return repeticiones;
