@@ -97,16 +97,27 @@ public class GestionUsuariosFragment extends Fragment {
             public void onUsuariosLoaded(ArrayList<Usuario> usuarios) {
                 if (!isAdded()) return;
                 progressBar.setVisibility(View.GONE);
-                usuariosList = usuarios;
 
-                if (usuarios.isEmpty()) {
+                // ========================================
+                // FILTRAR SOLO USUARIOS ACTIVOS
+                // ========================================
+                ArrayList<Usuario> usuariosActivos = new ArrayList<>();
+                for (Usuario usuario : usuarios) {
+                    if (usuario.isActivo()) {
+                        usuariosActivos.add(usuario);
+                    }
+                }
+                usuariosList = usuariosActivos;
+                // FIN FILTRO
+
+                if (usuariosList.isEmpty()) {
                     tvEmpty.setVisibility(View.VISIBLE);
                     recyclerView.setVisibility(View.GONE);
                 } else {
                     tvEmpty.setVisibility(View.GONE);
                     recyclerView.setVisibility(View.VISIBLE);
 
-                    adapter = new UsuarioAdapter(requireContext(), usuarios, (usuario, posicion) -> mostrarOpcionesUsuario(usuario, posicion));
+                    adapter = new UsuarioAdapter(requireContext(), usuariosList, (usuario, posicion) -> mostrarOpcionesUsuario(usuario, posicion));
                     recyclerView.setAdapter(adapter);
                 }
             }
