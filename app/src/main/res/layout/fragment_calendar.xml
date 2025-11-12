@@ -153,16 +153,6 @@
                 tools:listitem="@layout/item_calendar_month_day" />
         </LinearLayout>
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/calendar_hint"
-            style="@style/TextAppearance.Material3.BodyMedium"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="8dp"
-            android:gravity="center"
-            android:text="@string/calendario_hint"
-            android:textColor="@color/md_theme_onSurfaceVariant" />
     </LinearLayout>
 
     <!-- Botón FAB para crear cita -->
