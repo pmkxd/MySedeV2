@@ -259,6 +259,8 @@ public class CrearActividadActivity extends AppCompatActivity {
                 calendario.get(Calendar.MONTH),
                 calendario.get(Calendar.DAY_OF_MONTH)
         );
+        // Bloquear fechas pasadas
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
         datePickerDialog.show();
     }
 
@@ -698,6 +700,10 @@ public class CrearActividadActivity extends AppCompatActivity {
                 Toast.makeText(this, "Seleccione la fecha de la actividad", Toast.LENGTH_SHORT).show();
                 return null;
             }
+            if (fechaPuntualSeleccionada.isBefore(LocalDate.now())) {
+                Toast.makeText(this, "La fecha no puede ser anterior a hoy", Toast.LENGTH_SHORT).show();
+                return null;
+            }
             if (horaPuntualSeleccionada == null) {
                 Toast.makeText(this, "Seleccione la hora de la actividad", Toast.LENGTH_SHORT).show();
                 return null;
@@ -710,6 +716,10 @@ public class CrearActividadActivity extends AppCompatActivity {
         }
         if (fechaInicioSeleccionada == null) {
             Toast.makeText(this, "Seleccione la fecha de inicio", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+        if (fechaInicioSeleccionada.isBefore(LocalDate.now())) {
+            Toast.makeText(this, "La fecha de inicio no puede ser anterior a hoy", Toast.LENGTH_SHORT).show();
             return null;
         }
         if (horaPeriodicaSeleccionada == null) {
@@ -871,10 +881,15 @@ public class CrearActividadActivity extends AppCompatActivity {
 
     private List<LocalDate> generarFechasPeriodicas(LocalDate fechaInicio, List<DayOfWeek> dias, int repeticiones) {
         List<LocalDate> fechas = new ArrayList<>();
+        LocalDate hoy = LocalDate.now();
         for (DayOfWeek dia : dias) {
             LocalDate primeraFecha = fechaInicio.with(TemporalAdjusters.nextOrSame(dia));
             for (int i = 0; i < repeticiones; i++) {
-                fechas.add(primeraFecha.plusWeeks(i));
+                LocalDate fecha = primeraFecha.plusWeeks(i);
+                // Solo agregar fechas que no estén en el pasado
+                if (!fecha.isBefore(hoy)) {
+                    fechas.add(fecha);
+                }
             }
         }
         return fechas;
