@@ -8,6 +8,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.google.android.material.appbar.MaterialToolbar;
 import com.test.mysede.ui.SystemBarsHelper;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +20,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.test.mysede.DAO.FirestoreOperationCallback;
 import com.test.mysede.DAO.LugarDAO;
 import com.test.mysede.R;
+import com.test.mysede.auth.Permiso;
+import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.model.Lugar;
 
 import java.util.ArrayList;
@@ -36,6 +40,12 @@ public class LugarActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lugar);
         SystemBarsHelper.applyEdgeToEdge(this, R.id.root_container);
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        toolbar.setNavigationOnClickListener(v -> finish());
         recyclerLugares = findViewById(R.id.recyclerLugares);
         btnNuevoLugar = findViewById(R.id.btnNuevoLugar);
 
@@ -63,7 +73,13 @@ public class LugarActivity extends AppCompatActivity {
         recyclerLugares.setLayoutManager(new LinearLayoutManager(this));
         recyclerLugares.setAdapter(adapter);
 
-        btnNuevoLugar.setOnClickListener(v -> mostrarDialogoAgregar());
+        btnNuevoLugar.setOnClickListener(v -> {
+            if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_LUGARES)) {
+                Toast.makeText(this, "No tienes permiso para crear lugares", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            mostrarDialogoAgregar();
+        });
 
         cargarLugares();
     }
@@ -113,6 +129,10 @@ public class LugarActivity extends AppCompatActivity {
                 .setTitle("Nuevo Lugar")
                 .setView(dialogView)
                 .setPositiveButton("Guardar", (dialog, which) -> {
+                    if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_LUGARES)) {
+                        Toast.makeText(this, "No tienes permiso para crear lugares", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     String nombre = etNombre.getText().toString().trim();
                     String cupoStr = etCupo.getText().toString().trim();
                     Lugar.Tipo tipo = (Lugar.Tipo) spTipo.getSelectedItem();
@@ -122,8 +142,29 @@ public class LugarActivity extends AppCompatActivity {
                         return;
                     }
 
+                    if (nombre.length() < 3) {
+                        Toast.makeText(this, "El nombre debe tener al menos 3 caracteres", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Validar duplicados
+                    if (existeLugarConNombre(nombre)) {
+                        Toast.makeText(this, "Ya existe un lugar con este nombre", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     Integer cupo = parseCupo(cupoStr);
                     if (!cupoStr.isEmpty() && cupo == null) {
+                        return;
+                    }
+
+                    // Validar cupo > 0 y <= 1000
+                    if (cupo != null && cupo <= 0) {
+                        Toast.makeText(this, "El cupo debe ser mayor a cero", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (cupo != null && cupo > 1000) {
+                        Toast.makeText(this, "El cupo no puede ser mayor a 1000", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     Lugar nuevoLugar = new Lugar(nombre, tipo, cupo);
@@ -166,6 +207,10 @@ public class LugarActivity extends AppCompatActivity {
                 .setTitle("Editar Lugar")
                 .setView(dialogView)
                 .setPositiveButton("Guardar", (dialog, which) -> {
+                    if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_LUGARES)) {
+                        Toast.makeText(this, "No tienes permiso para editar lugares", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     String nuevoNombre = etNombre.getText().toString().trim();
                     String nuevoCupoStr = etCupo.getText().toString().trim();
                     Lugar.Tipo nuevoTipo = (Lugar.Tipo) spTipo.getSelectedItem();
@@ -175,8 +220,29 @@ public class LugarActivity extends AppCompatActivity {
                         return;
                     }
 
+                    if (nuevoNombre.length() < 3) {
+                        Toast.makeText(this, "El nombre debe tener al menos 3 caracteres", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Validar duplicados (excluir el lugar actual)
+                    if (existeLugarConNombreExcepto(nuevoNombre, lugar.getId())) {
+                        Toast.makeText(this, "Ya existe un lugar con este nombre", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     Integer nuevoCupo = parseCupo(nuevoCupoStr);
                     if (!nuevoCupoStr.isEmpty() && nuevoCupo == null) {
+                        return;
+                    }
+
+                    // Validar cupo > 0 y <= 1000
+                    if (nuevoCupo != null && nuevoCupo <= 0) {
+                        Toast.makeText(this, "El cupo debe ser mayor a cero", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (nuevoCupo != null && nuevoCupo > 1000) {
+                        Toast.makeText(this, "El cupo no puede ser mayor a 1000", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     Lugar lugarActualizado = new Lugar(nuevoNombre, nuevoTipo, nuevoCupo);
@@ -203,6 +269,10 @@ public class LugarActivity extends AppCompatActivity {
 
     // 🗑️ Eliminar lugar
     private void confirmarEliminar(int position) {
+        if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_LUGARES)) {
+            Toast.makeText(this, "No tienes permiso para eliminar lugares", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Lugar lugar = listaLugares.get(position);
         new AlertDialog.Builder(this)
                 .setTitle("Eliminar")
@@ -238,5 +308,29 @@ public class LugarActivity extends AppCompatActivity {
             Toast.makeText(this, "Cupo inválido", Toast.LENGTH_SHORT).show();
             return null;
         }
+    }
+
+    /**
+     * Verifica si ya existe un lugar con el nombre dado
+     */
+    private boolean existeLugarConNombre(String nombre) {
+        for (Lugar l : listaLugares) {
+            if (l.getNombre().equalsIgnoreCase(nombre)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Verifica si ya existe un lugar con el nombre dado, excluyendo un ID específico
+     */
+    private boolean existeLugarConNombreExcepto(String nombre, String idExcluir) {
+        for (Lugar l : listaLugares) {
+            if (l.getNombre().equalsIgnoreCase(nombre) && !l.getId().equals(idExcluir)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

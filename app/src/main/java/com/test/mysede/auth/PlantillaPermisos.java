@@ -80,6 +80,7 @@ public class PlantillaPermisos {
     /**
      * ORGANIZADOR DE ACTIVIDADES:
      * - Crear, modificar o cancelar actividades
+     * - Crear, modificar o cancelar citas (NUEVO)
      * - Visualizar el calendario de citas
      * - Adjuntar archivos e información relacionada con sus actividades
      * - Recibir notificaciones de recordatorio
@@ -92,13 +93,18 @@ public class PlantillaPermisos {
                 Permiso.ELIMINAR_ACTIVIDAD,
                 Permiso.VER_ACTIVIDADES,
 
+                // Citas (NUEVO - Ahora puede gestionar citas)
+                Permiso.CREAR_CITA,
+                Permiso.EDITAR_CITA,
+                Permiso.ELIMINAR_CITA,
+                Permiso.VER_CITAS,
+
                 // Archivos
                 Permiso.ADJUNTAR_ARCHIVOS,
                 Permiso.VER_ARCHIVOS,
 
                 // Calendario
                 Permiso.VER_CALENDARIO,
-                Permiso.VER_CITAS,
 
                 // Notificaciones
                 Permiso.RECIBIR_NOTIFICACIONES
@@ -144,10 +150,7 @@ public class PlantillaPermisos {
 
                 // Archivos
                 Permiso.ADJUNTAR_ARCHIVOS,
-                Permiso.VER_ARCHIVOS,
-
-                // Notificaciones
-                Permiso.RECIBIR_NOTIFICACIONES
+                Permiso.VER_ARCHIVOS
         ));
     }
 }

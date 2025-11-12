@@ -259,6 +259,8 @@ public class CrearActividadActivity extends AppCompatActivity {
                 calendario.get(Calendar.MONTH),
                 calendario.get(Calendar.DAY_OF_MONTH)
         );
+        // Bloquear fechas pasadas
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
         datePickerDialog.show();
     }
 
@@ -536,6 +538,10 @@ public class CrearActividadActivity extends AppCompatActivity {
             Toast.makeText(this, "Ingrese el nombre de la actividad", Toast.LENGTH_SHORT).show();
             return;
         }
+        if (nombre.length() < 3) {
+            Toast.makeText(this, "El nombre debe tener al menos 3 caracteres", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Lugar lugarSeleccionado = obtenerLugarSeleccionado();
         if (lugarSeleccionado == null) {
             Toast.makeText(this, "Seleccione un lugar", Toast.LENGTH_SHORT).show();
@@ -564,6 +570,10 @@ public class CrearActividadActivity extends AppCompatActivity {
             Toast.makeText(this, "El cupo debe ser numérico", Toast.LENGTH_SHORT).show();
             return;
         }
+        if (cupo != null && cupo <= 0) {
+            Toast.makeText(this, "El cupo debe ser mayor a cero", Toast.LENGTH_SHORT).show();
+            return;
+        }
         actividad.setCupo(cupo);
 
         int diasAviso = 0;
@@ -577,6 +587,10 @@ public class CrearActividadActivity extends AppCompatActivity {
             }
             if (diasAviso < 0) {
                 Toast.makeText(this, "Los días de aviso no pueden ser negativos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (diasAviso > 365) {
+                Toast.makeText(this, "Los días de aviso no pueden ser mayores a 365", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
@@ -698,6 +712,10 @@ public class CrearActividadActivity extends AppCompatActivity {
                 Toast.makeText(this, "Seleccione la fecha de la actividad", Toast.LENGTH_SHORT).show();
                 return null;
             }
+            if (fechaPuntualSeleccionada.isBefore(LocalDate.now())) {
+                Toast.makeText(this, "La fecha no puede ser anterior a hoy", Toast.LENGTH_SHORT).show();
+                return null;
+            }
             if (horaPuntualSeleccionada == null) {
                 Toast.makeText(this, "Seleccione la hora de la actividad", Toast.LENGTH_SHORT).show();
                 return null;
@@ -710,6 +728,10 @@ public class CrearActividadActivity extends AppCompatActivity {
         }
         if (fechaInicioSeleccionada == null) {
             Toast.makeText(this, "Seleccione la fecha de inicio", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+        if (fechaInicioSeleccionada.isBefore(LocalDate.now())) {
+            Toast.makeText(this, "La fecha de inicio no puede ser anterior a hoy", Toast.LENGTH_SHORT).show();
             return null;
         }
         if (horaPeriodicaSeleccionada == null) {
@@ -761,6 +783,10 @@ public class CrearActividadActivity extends AppCompatActivity {
             int repeticiones = Integer.parseInt(repeticionesStr);
             if (repeticiones <= 0) {
                 Toast.makeText(this, "La cantidad de repeticiones debe ser mayor a cero", Toast.LENGTH_SHORT).show();
+                return -1;
+            }
+            if (repeticiones > 100) {
+                Toast.makeText(this, "La cantidad de repeticiones no puede ser mayor a 100", Toast.LENGTH_SHORT).show();
                 return -1;
             }
             return repeticiones;
@@ -871,10 +897,15 @@ public class CrearActividadActivity extends AppCompatActivity {
 
     private List<LocalDate> generarFechasPeriodicas(LocalDate fechaInicio, List<DayOfWeek> dias, int repeticiones) {
         List<LocalDate> fechas = new ArrayList<>();
+        LocalDate hoy = LocalDate.now();
         for (DayOfWeek dia : dias) {
             LocalDate primeraFecha = fechaInicio.with(TemporalAdjusters.nextOrSame(dia));
             for (int i = 0; i < repeticiones; i++) {
-                fechas.add(primeraFecha.plusWeeks(i));
+                LocalDate fecha = primeraFecha.plusWeeks(i);
+                // Solo agregar fechas que no estén en el pasado
+                if (!fecha.isBefore(hoy)) {
+                    fechas.add(fecha);
+                }
             }
         }
         return fechas;

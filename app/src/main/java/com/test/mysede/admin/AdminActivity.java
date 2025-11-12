@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +33,16 @@ public class AdminActivity extends AppCompatActivity {
         setContentView(R.layout.activity_admin);
 
         sessionManager = new SessionManager(this);
+
+        // Validar que el usuario tenga rol ADMINISTRADOR
+        if (!PermissionManager.esAdministrador()) {
+            Toast.makeText(this, "Acceso denegado. Solo administradores.", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, ActivityLogin.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return;
+        }
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
