@@ -114,16 +114,26 @@
                 android:layout_marginBottom="16dp"
                 android:background="@android:drawable/spinner_background" />
 
-            <!-- Botón cargar plantilla -->
+            <!-- Nota informativa sobre permisos automáticos -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Los permisos se asignarán automáticamente según el rol seleccionado."
+                android:textSize="12sp"
+                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Botón cargar plantilla (oculto por defecto) -->
             <Button
                 android:id="@+id/btnCargarPlantilla"
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Cargar Plantilla de Permisos del Rol"
-                android:layout_marginBottom="24dp" />
+                android:layout_marginBottom="24dp"
+                android:visibility="gone" />
 
-            <!-- Sección Permisos -->
+            <!-- Sección Permisos (oculta por defecto) -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -131,15 +141,17 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="@color/md_theme_onBackground"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
 
-            <!-- Container dinámico para checkboxes de permisos -->
+            <!-- Container dinámico para checkboxes de permisos (oculto por defecto) -->
             <LinearLayout
                 android:id="@+id/layoutPermisos"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
 
         </LinearLayout>
 

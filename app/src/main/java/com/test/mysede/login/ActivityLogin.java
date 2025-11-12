@@ -80,6 +80,12 @@ public class ActivityLogin extends AppCompatActivity {
             return;
         }
 
+        if (pass.length() < 6) {
+            inputPassword.setError("La contraseña debe tener al menos 6 caracteres");
+            inputPassword.requestFocus();
+            return;
+        }
+
         auth.signInWithEmailAndPassword(correo, pass)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

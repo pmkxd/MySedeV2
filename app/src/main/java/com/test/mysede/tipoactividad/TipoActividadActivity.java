@@ -19,6 +19,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.test.mysede.DAO.FirestoreOperationCallback;
 import com.test.mysede.DAO.TipoActividadDAO;
 import com.test.mysede.R;
+import com.test.mysede.auth.Permiso;
+import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.model.TipoActividad;
 
 import java.util.ArrayList;
@@ -68,7 +70,13 @@ public class TipoActividadActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        btnNuevaActividad.setOnClickListener(v -> mostrarDialogoAgregar());
+        btnNuevaActividad.setOnClickListener(v -> {
+            if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_TIPOS_ACTIVIDAD)) {
+                Toast.makeText(this, "No tienes permiso para crear tipos de actividad", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            mostrarDialogoAgregar();
+        });
 
         cargarTiposActividad();
     }
@@ -118,12 +126,26 @@ public class TipoActividadActivity extends AppCompatActivity {
                 .setTitle("Nueva Actividad")
                 .setView(dialogView)
                 .setPositiveButton("Guardar", (dialog, which) -> {
+                    if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_TIPOS_ACTIVIDAD)) {
+                        Toast.makeText(this, "No tienes permiso para crear tipos de actividad", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     String nombre = etNombre.getText().toString().trim();
                     String descripcion = etDescripcion.getText().toString().trim();
                     TipoActividad.Categoria categoria = (TipoActividad.Categoria) spCategoria.getSelectedItem();
 
                     if (nombre.isEmpty() || descripcion.isEmpty()) {
                         Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (nombre.length() < 3) {
+                        Toast.makeText(this, "El nombre debe tener al menos 3 caracteres", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (existeTipoConNombre(nombre)) {
+                        Toast.makeText(this, "Ya existe un tipo de actividad con este nombre", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -167,12 +189,26 @@ public class TipoActividadActivity extends AppCompatActivity {
                 .setTitle("Editar Actividad")
                 .setView(dialogView)
                 .setPositiveButton("Guardar", (dialog, which) -> {
+                    if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_TIPOS_ACTIVIDAD)) {
+                        Toast.makeText(this, "No tienes permiso para editar tipos de actividad", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     String nuevoNombre = etNombre.getText().toString().trim();
                     String nuevaDescripcion = etDescripcion.getText().toString().trim();
                     TipoActividad.Categoria nuevaCategoria = (TipoActividad.Categoria) spCategoria.getSelectedItem();
 
                     if (nuevoNombre.isEmpty() || nuevaDescripcion.isEmpty()) {
                         Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (nuevoNombre.length() < 3) {
+                        Toast.makeText(this, "El nombre debe tener al menos 3 caracteres", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (existeTipoConNombreExcepto(nuevoNombre, tipo.getId())) {
+                        Toast.makeText(this, "Ya existe un tipo de actividad con este nombre", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -200,6 +236,10 @@ public class TipoActividadActivity extends AppCompatActivity {
 
     // 🗑️ Eliminar
     private void confirmarEliminar(int position) {
+        if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_TIPOS_ACTIVIDAD)) {
+            Toast.makeText(this, "No tienes permiso para eliminar tipos de actividad", Toast.LENGTH_SHORT).show();
+            return;
+        }
         TipoActividad tipoActividad = listaTipos.get(position);
         new AlertDialog.Builder(this)
                 .setTitle("Eliminar")
@@ -223,5 +263,23 @@ public class TipoActividadActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("No", null)
                 .show();
+    }
+
+    private boolean existeTipoConNombre(String nombre) {
+        for (TipoActividad t : listaTipos) {
+            if (t.getNombre().equalsIgnoreCase(nombre)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean existeTipoConNombreExcepto(String nombre, String idExcluir) {
+        for (TipoActividad t : listaTipos) {
+            if (t.getNombre().equalsIgnoreCase(nombre) && !t.getId().equals(idExcluir)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

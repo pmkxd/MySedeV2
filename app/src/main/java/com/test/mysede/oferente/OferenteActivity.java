@@ -19,6 +19,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.test.mysede.DAO.FirestoreOperationCallback;
 import com.test.mysede.DAO.OferenteActividadDAO;
 import com.test.mysede.R;
+import com.test.mysede.auth.Permiso;
+import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.model.OferenteActividad;
 
 import java.util.ArrayList;
@@ -71,7 +73,13 @@ public class OferenteActivity extends AppCompatActivity {
         recyclerOferentes.setLayoutManager(new LinearLayoutManager(this));
         recyclerOferentes.setAdapter(adapter);
 
-        btnNuevoOferente.setOnClickListener(v -> mostrarDialogoAgregar());
+        btnNuevoOferente.setOnClickListener(v -> {
+            if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_OFERENTES)) {
+                Toast.makeText(this, "No tienes permiso para crear oferentes", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            mostrarDialogoAgregar();
+        });
 
         cargarOferentes();
     }
@@ -119,6 +127,10 @@ public class OferenteActivity extends AppCompatActivity {
                 .setTitle("Nuevo Oferente")
                 .setView(dialogView)
                 .setPositiveButton("Guardar", (dialog, which) -> {
+                    if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_OFERENTES)) {
+                        Toast.makeText(this, "No tienes permiso para crear oferentes", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     String nombre = etNombre.getText().toString().trim();
                     String docente = etDocente.getText().toString().trim();
                     OferenteActividad.Institucion institucion = (OferenteActividad.Institucion) spInstitucion.getSelectedItem();
@@ -127,6 +139,23 @@ public class OferenteActivity extends AppCompatActivity {
                         Toast.makeText(this, "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show();
                         return;
                     }
+
+                    if (nombre.length() < 3) {
+                        Toast.makeText(this, "El nombre debe tener al menos 3 caracteres", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (docente.length() < 3) {
+                        Toast.makeText(this, "El nombre del docente debe tener al menos 3 caracteres", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Validar duplicados
+                    if (existeOferenteConNombre(nombre)) {
+                        Toast.makeText(this, "Ya existe un oferente con este nombre", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     OferenteActividad nuevoOferente = new OferenteActividad(nombre, docente, institucion);
                     oferenteActividadDAO.saveOferente(nuevoOferente, new FirestoreOperationCallback() {
                         @Override
@@ -166,6 +195,10 @@ public class OferenteActivity extends AppCompatActivity {
                 .setTitle("Editar Oferente")
                 .setView(dialogView)
                 .setPositiveButton("Guardar", (dialog, which) -> {
+                    if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_OFERENTES)) {
+                        Toast.makeText(this, "No tienes permiso para editar oferentes", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     String nuevoNombre = etNombre.getText().toString().trim();
                     String nuevoDocente = etDocente.getText().toString().trim();
                     OferenteActividad.Institucion nuevaInstitucion = (OferenteActividad.Institucion) spInstitucion.getSelectedItem();
@@ -174,6 +207,23 @@ public class OferenteActivity extends AppCompatActivity {
                         Toast.makeText(this, "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show();
                         return;
                     }
+
+                    if (nuevoNombre.length() < 3) {
+                        Toast.makeText(this, "El nombre debe tener al menos 3 caracteres", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (nuevoDocente.length() < 3) {
+                        Toast.makeText(this, "El nombre del docente debe tener al menos 3 caracteres", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Validar duplicados (excluir el oferente actual)
+                    if (existeOferenteConNombreExcepto(nuevoNombre, oferente.getId())) {
+                        Toast.makeText(this, "Ya existe un oferente con este nombre", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     OferenteActividad oferenteActualizado = new OferenteActividad(nuevoNombre, nuevoDocente, nuevaInstitucion);
                     oferenteActualizado.setId(oferente.getId());
                     oferenteActividadDAO.saveOferente(oferenteActualizado, new FirestoreOperationCallback() {
@@ -197,6 +247,10 @@ public class OferenteActivity extends AppCompatActivity {
     }
 
     private void confirmarEliminar(int position) {
+        if (!PermissionManager.tienePermiso(Permiso.GESTIONAR_OFERENTES)) {
+            Toast.makeText(this, "No tienes permiso para eliminar oferentes", Toast.LENGTH_SHORT).show();
+            return;
+        }
         OferenteActividad oferente = listaOferentes.get(position);
         new AlertDialog.Builder(this)
                 .setTitle("Eliminar")
@@ -220,5 +274,29 @@ public class OferenteActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("No", null)
                 .show();
+    }
+
+    /**
+     * Verifica si ya existe un oferente con el nombre dado
+     */
+    private boolean existeOferenteConNombre(String nombre) {
+        for (OferenteActividad o : listaOferentes) {
+            if (o.getNombre().equalsIgnoreCase(nombre)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Verifica si ya existe un oferente con el nombre dado, excluyendo un ID específico
+     */
+    private boolean existeOferenteConNombreExcepto(String nombre, String idExcluir) {
+        for (OferenteActividad o : listaOferentes) {
+            if (o.getNombre().equalsIgnoreCase(nombre) && !o.getId().equals(idExcluir)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
