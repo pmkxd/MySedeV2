@@ -21,6 +21,7 @@ import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.auth.SessionManager;
 import com.test.mysede.login.ActivityLogin;
 import com.test.mysede.model.Usuario;
+import com.test.mysede.perfil.PerfilActivity; // ✅ Import para abrir el perfil
 
 public class OrganizadorActivity extends AppCompatActivity {
 
@@ -82,10 +83,20 @@ public class OrganizadorActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_cerrar_sesion) {
+        int id = item.getItemId();
+
+        //  Nuevo: abrir perfil
+        if (id == R.id.menu_perfil) {
+            startActivity(new Intent(this, PerfilActivity.class));
+            return true;
+        }
+
+        // Cerrar sesión
+        if (id == R.id.menu_cerrar_sesion) {
             cerrarSesion();
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 

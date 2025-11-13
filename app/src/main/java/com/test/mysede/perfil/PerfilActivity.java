@@ -3,7 +3,6 @@ package com.test.mysede.perfil;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,6 +15,10 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.test.mysede.R;
 import com.test.mysede.notificaciones.NotificacionesActivity;
 
+/**
+ * Activity del perfil de usuario.
+ * Permite cambiar contraseña, alternar modo oscuro y gestionar notificaciones.
+ */
 public class PerfilActivity extends AppCompatActivity {
 
     private SwitchMaterial switchNotificaciones, switchModoOscuro;
@@ -36,10 +39,10 @@ public class PerfilActivity extends AppCompatActivity {
         btnCambiarContrasena = findViewById(R.id.btnCambiarContrasena);
         btnVerNotificaciones = findViewById(R.id.btnVerNotificaciones);
 
-        // Nombre del usuario (ejemplo)
+        // Ejemplo de nombre de usuario (puedes reemplazarlo por datos reales del SessionManager)
         txtNombreUsuario.setText("Usuario Actual");
 
-        // Cargar preferencias guardadas
+        // Cargar preferencias persistentes
         SharedPreferences prefs = getSharedPreferences("config_prefs", MODE_PRIVATE);
         boolean notificacionesActivas = prefs.getBoolean("notificaciones", true);
         boolean modoOscuroActivo = prefs.getBoolean("modoOscuro", false);
@@ -47,14 +50,15 @@ public class PerfilActivity extends AppCompatActivity {
         switchNotificaciones.setChecked(notificacionesActivas);
         switchModoOscuro.setChecked(modoOscuroActivo);
 
-        // Cambiar preferencia de notificaciones
+        // Listener para notificaciones
         switchNotificaciones.setOnCheckedChangeListener((buttonView, isChecked) -> {
             prefs.edit().putBoolean("notificaciones", isChecked).apply();
-            String msg = isChecked ? "Notificaciones activadas" : "Notificaciones desactivadas";
-            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,
+                    isChecked ? "Notificaciones activadas" : "Notificaciones desactivadas",
+                    Toast.LENGTH_SHORT).show();
         });
 
-        // Cambiar modo oscuro
+        // Listener para modo oscuro
         switchModoOscuro.setOnCheckedChangeListener((buttonView, isChecked) -> {
             prefs.edit().putBoolean("modoOscuro", isChecked).apply();
             AppCompatDelegate.setDefaultNightMode(
@@ -63,16 +67,13 @@ public class PerfilActivity extends AppCompatActivity {
         });
 
         // Botón para cambiar contraseña
-        Button btnCambiarContrasena = findViewById(R.id.btnCambiarContrasena);
-        btnCambiarContrasena.setOnClickListener(v -> {
-            startActivity(new Intent(this, CambiarContrasenaActivity.class));
-        });
+        btnCambiarContrasena.setOnClickListener(v ->
+                startActivity(new Intent(this, CambiarContrasenaActivity.class))
+        );
 
-
-        // Botón para ver notificaciones
+        // Botón para abrir notificaciones
         btnVerNotificaciones.setOnClickListener(v ->
                 startActivity(new Intent(this, NotificacionesActivity.class))
         );
-
     }
 }
