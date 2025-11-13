@@ -6,12 +6,14 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.webkit.MimeTypeMap;
 import com.test.mysede.ui.SystemBarsHelper;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -23,13 +25,24 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
 import com.google.android.material.button.MaterialButton;
+import com.test.mysede.DAO.ArchivoAdjuntoDAO;
 import com.test.mysede.model.ArchivoAdjunto;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class AdjuntarArchivosActivity extends AppCompatActivity {
 
     private static final int PICK_FILE_REQUEST = 123;
+    private static final long MAX_IMAGE_BYTES = 10L * 1024 * 1024;
+    private static final long MAX_VIDEO_BYTES = 50L * 1024 * 1024;
+    private static final List<String> IMAGE_MIME_TYPES = Arrays.asList("image/jpeg", "image/png", "image/webp", "image/avif");
+    private static final List<String> VIDEO_MIME_TYPES = Arrays.asList("video/mp4", "video/quicktime", "video/webm");
+    private static final List<String> IMAGE_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png", "webp", "avif");
+    private static final List<String> VIDEO_EXTENSIONS = Arrays.asList("mp4", "mov", "webm");
     private MaterialButton btnSeleccionarArchivo, btnGuardarArchivo;
     private LinearLayout layoutArchivosAdjuntos;
     private ArrayList<ArchivoAdjunto> archivosSeleccionados = new ArrayList<>();
@@ -44,12 +57,16 @@ public class AdjuntarArchivosActivity extends AppCompatActivity {
                         for (int i = 0; i < count; i++) {
                             Uri uri = data.getClipData().getItemAt(i).getUri();
                             ArchivoAdjunto archivo = obtenerDetallesArchivo(uri);
-                            archivosSeleccionados.add(archivo);
+                            if (archivo != null) {
+                                archivosSeleccionados.add(archivo);
+                            }
                         }
                     } else if (data.getData() != null) {
                         Uri uri = data.getData();
                         ArchivoAdjunto archivo = obtenerDetallesArchivo(uri);
-                        archivosSeleccionados.add(archivo);
+                        if (archivo != null) {
+                            archivosSeleccionados.add(archivo);
+                        }
                     }
                     actualizarVistaDeArchivosAdjuntos();
                 }
@@ -73,7 +90,11 @@ public class AdjuntarArchivosActivity extends AppCompatActivity {
 
         // Botón: seleccionar archivos
         btnSeleccionarArchivo.setOnClickListener(v -> abrirSelectorDeArchivos());
-
+        ArrayList<ArchivoAdjunto> existentes = getIntent().getParcelableArrayListExtra("archivosAdjuntos");
+        if (existentes != null && !existentes.isEmpty()) {
+            archivosSeleccionados.addAll(existentes);
+            actualizarVistaDeArchivosAdjuntos();
+        }
         // Botón: guardar
         btnGuardarArchivo.setOnClickListener(v -> {
             Intent resultIntent = new Intent();
@@ -90,6 +111,7 @@ public class AdjuntarArchivosActivity extends AppCompatActivity {
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         selectorArchivosLauncher.launch(Intent.createChooser(intent, "Selecciona los archivos"));
     }
+
 
     private void actualizarVistaDeArchivosAdjuntos() {
         layoutArchivosAdjuntos.removeAllViews();
@@ -196,14 +218,61 @@ public class AdjuntarArchivosActivity extends AppCompatActivity {
             layoutArchivosAdjuntos.addView(card);
         }
     }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_FILE_REQUEST && resultCode == RESULT_OK && data != null) {
+            Uri uri = data.getData();
+            if (uri != null) {
+                ArchivoAdjunto archivo = obtenerDetallesArchivo(uri);
+                if (archivo != null) {
+                    archivosSeleccionados.add(archivo);
+                    actualizarVistaDeArchivosAdjuntos();
+                }
+            }
+        }
+    }
+    private boolean esImagenValida(String mimeType, String extension) {
+        return IMAGE_MIME_TYPES.contains(mimeType) || IMAGE_EXTENSIONS.contains(extension);
+    }
+
+    private boolean esVideoValido(String mimeType, String extension) {
+        return VIDEO_MIME_TYPES.contains(mimeType) || VIDEO_EXTENSIONS.contains(extension);
+    }
+
+    private long obtenerTamañoDesdeFuente(Uri uri) {
+        try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
+            if (inputStream == null) {
+                return 0;
+            }
+            byte[] buffer = new byte[8192];
+            long total = 0;
+            int read;
+            while ((read = inputStream.read(buffer)) != -1) {
+                total += read;
+            }
+            return total;
+        } catch (IOException e) {
+            return 0;
+        }
+    }
+
+    private String obtenerExtension(String nombre) {
+        if (TextUtils.isEmpty(nombre)) {
+            return "";
+        }
+        int puntoIndex = nombre.lastIndexOf('.');
+        if (puntoIndex == -1 || puntoIndex == nombre.length() - 1) {
+            return "";
+        }
+        return nombre.substring(puntoIndex + 1).toLowerCase();
+    }
 
     @SuppressLint("Range")
     private ArchivoAdjunto obtenerDetallesArchivo(Uri uri) {
         String nombre = "Archivo desconocido";
         String tipo = getContentResolver().getType(uri);
         long tamaño = 0;
-        String url = "?";
-
 
         try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
@@ -213,37 +282,30 @@ public class AdjuntarArchivosActivity extends AppCompatActivity {
                 if (sizeIndex != -1) tamaño = cursor.getLong(sizeIndex);
             }
         }
-        return new ArchivoAdjunto(nombre, tipo, tamaño, uri, null);
-    }
+        if (tamaño <= 0) {
+            tamaño = obtenerTamañoDesdeFuente(uri);
+        }
+        String extension = obtenerExtension(nombre);
+        if (tipo == null && !TextUtils.isEmpty(extension)) {
+            tipo = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        }
+        boolean esImagen = esImagenValida(tipo, extension);
+        boolean esVideo = esVideoValido(tipo, extension);
+        if (!esImagen && !esVideo) {
+            Toast.makeText(this, "Formato no permitido", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+        if (esImagen && tamaño > MAX_IMAGE_BYTES) {
+            Toast.makeText(this, "Las imágenes deben pesar máximo 10 MB", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+        if (esVideo && tamaño > MAX_VIDEO_BYTES) {
+            Toast.makeText(this, "Los videos deben pesar máximo 50 MB", Toast.LENGTH_SHORT).show();
+            return null;
+        }
 
-    @SuppressLint("Range")
-    private String getFileName(Uri uri) {
-        String result = null;
-        if ("content".equals(uri.getScheme())) {
-            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
-                if (cursor != null && cursor.moveToFirst()) {
-                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                }
-            }
-        }
-        if (result == null) {
-            result = uri.getPath();
-            int cut = result.lastIndexOf('/');
-            if (cut != -1) result = result.substring(cut + 1);
-        }
-        return result;
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_FILE_REQUEST && resultCode == RESULT_OK && data != null) {
-            Uri uri = data.getData();
-            if (uri != null) {
-                ArchivoAdjunto archivo = obtenerDetallesArchivo(uri);
-                archivosSeleccionados.add(archivo);
-                actualizarVistaDeArchivosAdjuntos();
-            }
-        }
+        String preset = esImagen ? ArchivoAdjuntoDAO.PRESET_IMAGEN : ArchivoAdjuntoDAO.PRESET_VIDEO;
+        String resourceType = esImagen ? ArchivoAdjuntoDAO.RESOURCE_IMAGE : ArchivoAdjuntoDAO.RESOURCE_VIDEO;
+        return new ArchivoAdjunto(nombre, tipo, tamaño, uri, null, resourceType, preset);
     }
 }

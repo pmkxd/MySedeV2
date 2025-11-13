@@ -137,6 +137,9 @@ final class FirestoreModelMapper {
         data.put("tipo", archivoAdjunto.getTipo());
         data.put("tamaño", archivoAdjunto.getTamaño());
         data.put("url", archivoAdjunto.getUrl());
+        data.put("resourceType", archivoAdjunto.getResourceType());
+        data.put("uploadPreset", archivoAdjunto.getUploadPreset());
+        data.put("publicId", archivoAdjunto.getPublicId());
         return data;
     }
 
@@ -147,13 +150,15 @@ final class FirestoreModelMapper {
         String tipo = (String) data.get("tipo");
         Long tamaño = (Long) data.get("tamaño");
         String url = (String) data.get("url");
-
+        String resourceType = (String) data.get("resourceType");
+        String uploadPreset = (String) data.get("uploadPreset");
+        String publicId = (String) data.get("publicId");
 
         if (nombre == null || tipo == null || tamaño == null || url == null) {
             return null;
         }
 
-        ArchivoAdjunto archivoAdjunto = new ArchivoAdjunto(nombre, tipo, tamaño, null, url);
+        ArchivoAdjunto archivoAdjunto = new ArchivoAdjunto(nombre, tipo, tamaño, null, url, resourceType, uploadPreset, publicId);
 
         Object id = data.get("id");
         if (id instanceof String) archivoAdjunto.setId((String) id);

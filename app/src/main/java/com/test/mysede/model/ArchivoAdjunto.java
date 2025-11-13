@@ -11,14 +11,28 @@ public class ArchivoAdjunto implements Parcelable {
     private String tipo;
     private long tamaño;
     private String url;
-    private Uri uri; // Aún no se sube a Storage, pero se usa localmente
+    private Uri uri; // Se usa mientras el archivo no se sube a la nube
+    private String resourceType;
+    private String uploadPreset;
+    private String publicId;
 
     public ArchivoAdjunto(String nombre, String tipo, long tamaño, Uri uri, String url) {
+        this(nombre, tipo, tamaño, uri, url, null, null, null);
+    }
+
+    public ArchivoAdjunto(String nombre, String tipo, long tamaño, Uri uri, String url, String resourceType, String uploadPreset) {
+        this(nombre, tipo, tamaño, uri, url, resourceType, uploadPreset, null);
+    }
+
+    public ArchivoAdjunto(String nombre, String tipo, long tamaño, Uri uri, String url, String resourceType, String uploadPreset, String publicId) {
         this.nombre = nombre;
         this.tipo = tipo;
         this.tamaño = tamaño;
         this.url = url;
         this.uri = uri;
+        this.resourceType = resourceType;
+        this.uploadPreset = uploadPreset;
+        this.publicId = publicId;
     }
 
     protected ArchivoAdjunto(Parcel in) {
@@ -28,6 +42,9 @@ public class ArchivoAdjunto implements Parcelable {
         tamaño = in.readLong();
         uri = in.readParcelable(Uri.class.getClassLoader());
         url = in.readString();
+        resourceType = in.readString();
+        uploadPreset = in.readString();
+        publicId = in.readString();
     }
 
     public static final Creator<ArchivoAdjunto> CREATOR = new Creator<ArchivoAdjunto>() {
@@ -47,11 +64,11 @@ public class ArchivoAdjunto implements Parcelable {
     public String getNombre() { return nombre; }
     public String getTipo() { return tipo; }
     public long getTamaño() { return tamaño; }
-    public String getUrl() {
-        url = "http://firebase.com";
-        return url;
-    }
+    public String getUrl() { return url; }
     public Uri getUri() { return uri; }
+    public String getResourceType() { return resourceType; }
+    public String getUploadPreset() { return uploadPreset; }
+    public String getPublicId() { return publicId; }
 
     // Setters
     public void setId(String id) { this.id = id; }
@@ -60,6 +77,9 @@ public class ArchivoAdjunto implements Parcelable {
     public void setTamaño(long tamaño) { this.tamaño = tamaño; }
     public void setUrl(String url) { this.url = url; }
     public void setUri(Uri uri) { this.uri = uri; }
+    public void setResourceType(String resourceType) { this.resourceType = resourceType; }
+    public void setUploadPreset(String uploadPreset) { this.uploadPreset = uploadPreset; }
+    public void setCloudinaryPublicId(String publicId) { this.publicId = publicId; }
 
     @Override
     public int describeContents() { return 0; }
@@ -71,5 +91,9 @@ public class ArchivoAdjunto implements Parcelable {
         dest.writeString(tipo);
         dest.writeLong(tamaño);
         dest.writeParcelable(uri, flags);
+        dest.writeString(url);
+        dest.writeString(resourceType);
+        dest.writeString(uploadPreset);
+        dest.writeString(publicId);
     }
 }

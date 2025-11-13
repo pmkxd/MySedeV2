@@ -48,7 +48,8 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation("com.google.android.material:material:1.13.0")
-
+    // Subida de archivos a Cloudinary
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     // Firebase BoM (asegura versiones compatibles)
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
 

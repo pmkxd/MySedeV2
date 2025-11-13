@@ -17,11 +17,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.test.mysede.ui.SystemBarsHelper;
-
+import android.text.TextUtils;
+import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import java.util.Collections;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.chip.Chip;
@@ -65,7 +68,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 public class CrearActividadActivity extends AppCompatActivity {
-
+    private static final String TAG = "CrearActividadActivity";
     private TextInputEditText etNombre, etCupo, etDiasAviso;
     private TextInputEditText etFechaPuntual, etHoraPuntual, etFechaInicio, etHoraPeriodica, etRepeticiones;
     private Spinner spinnerTipo, spinnerProyecto, spinnerOferente, spinnerSocio, spinnerLugar;
@@ -229,24 +232,63 @@ public class CrearActividadActivity extends AppCompatActivity {
             if (hasFocus) mostrarTimePicker(2);
         });
 
-        btnGuardar.setOnClickListener(v -> {
-            if (archivosAdjuntos != null && !archivosAdjuntos.isEmpty()) {
-                for (ArchivoAdjunto archivo : archivosAdjuntos) {
-                    archivoDAO.guardarArchivo(archivo)
-                            .addOnSuccessListener(ref ->
-                                    Toast.makeText(this, "Archivo guardado: " + archivo.getNombre(), Toast.LENGTH_SHORT).show()
-                            )
-                            .addOnFailureListener(e ->
-                                    Toast.makeText(this, "Error al guardar en Firestore", Toast.LENGTH_SHORT).show()
-                            );
-                }
+        btnGuardar.setOnClickListener(v -> intentarGuardarActividad());
+
+    }
+
+    private void intentarGuardarActividad() {
+        Actividad actividad = construirActividadDesdeFormulario();
+        if (actividad == null) {
+            return;
+        }
+
+        if (archivosAdjuntos == null || archivosAdjuntos.isEmpty()) {
+            guardarActividad(actividad, Collections.emptyList());
+            return;
+        }
+
+        List<ArchivoAdjunto> adjuntosExistentes = new ArrayList<>();
+        List<ArchivoAdjunto> adjuntosPorSubir = new ArrayList<>();
+        for (ArchivoAdjunto archivo : archivosAdjuntos) {
+            if (archivo == null) {
+                continue;
             }
+            if (!TextUtils.isEmpty(archivo.getUrl())) {
+                adjuntosExistentes.add(archivo);
+            } else if (archivo.getUri() != null) {
+                adjuntosPorSubir.add(archivo);
+            }
+        }
 
-            guardarActividad();
-            Toast.makeText(this, "Actividad guardada correctamente", Toast.LENGTH_SHORT).show();
-            finish();
-        });
+        if (adjuntosPorSubir.isEmpty()) {
+            guardarActividad(actividad, adjuntosExistentes);
+            return;
+        }
+        btnGuardar.setEnabled(false);
+        List<Task<ArchivoAdjunto>> tareasSubida = new ArrayList<>();
+        for (ArchivoAdjunto archivo : adjuntosPorSubir) {
+            tareasSubida.add(archivoDAO.subirArchivoACloudinary(this, archivo));
+        }
 
+        Tasks.whenAllSuccess(tareasSubida)
+                .addOnSuccessListener(this, result -> {
+                    List<ArchivoAdjunto> nuevos = new ArrayList<>();
+                    for (Object item : result) {
+                        if (item instanceof ArchivoAdjunto) {
+                            nuevos.add((ArchivoAdjunto) item);
+                        }
+                    }
+                    persistirArchivosAdjuntos(nuevos);
+                    List<ArchivoAdjunto> adjuntosFinales = new ArrayList<>(adjuntosExistentes);
+                    adjuntosFinales.addAll(nuevos);
+                    archivosAdjuntos = new ArrayList<>(adjuntosFinales);
+                    mostrarResumenArchivos();
+                    guardarActividad(actividad, adjuntosFinales);
+                })
+                .addOnFailureListener(this, e -> {
+                    btnGuardar.setEnabled(true);
+                    Toast.makeText(this, "Error al subir archivos: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
     }
     private void mostrarResumenArchivos() {
         layoutArchivosAdjuntos.removeAllViews();
@@ -259,6 +301,17 @@ public class CrearActividadActivity extends AppCompatActivity {
             TextView tvArchivo = new TextView(this);
             tvArchivo.setText("📄 " + archivo.getNombre());
             layoutArchivosAdjuntos.addView(tvArchivo);
+        }
+    }
+
+    private void persistirArchivosAdjuntos(List<ArchivoAdjunto> adjuntos) {
+        if (adjuntos == null || adjuntos.isEmpty()) {
+            return;
+        }
+        for (ArchivoAdjunto archivo : adjuntos) {
+            archivoDAO.guardarArchivo(archivo)
+                    .addOnSuccessListener(ref -> archivo.setId(ref.getId()))
+                    .addOnFailureListener(e -> Log.w(TAG, "No fue posible guardar el archivo adjunto", e));
         }
     }
     private void mostrarDatePicker(int tipo) {
@@ -513,6 +566,10 @@ public class CrearActividadActivity extends AppCompatActivity {
                 }
             }
         }
+
+        List<ArchivoAdjunto> adjuntos = actividadEditar.getArchivosAdjuntos();
+        archivosAdjuntos = new ArrayList<>(adjuntos);
+        mostrarResumenArchivos();
     }
 
     private void seleccionarLugarDesdeCita(Cita cita) {
@@ -551,26 +608,45 @@ public class CrearActividadActivity extends AppCompatActivity {
         }
     }
 
-    private void guardarActividad() {
+    private void guardarActividad(Actividad actividad, List<ArchivoAdjunto> adjuntos) {
+        List<ArchivoAdjunto> adjuntosSeguros = adjuntos != null ? adjuntos : Collections.emptyList();
+        actividad.setArchivosAdjuntos(adjuntosSeguros);
+        btnGuardar.setEnabled(false);
+        actividadDAO.saveActividad(actividad, new FirestoreOperationCallback() {
+            @Override
+            public void onSuccess() {
+                sincronizarCitas(actividad);
+            }
+
+            @Override
+            public void onFailure(Exception exception) {
+                btnGuardar.setEnabled(true);
+                Toast.makeText(CrearActividadActivity.this, "Error al guardar la actividad", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Nullable
+    private Actividad construirActividadDesdeFormulario() {
         String nombre = etNombre.getText() != null ? etNombre.getText().toString().trim() : "";
         if (nombre.isEmpty()) {
             Toast.makeText(this, "Ingrese el nombre de la actividad", Toast.LENGTH_SHORT).show();
-            return;
+            return null;
         }
         Lugar lugarSeleccionado = obtenerLugarSeleccionado();
         if (lugarSeleccionado == null) {
             Toast.makeText(this, "Seleccione un lugar", Toast.LENGTH_SHORT).show();
-            return;
+            return null;
         }
 
         Periodicidad periodicidad = crearPeriodicidad();
         if (periodicidad == null) {
-            return;
+            return null;
         }
 
         List<LocalDate> fechasCitas = generarFechasDeCitas(periodicidad.getTipo());
         if (fechasCitas == null) {
-            return;
+            return null;
         }
 
         Actividad actividad = modoEditar ? actividadEditar : new Actividad(nombre, periodicidad);
@@ -583,7 +659,7 @@ public class CrearActividadActivity extends AppCompatActivity {
             cupo = obtenerCupoDesdeFormulario(lugarSeleccionado);
         } catch (NumberFormatException e) {
             Toast.makeText(this, "El cupo debe ser numérico", Toast.LENGTH_SHORT).show();
-            return;
+            return null;
         }
         actividad.setCupo(cupo);
 
@@ -594,11 +670,11 @@ public class CrearActividadActivity extends AppCompatActivity {
                 diasAviso = Integer.parseInt(diasAvisoStr);
             } catch (NumberFormatException e) {
                 Toast.makeText(this, "Los días de aviso deben ser numéricos", Toast.LENGTH_SHORT).show();
-                return;
+                return null;
             }
             if (diasAviso < 0) {
                 Toast.makeText(this, "Los días de aviso no pueden ser negativos", Toast.LENGTH_SHORT).show();
-                return;
+                return null;
             }
         }
         actividad.setDiasAvisoPrevio(diasAviso);
@@ -606,14 +682,14 @@ public class CrearActividadActivity extends AppCompatActivity {
         Proyecto proyecto = obtenerProyectoSeleccionado();
         if (proyecto == null) {
             Toast.makeText(this, "Seleccione un proyecto", Toast.LENGTH_SHORT).show();
-            return;
+            return null;
         }
         actividad.setProyecto(proyecto);
 
         TipoActividad tipo = obtenerTipoSeleccionado();
         if (tipo == null) {
             Toast.makeText(this, "Seleccione un tipo de actividad", Toast.LENGTH_SHORT).show();
-            return;
+            return null;
         }
         List<TipoActividad> tiposSeleccionados = new ArrayList<>();
         tiposSeleccionados.add(tipo);
@@ -622,7 +698,7 @@ public class CrearActividadActivity extends AppCompatActivity {
         OferenteActividad oferente = obtenerOferenteSeleccionado();
         if (oferente == null) {
             Toast.makeText(this, "Seleccione un oferente", Toast.LENGTH_SHORT).show();
-            return;
+            return null;
         }
         List<OferenteActividad> oferentesSeleccionados = new ArrayList<>();
         oferentesSeleccionados.add(oferente);
@@ -631,7 +707,7 @@ public class CrearActividadActivity extends AppCompatActivity {
         SocioComunitario socio = obtenerSocioSeleccionado();
         if (socio == null) {
             Toast.makeText(this, "Seleccione un socio comunitario", Toast.LENGTH_SHORT).show();
-            return;
+            return null;
         }
         actividad.setSocioComunitario(socio);
 
@@ -642,19 +718,7 @@ public class CrearActividadActivity extends AppCompatActivity {
                 actividad.crearCita(lugarSeleccionado, fecha, horaPeriodicaSeleccionada);
             }
         }
-        btnGuardar.setEnabled(false);
-        actividadDAO.saveActividad(actividad, new FirestoreOperationCallback() {
-                    @Override
-                    public void onSuccess() {
-                        sincronizarCitas(actividad);
-            }
-
-                    @Override
-                    public void onFailure(Exception exception) {
-                        btnGuardar.setEnabled(true);
-                        Toast.makeText(CrearActividadActivity.this, "Error al guardar la actividad", Toast.LENGTH_SHORT).show();
-            }
-        });
+        return actividad;
     }
 
     private void sincronizarCitas(Actividad actividad) {
