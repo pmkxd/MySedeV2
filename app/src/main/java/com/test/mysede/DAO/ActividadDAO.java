@@ -78,7 +78,7 @@ public class ActividadDAO {
         updateActividad(actividad, null);
     }
 
-    private void updateActividad(Actividad actividad, @Nullable FirestoreOperationCallback callback) {
+    public void updateActividad(Actividad actividad, @Nullable FirestoreOperationCallback callback) {
         if (TextUtils.isEmpty(actividad.getId())) {
             Log.w(TAG, "No es posible actualizar una actividad sin ID");
             if (callback != null) {

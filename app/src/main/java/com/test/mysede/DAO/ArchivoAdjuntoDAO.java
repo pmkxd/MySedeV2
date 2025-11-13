@@ -3,12 +3,15 @@ package com.test.mysede.DAO;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.test.mysede.model.ArchivoAdjunto;
 
@@ -29,7 +32,9 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okio.BufferedSink;
 
+
 public class ArchivoAdjuntoDAO {
+    private static final String COLLECTION = "archivosAdjuntos";
     private static final String CLOUD_NAME = "dtzndokk9";
     public static final String PRESET_IMAGEN = "mysede_image_10mb";
     public static final String PRESET_VIDEO = "mysede_video_50mb";
@@ -43,7 +48,88 @@ public class ArchivoAdjuntoDAO {
     // Guardar metadatos en Firestore
     public Task<DocumentReference> guardarArchivo(@NonNull ArchivoAdjunto archivo) {
         Map<String, Object> data = FirestoreModelMapper.archivoAdjuntoToMap(archivo);
-        return db.collection("archivosAdjuntos").add(data);
+        return db.collection(COLLECTION).add(data);
+    }
+
+    public void getArchivoAdjuntoById(@NonNull String archivoId, @Nullable OnArchivoAdjuntoLoadedListener listener) {
+        if (TextUtils.isEmpty(archivoId)) {
+            if (listener != null) {
+                listener.onArchivoAdjuntoLoaded(null);
+            }
+            return;
+        }
+        db.collection(COLLECTION)
+                .document(archivoId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (listener == null) {
+                        return;
+                    }
+                    if (!documentSnapshot.exists()) {
+                        listener.onArchivoAdjuntoLoaded(null);
+                        return;
+                    }
+                    Map<String, Object> data = documentSnapshot.getData();
+                    if (data == null) {
+                        listener.onArchivoAdjuntoLoaded(null);
+                        return;
+                    }
+                    ArchivoAdjunto archivoAdjunto = FirestoreModelMapper.archivoAdjuntoFromMap(data);
+                    if (archivoAdjunto != null) {
+                        archivoAdjunto.setId(documentSnapshot.getId());
+                    }
+                    listener.onArchivoAdjuntoLoaded(archivoAdjunto);
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) {
+                        listener.onError(e);
+                    }
+                });
+    }
+
+    public void updateArchivoAdjunto(@NonNull ArchivoAdjunto archivo, @Nullable FirestoreOperationCallback callback) {
+        if (archivo == null || TextUtils.isEmpty(archivo.getId())) {
+            if (callback != null) {
+                callback.onFailure(new IllegalArgumentException("El archivo debe tener un ID válido"));
+            }
+            return;
+        }
+        Map<String, Object> data = FirestoreModelMapper.archivoAdjuntoToMap(archivo);
+        db.collection(COLLECTION)
+                .document(archivo.getId())
+                .set(data)
+                .addOnSuccessListener(unused -> {
+                    if (callback != null) {
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) {
+                        callback.onFailure(e);
+                    }
+                });
+    }
+
+    public void deleteArchivoAdjunto(@NonNull String archivoId, @Nullable FirestoreOperationCallback callback) {
+        if (TextUtils.isEmpty(archivoId)) {
+            if (callback != null) {
+                callback.onFailure(new IllegalArgumentException("El archivo debe tener un ID válido"));
+            }
+            return;
+        }
+        db.collection(COLLECTION)
+                .document(archivoId)
+                .delete()
+                .addOnSuccessListener(unused -> {
+                    if (callback != null) {
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) {
+                        callback.onFailure(e);
+                    }
+                });
     }
 
     public Task<ArchivoAdjunto> subirArchivoACloudinary(@NonNull Context context, @NonNull ArchivoAdjunto archivo) {
@@ -127,5 +213,10 @@ public class ArchivoAdjuntoDAO {
                 }
             }
         };
+    }
+    public interface OnArchivoAdjuntoLoadedListener {
+        void onArchivoAdjuntoLoaded(@Nullable ArchivoAdjunto archivoAdjunto);
+
+        void onError(Exception e);
     }
 }
