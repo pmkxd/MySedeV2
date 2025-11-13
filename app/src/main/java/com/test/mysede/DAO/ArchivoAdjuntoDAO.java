@@ -106,13 +106,22 @@ public class ArchivoAdjuntoDAO {
 
             @Override
             public void writeTo(@NonNull BufferedSink sink) throws IOException {
-                try (InputStream inputStream = resolver.openInputStream(uri)) {
-                    if (inputStream == null) {
-                        throw new IOException("No fue posible abrir el archivo seleccionado");
-                    }
+                // Cuando el archivo proviene de un proveedor de documentos (MediaDocumentsProvider)
+                // se requiere usar ACTION_OPEN_DOCUMENT y tomar permisos persistentes en la Activity
+                // que seleccionó la Uri; si no se hizo, abrirInputStream lanzará SecurityException.
+                InputStream inputStream = null;
+                try {
+                    inputStream = resolver.openInputStream(uri);
+                } catch (SecurityException se) {
+                    throw new IOException("No hay permiso para acceder al archivo seleccionado. Seleccione el archivo usando el selector de documentos (ACTION_OPEN_DOCUMENT) y asegúrese de conceder permiso.", se);
+                }
+                if (inputStream == null) {
+                    throw new IOException("No fue posible abrir el archivo seleccionado");
+                }
+                try (InputStream in = inputStream) {
                     byte[] buffer = new byte[8192];
                     int read;
-                    while ((read = inputStream.read(buffer)) != -1) {
+                    while ((read = in.read(buffer)) != -1) {
                         sink.write(buffer, 0, read);
                     }
                 }
