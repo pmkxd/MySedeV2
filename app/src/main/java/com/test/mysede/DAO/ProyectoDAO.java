@@ -39,10 +39,8 @@ public class ProyectoDAO {
             return;
         }
         if (TextUtils.isEmpty(proyecto.getId())) {
-            addProyecto(proyecto);
             addProyecto(proyecto, callback);
         } else {
-            updateProyecto(proyecto);
             updateProyecto(proyecto, callback);
         }
     }

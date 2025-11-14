@@ -45,9 +45,9 @@ final class FirestoreModelMapper {
         data.put("tiposActividad", tiposActividadToList(actividad.getTiposActividad()));
         data.put("oferentes", oferentesToList(actividad.getOferentes()));
         data.put("socioComunitario", socioComunitarioToMap(actividad.getSocioComunitario()));
-        // data.put("archivosAdjuntos", archivosAdjuntosToList(actividad.getArchivosAdjuntos()));
+        data.put("archivosAdjuntos", archivosAdjuntosToList(actividad.getArchivosAdjuntos()));
         // Mientras no exista soporte para adjuntar archivos, se almacena como null
-        data.put("archivosAdjuntos", null);
+        //data.put("archivosAdjuntos", null);
         data.put("citas", citasToList(actividad.getCitas()));
         return data;
     }
@@ -134,24 +134,35 @@ final class FirestoreModelMapper {
         Map<String, Object> data = new HashMap<>();
         data.put("id", archivoAdjunto.getId());
         data.put("nombre", archivoAdjunto.getNombre());
-        data.put("ubicacion", archivoAdjunto.getUbicacion());
+        data.put("tipo", archivoAdjunto.getTipo());
+        data.put("tamaño", archivoAdjunto.getTamaño());
+        data.put("url", archivoAdjunto.getUrl());
+        data.put("resourceType", archivoAdjunto.getResourceType());
+        data.put("uploadPreset", archivoAdjunto.getUploadPreset());
+        data.put("publicId", archivoAdjunto.getPublicId());
         return data;
     }
 
     static ArchivoAdjunto archivoAdjuntoFromMap(@Nullable Map<String, Object> data) {
-        if (data == null) {
-            return null;
-        }
+        if (data == null) return null;
+
         String nombre = (String) data.get("nombre");
-        String ubicacion = (String) data.get("ubicacion");
-        if (nombre == null || ubicacion == null) {
+        String tipo = (String) data.get("tipo");
+        Long tamaño = (Long) data.get("tamaño");
+        String url = (String) data.get("url");
+        String resourceType = (String) data.get("resourceType");
+        String uploadPreset = (String) data.get("uploadPreset");
+        String publicId = (String) data.get("publicId");
+
+        if (nombre == null || tipo == null || tamaño == null || url == null) {
             return null;
         }
-        ArchivoAdjunto archivoAdjunto = new ArchivoAdjunto(nombre, ubicacion);
+
+        ArchivoAdjunto archivoAdjunto = new ArchivoAdjunto(nombre, tipo, tamaño, null, url, resourceType, uploadPreset, publicId);
+
         Object id = data.get("id");
-        if (id instanceof String) {
-            archivoAdjunto.setId((String) id);
-        }
+        if (id instanceof String) archivoAdjunto.setId((String) id);
+
         return archivoAdjunto;
     }
 

@@ -18,6 +18,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.test.mysede.R;
 import com.test.mysede.auth.PermissionManager;
+import com.test.mysede.auth.Rol;
 import com.test.mysede.auth.SessionManager;
 import com.test.mysede.login.ActivityLogin;
 import com.test.mysede.model.Usuario;
@@ -57,7 +58,16 @@ public class ProgramadorActivity extends AppCompatActivity {
             return;
         }
 
-        //  Configurar Toolbar con el nombre del usuario
+        // Validar que el usuario tenga rol PROGRAMADOR_CITAS
+        if (!PermissionManager.tieneRol(Rol.PROGRAMADOR_CITAS)) {
+            Toast.makeText(this, "Acceso denegado. Solo programadores de citas.", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, ActivityLogin.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setSubtitle(usuarioActual.getNombre());

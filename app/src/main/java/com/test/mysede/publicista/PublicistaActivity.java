@@ -18,6 +18,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.test.mysede.R;
 import com.test.mysede.auth.PermissionManager;
+import com.test.mysede.auth.Rol;
 import com.test.mysede.auth.SessionManager;
 import com.test.mysede.login.ActivityLogin;
 import com.test.mysede.model.Usuario;
@@ -56,7 +57,16 @@ public class PublicistaActivity extends AppCompatActivity {
             return;
         }
 
-        //  Configurar la Toolbar
+        // Validar que el usuario tenga rol PUBLICISTA
+        if (!PermissionManager.tieneRol(Rol.PUBLICISTA)) {
+            Toast.makeText(this, "Acceso denegado. Solo publicistas.", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, ActivityLogin.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setSubtitle(usuarioActual.getNombre());
