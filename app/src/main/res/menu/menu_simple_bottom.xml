@@ -8,9 +8,4 @@
         android:id="@+id/nav_activities"
         android:icon="@drawable/ic_nav_activities"
         android:title="Actividades" />
-    <!-- Nuevo: Perfil -->
-    <item
-        android:id="@+id/nav_profile"
-        android:icon="@drawable/ic_usuario"
-        android:title="Perfil" />
 </menu>
