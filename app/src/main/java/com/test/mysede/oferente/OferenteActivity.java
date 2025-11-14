@@ -18,19 +18,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
-import com.test.mysede.ui.SystemBarsHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.test.mysede.DAO.FirestoreOperationCallback;
 import com.test.mysede.DAO.OferenteActividadDAO;
 import com.test.mysede.R;
 import com.test.mysede.auth.PermissionManager; // Manejo de sesión
 import com.test.mysede.auth.SessionManager; //  Sesión local
-import com.test.mysede.login.ActivityLogin; //  Para cerrar sesión y volver al login
 
 import com.test.mysede.auth.Permiso;
 import com.test.mysede.model.OferenteActividad;
 import com.test.mysede.model.Usuario;
 import com.test.mysede.perfil.PerfilActivity; //  Para abrir el perfil del usuario
+import com.test.mysede.login.ActivityLogin; //  Para redirigir al login si la sesión es inválida
 import com.test.mysede.ui.SystemBarsHelper;
 
 import java.util.ArrayList;
@@ -118,14 +117,14 @@ public class OferenteActivity extends AppCompatActivity {
         cargarOferentes();
     }
 
-    //  Inflar el menú de perfil y cerrar sesión
+    //  Inflar el menú con la opción de perfil
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_user_options, menu);
         return true;
     }
 
-    //  Manejar clics del menú (Perfil y Cerrar Sesión)
+    //  Manejar clics del menú (solo Perfil)
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -135,23 +134,9 @@ public class OferenteActivity extends AppCompatActivity {
             startActivity(new Intent(this, PerfilActivity.class));
             return true;
 
-        } else if (id == R.id.menu_cerrar_sesion) {
-            //  Cerrar sesión
-            cerrarSesion();
-            return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    //  Método para cerrar sesión
-    private void cerrarSesion() {
-        sessionManager.cerrarSesion();
-        PermissionManager.setUsuarioActual(null);
-        Intent intent = new Intent(this, ActivityLogin.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
     }
 
     //  Cargar oferentes desde Firebase

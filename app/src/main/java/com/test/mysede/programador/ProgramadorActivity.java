@@ -27,7 +27,7 @@ import com.test.mysede.perfil.PerfilActivity; // Import agregado para el Perfil
 /**
  * Activity principal del rol Programador.
  * Gestiona el calendario y las actividades mediante navegación inferior.
- * Incluye opciones de Perfil y Cierre de Sesión en el menú superior.
+ * Incluye acceso al Perfil en el menú superior.
  */
 public class ProgramadorActivity extends AppCompatActivity {
 
@@ -103,7 +103,7 @@ public class ProgramadorActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        //  Infla el menú con las opciones de Perfil y Cerrar Sesión
+        //  Infla el menú con la opción de Perfil
         getMenuInflater().inflate(R.menu.menu_user_options, menu);
         return true;
     }
@@ -118,22 +118,7 @@ public class ProgramadorActivity extends AppCompatActivity {
             return true;
         }
 
-        //  Cierra sesión
-        if (id == R.id.menu_cerrar_sesion) {
-            cerrarSesion();
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
     }
 
-    //  Lógica para cerrar sesión limpiamente
-    private void cerrarSesion() {
-        sessionManager.cerrarSesion();
-        PermissionManager.setUsuarioActual(null);
-        Intent intent = new Intent(this, ActivityLogin.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
-    }
 }

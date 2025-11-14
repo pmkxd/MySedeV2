@@ -19,13 +19,11 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.test.mysede.R;
 import com.test.mysede.auth.PermissionManager;
-import com.test.mysede.auth.SessionManager;
 import com.test.mysede.login.ActivityLogin;
 import com.test.mysede.perfil.PerfilActivity; // Import nuevo para abrir el perfil
 
 public class AdminActivity extends AppCompatActivity {
 
-    private SessionManager sessionManager;
     private AppBarConfiguration appBarConfiguration;
 
     @Override
@@ -33,7 +31,6 @@ public class AdminActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
 
-        sessionManager = new SessionManager(this);
 
         // Validar que el usuario tenga rol ADMINISTRADOR
         if (!PermissionManager.esAdministrador()) {
@@ -92,21 +89,7 @@ public class AdminActivity extends AppCompatActivity {
             return true;
         }
 
-        //  Opción existente: cerrar sesión
-        if (id == R.id.menu_cerrar_sesion) {
-            cerrarSesion();
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
     }
 
-    private void cerrarSesion() {
-        sessionManager.cerrarSesion();
-        PermissionManager.setUsuarioActual(null);
-        Intent intent = new Intent(this, ActivityLogin.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
-    }
 }

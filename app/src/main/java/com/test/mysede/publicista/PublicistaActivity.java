@@ -101,7 +101,7 @@ public class PublicistaActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        //  Inflar menú con botón de perfil y cierre de sesión
+        //  Inflar menú con el acceso al perfil
         getMenuInflater().inflate(R.menu.menu_user_options, menu);
         return true;
     }
@@ -114,23 +114,8 @@ public class PublicistaActivity extends AppCompatActivity {
             // 🟩 Abre la pantalla de perfil del usuario
             startActivity(new Intent(this, PerfilActivity.class));
             return true;
-
-        } else if (id == R.id.menu_cerrar_sesion) {
-            //  Cierra sesión y limpia la sesión guardada
-            cerrarSesion();
-            return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    // Cierre de sesión completo
-    private void cerrarSesion() {
-        sessionManager.cerrarSesion();
-        PermissionManager.setUsuarioActual(null);
-        Intent intent = new Intent(this, ActivityLogin.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
     }
 }

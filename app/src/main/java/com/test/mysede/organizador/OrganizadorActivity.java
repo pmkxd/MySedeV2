@@ -102,21 +102,8 @@ public class OrganizadorActivity extends AppCompatActivity {
             return true;
         }
 
-        // Cerrar sesión
-        if (id == R.id.menu_cerrar_sesion) {
-            cerrarSesion();
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void cerrarSesion() {
-        sessionManager.cerrarSesion();
-        PermissionManager.setUsuarioActual(null);
-        Intent intent = new Intent(this, ActivityLogin.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
-    }
 }

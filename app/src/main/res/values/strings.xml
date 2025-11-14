@@ -111,5 +111,8 @@ Hora: %4$s</string>
     <string name="perfil_switch_modo_oscuro">Activar modo oscuro</string>
     <string name="perfil_btn_cambiar_contrasena">Cambiar contraseña</string>
     <string name="perfil_btn_ver_notificaciones">Ver notificaciones</string>
+    <string name="perfil_btn_cerrar_sesion">Cerrar sesión</string>
+    <string name="perfil_notificaciones_activadas">Notificaciones activadas</string>
+    <string name="perfil_notificaciones_desactivadas">Notificaciones desactivadas</string>
     <string name="perfil_imagen_content_description">Imagen de perfil del usuario</string>
 </resources>

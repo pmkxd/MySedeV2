@@ -98,7 +98,16 @@
                 android:layout_marginTop="12dp"
                 android:text="@string/perfil_btn_ver_notificaciones"
                 android:textColor="?attr/colorPrimary" />
-
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCerrarSesion"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/perfil_btn_cerrar_sesion"
+                android:textColor="@color/md_theme_error"
+                app:icon="@drawable/ic_logout"
+                app:iconTint="@color/md_theme_error" />
         </LinearLayout>
     </ScrollView>
 

@@ -17,6 +17,7 @@ import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.auth.SessionManager;
 import com.test.mysede.model.Usuario;
 import com.test.mysede.notificaciones.NotificacionesActivity;
+import com.test.mysede.login.ActivityLogin;
 
 /**
  * Activity del perfil de usuario.
@@ -24,11 +25,16 @@ import com.test.mysede.notificaciones.NotificacionesActivity;
  */
 public class PerfilActivity extends AppCompatActivity {
 
+    private static final String PREFS_NAME = "config_prefs";
+    private static final String PREF_NOTIFICACIONES = "notificaciones";
+    private static final String PREF_MODO_OSCURO = "modoOscuro";
+
     private SwitchMaterial switchNotificaciones, switchModoOscuro;
-    private MaterialButton btnCambiarContrasena, btnVerNotificaciones;
+    private MaterialButton btnCambiarContrasena, btnVerNotificaciones, btnCerrarSesion;
     private TextView txtNombreUsuario;
     private TextView txtRolUsuario;
-
+    private SessionManager sessionManager;
+    private SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,9 +51,9 @@ public class PerfilActivity extends AppCompatActivity {
         switchModoOscuro = findViewById(R.id.switchModoOscuro);
         btnCambiarContrasena = findViewById(R.id.btnCambiarContrasena);
         btnVerNotificaciones = findViewById(R.id.btnVerNotificaciones);
-
+        btnCerrarSesion = findViewById(R.id.btnCerrarSesion);
         // Cargar datos del usuario desde la sesión activa
-        SessionManager sessionManager = new SessionManager(this);
+        sessionManager = new SessionManager(this);
         Usuario usuario = PermissionManager.getUsuarioActual();
         if (usuario == null) {
             usuario = sessionManager.obtenerUsuarioSesion();
@@ -62,32 +68,53 @@ public class PerfilActivity extends AppCompatActivity {
         }
 
         // Cargar preferencias persistentes
-        SharedPreferences prefs = getSharedPreferences("config_prefs", MODE_PRIVATE);
-        boolean notificacionesActivas = prefs.getBoolean("notificaciones", true);
-        boolean modoOscuroActivo = prefs.getBoolean("modoOscuro", false);
-
-        switchNotificaciones.setChecked(notificacionesActivas);
-        switchModoOscuro.setChecked(modoOscuroActivo);
-
-        // Listener para notificaciones
-        switchNotificaciones.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            prefs.edit().putBoolean("notificaciones", isChecked).apply();
-            Toast.makeText(this,
-                    isChecked ? "Notificaciones activadas" : "Notificaciones desactivadas",
-                    Toast.LENGTH_SHORT).show();
-        });
-
-        // Listener para modo oscuro
-        switchModoOscuro.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            prefs.edit().putBoolean("modoOscuro", isChecked).apply();
-            AppCompatDelegate.setDefaultNightMode(
-                    isChecked ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO
-            );
-        });
+        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        configurarSwitchNotificaciones();
+        configurarSwitchModoOscuro();
 
         // Abrir notificaciones
         btnVerNotificaciones.setOnClickListener(v ->
                 startActivity(new Intent(this, NotificacionesActivity.class))
         );
+
+        btnCerrarSesion.setOnClickListener(v -> cerrarSesion());
+    }
+
+    private void configurarSwitchNotificaciones() {
+        boolean notificacionesActivas = sharedPreferences.getBoolean(PREF_NOTIFICACIONES, true);
+        switchNotificaciones.setChecked(notificacionesActivas);
+        switchNotificaciones.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            sharedPreferences.edit().putBoolean(PREF_NOTIFICACIONES, isChecked).apply();
+            Toast.makeText(this,
+                    isChecked ? getString(R.string.perfil_notificaciones_activadas)
+                            : getString(R.string.perfil_notificaciones_desactivadas),
+                    Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void configurarSwitchModoOscuro() {
+        boolean modoOscuroActivo = sharedPreferences.getBoolean(PREF_MODO_OSCURO, false);
+        switchModoOscuro.setChecked(modoOscuroActivo);
+        aplicarModoOscuro(modoOscuroActivo);
+        switchModoOscuro.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            sharedPreferences.edit().putBoolean(PREF_MODO_OSCURO, isChecked).apply();
+            aplicarModoOscuro(isChecked);
+        });
+}
+    private void aplicarModoOscuro(boolean activar) {
+        int modoDeseado = activar ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
+        if (AppCompatDelegate.getDefaultNightMode() != modoDeseado) {
+            AppCompatDelegate.setDefaultNightMode(modoDeseado);
+            recreate();
+        }
+    }
+
+    private void cerrarSesion() {
+        sessionManager.cerrarSesion();
+        PermissionManager.setUsuarioActual(null);
+        Intent intent = new Intent(this, ActivityLogin.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }
