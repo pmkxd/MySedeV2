@@ -22,7 +22,12 @@ import com.test.mysede.auth.Rol;
 import com.test.mysede.auth.SessionManager;
 import com.test.mysede.login.ActivityLogin;
 import com.test.mysede.model.Usuario;
+import com.test.mysede.perfil.PerfilActivity; // para abrir el perfil
 
+/**
+ * Activity principal para el rol Publicista.
+ * Contiene navegación inferior, menú de usuario y acceso al perfil.
+ */
 public class PublicistaActivity extends AppCompatActivity {
 
     private SessionManager sessionManager;
@@ -34,6 +39,8 @@ public class PublicistaActivity extends AppCompatActivity {
         setContentView(R.layout.activity_publicista);
 
         sessionManager = new SessionManager(this);
+
+        //  Verificar usuario logeado
         Usuario usuarioActual = PermissionManager.getUsuarioActual();
         if (usuarioActual == null) {
             usuarioActual = sessionManager.obtenerUsuarioSesion();
@@ -41,6 +48,8 @@ public class PublicistaActivity extends AppCompatActivity {
                 PermissionManager.setUsuarioActual(usuarioActual);
             }
         }
+
+        //  Si no hay sesión activa, redirigir al login
         if (usuarioActual == null) {
             Toast.makeText(this, "Sesión inválida, por favor ingresa nuevamente", Toast.LENGTH_LONG).show();
             startActivity(new Intent(this, ActivityLogin.class));
@@ -62,14 +71,17 @@ public class PublicistaActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         toolbar.setSubtitle(usuarioActual.getNombre());
 
+        //  Configurar navegación inferior
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         if (navHostFragment != null) {
             NavController navController = navHostFragment.getNavController();
             BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+
             appBarConfiguration = new AppBarConfiguration.Builder(
                     R.id.nav_calendar,
                     R.id.nav_activities
             ).build();
+
             NavigationUI.setupWithNavController(bottomNavigationView, navController);
             NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         }
@@ -77,29 +89,42 @@ public class PublicistaActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        NavHostFragment navHostFragment =
+                (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         if (navHostFragment != null) {
             NavController navController = navHostFragment.getNavController();
-            return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
+            return NavigationUI.navigateUp(navController, appBarConfiguration)
+                    || super.onSupportNavigateUp();
         }
         return super.onSupportNavigateUp();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        //  Inflar menú con botón de perfil y cierre de sesión
         getMenuInflater().inflate(R.menu.menu_user_options, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_cerrar_sesion) {
+        int id = item.getItemId();
+
+        if (id == R.id.menu_perfil) {
+            // 🟩 Abre la pantalla de perfil del usuario
+            startActivity(new Intent(this, PerfilActivity.class));
+            return true;
+
+        } else if (id == R.id.menu_cerrar_sesion) {
+            //  Cierra sesión y limpia la sesión guardada
             cerrarSesion();
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
+    // Cierre de sesión completo
     private void cerrarSesion() {
         sessionManager.cerrarSesion();
         PermissionManager.setUsuarioActual(null);

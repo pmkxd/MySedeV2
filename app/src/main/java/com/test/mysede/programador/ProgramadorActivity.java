@@ -22,7 +22,13 @@ import com.test.mysede.auth.Rol;
 import com.test.mysede.auth.SessionManager;
 import com.test.mysede.login.ActivityLogin;
 import com.test.mysede.model.Usuario;
+import com.test.mysede.perfil.PerfilActivity; // Import agregado para el Perfil
 
+/**
+ * Activity principal del rol Programador.
+ * Gestiona el calendario y las actividades mediante navegación inferior.
+ * Incluye opciones de Perfil y Cierre de Sesión en el menú superior.
+ */
 public class ProgramadorActivity extends AppCompatActivity {
 
     private SessionManager sessionManager;
@@ -34,6 +40,8 @@ public class ProgramadorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_programador);
 
         sessionManager = new SessionManager(this);
+
+        // Verificar usuario logueado
         Usuario usuarioActual = PermissionManager.getUsuarioActual();
         if (usuarioActual == null) {
             usuarioActual = sessionManager.obtenerUsuarioSesion();
@@ -41,6 +49,8 @@ public class ProgramadorActivity extends AppCompatActivity {
                 PermissionManager.setUsuarioActual(usuarioActual);
             }
         }
+
+        //  Si no hay usuario válido, redirigir al login
         if (usuarioActual == null) {
             Toast.makeText(this, "Sesión inválida, por favor ingresa nuevamente", Toast.LENGTH_LONG).show();
             startActivity(new Intent(this, ActivityLogin.class));
@@ -62,14 +72,18 @@ public class ProgramadorActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         toolbar.setSubtitle(usuarioActual.getNombre());
 
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        //  Configurar navegación inferior
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
         if (navHostFragment != null) {
             NavController navController = navHostFragment.getNavController();
             BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+
             appBarConfiguration = new AppBarConfiguration.Builder(
                     R.id.nav_calendar,
                     R.id.nav_activities
             ).build();
+
             NavigationUI.setupWithNavController(bottomNavigationView, navController);
             NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         }
@@ -77,29 +91,43 @@ public class ProgramadorActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
         if (navHostFragment != null) {
             NavController navController = navHostFragment.getNavController();
-            return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
+            return NavigationUI.navigateUp(navController, appBarConfiguration)
+                    || super.onSupportNavigateUp();
         }
         return super.onSupportNavigateUp();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        //  Infla el menú con las opciones de Perfil y Cerrar Sesión
         getMenuInflater().inflate(R.menu.menu_user_options, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_cerrar_sesion) {
+        int id = item.getItemId();
+
+        //  Abre la pantalla de perfil del usuario
+        if (id == R.id.menu_perfil) {
+            startActivity(new Intent(this, PerfilActivity.class));
+            return true;
+        }
+
+        //  Cierra sesión
+        if (id == R.id.menu_cerrar_sesion) {
             cerrarSesion();
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
+    //  Lógica para cerrar sesión limpiamente
     private void cerrarSesion() {
         sessionManager.cerrarSesion();
         PermissionManager.setUsuarioActual(null);

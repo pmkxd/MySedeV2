@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F6F6F6"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal">
+
+        <!-- Imagen del perfil -->
+        <ImageView
+            android:id="@+id/imgPerfil"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_usuario"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/circle_bg"
+            android:padding="8dp" />
+
+        <!-- Nombre del usuario -->
+        <TextView
+            android:id="@+id/txtNombreUsuario"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nombre del Usuario"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingTop="10dp" />
+
+        <!-- Switch para activar/desactivar notificaciones -->
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchNotificaciones"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Recibir notificaciones"
+            android:padding="8dp"
+            android:textSize="16sp"
+            android:checked="true" />
+
+        <!-- Switch para activar el modo oscuro -->
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchModoOscuro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Activar modo oscuro"
+            android:padding="8dp"
+            android:textSize="16sp"
+            android:checked="false" />
+
+        <!-- Botón para cambiar contraseña -->
+        <Button
+            android:id="@+id/btnCambiarContrasena"
+            android:text="Cambiar Contraseña"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/teal_700"
+            android:textColor="@android:color/white" />
+
+
+        <!-- Botón para ver notificaciones -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnVerNotificaciones"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ver notificaciones"
+            android:layout_marginTop="12dp" />
+
+    </LinearLayout>
+</ScrollView>

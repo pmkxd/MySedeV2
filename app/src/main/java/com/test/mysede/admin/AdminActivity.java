@@ -21,6 +21,7 @@ import com.test.mysede.R;
 import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.auth.SessionManager;
 import com.test.mysede.login.ActivityLogin;
+import com.test.mysede.perfil.PerfilActivity; // Import nuevo para abrir el perfil
 
 public class AdminActivity extends AppCompatActivity {
 
@@ -47,6 +48,7 @@ public class AdminActivity extends AppCompatActivity {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // Configurar Navigation (menú inferior)
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         if (navHostFragment != null) {
             NavController navController = navHostFragment.getNavController();
@@ -81,10 +83,21 @@ public class AdminActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_cerrar_sesion) {
+        int id = item.getItemId();
+
+        //  Nueva opción: abrir el perfil del usuario
+        if (id == R.id.menu_perfil) {
+            Intent intent = new Intent(this, PerfilActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        //  Opción existente: cerrar sesión
+        if (id == R.id.menu_cerrar_sesion) {
             cerrarSesion();
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
