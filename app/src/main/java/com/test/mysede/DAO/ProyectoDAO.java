@@ -50,28 +50,58 @@ public class ProyectoDAO {
     }
 
     private void addProyecto(Proyecto proyecto, @Nullable FirestoreOperationCallback callback) {
-        Map<String, Object> data = FirestoreModelMapper.proyectoToMap(proyecto);
-        db.collection(COLLECTION)
-                .add(data)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        proyecto.setId(documentReference.getId());
-                        Log.d(TAG, "Proyecto registrado con ID: " + documentReference.getId());
-                        if (callback != null) {
-                            callback.onSuccess();
-                        }
+        // Validar campos obligatorios
+        Exception validationError = validarProyecto(proyecto);
+        if (validationError != null) {
+            if (callback != null) {
+                callback.onFailure(validationError);
+            }
+            return;
+        }
+
+        // Verificar duplicados
+        verificarNombreDuplicado(proyecto.getNombre(), null, new OnDuplicadoListener() {
+            @Override
+            public void onResultado(boolean esDuplicado) {
+                if (esDuplicado) {
+                    if (callback != null) {
+                        callback.onFailure(new IllegalStateException("Ya existe un proyecto con este nombre"));
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error al registrar el proyecto", e);
-                        if (callback != null) {
-                            callback.onFailure(e);
-                        }
-                    }
-                });
+                    return;
+                }
+
+                // Si no es duplicado, proceder con la inserción
+                Map<String, Object> data = FirestoreModelMapper.proyectoToMap(proyecto);
+                db.collection(COLLECTION)
+                        .add(data)
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                proyecto.setId(documentReference.getId());
+                                Log.d(TAG, "Proyecto registrado con ID: " + documentReference.getId());
+                                if (callback != null) {
+                                    callback.onSuccess();
+                                }
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error al registrar el proyecto", e);
+                                if (callback != null) {
+                                    callback.onFailure(e);
+                                }
+                            }
+                        });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (callback != null) {
+                    callback.onFailure(e);
+                }
+            }
+        });
     }
 
     public void updateProyecto(Proyecto proyecto) {
@@ -86,28 +116,59 @@ public class ProyectoDAO {
             }
             return;
         }
-        Map<String, Object> data = FirestoreModelMapper.proyectoToMap(proyecto);
-        db.collection(COLLECTION)
-                .document(proyecto.getId())
-                .set(data)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Log.d(TAG, "Proyecto actualizado correctamente");
-                        if (callback != null) {
-                            callback.onSuccess();
-                        }
+
+        // Validar campos obligatorios
+        Exception validationError = validarProyecto(proyecto);
+        if (validationError != null) {
+            if (callback != null) {
+                callback.onFailure(validationError);
+            }
+            return;
+        }
+
+        // Verificar nombre duplicado (excluyendo el proyecto actual)
+        verificarNombreDuplicado(proyecto.getNombre(), proyecto.getId(), new OnDuplicadoListener() {
+            @Override
+            public void onResultado(boolean esDuplicado) {
+                if (esDuplicado) {
+                    if (callback != null) {
+                        callback.onFailure(new IllegalStateException("Ya existe otro proyecto con este nombre"));
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error al actualizar el proyecto", e);
-                        if (callback != null) {
-                            callback.onFailure(e);
-                        }
-                    }
-                });
+                    return;
+                }
+
+                // Si no hay duplicados, actualizar
+                Map<String, Object> data = FirestoreModelMapper.proyectoToMap(proyecto);
+                db.collection(COLLECTION)
+                        .document(proyecto.getId())
+                        .set(data)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.d(TAG, "Proyecto actualizado correctamente");
+                                if (callback != null) {
+                                    callback.onSuccess();
+                                }
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error al actualizar el proyecto", e);
+                                if (callback != null) {
+                                    callback.onFailure(e);
+                                }
+                            }
+                        });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (callback != null) {
+                    callback.onFailure(e);
+                }
+            }
+        });
     }
 
     public void deleteProyecto(Proyecto proyecto) {
@@ -121,21 +182,43 @@ public class ProyectoDAO {
             }
             return;
         }
-        db.collection(COLLECTION)
-                .document(proyecto.getId())
-                .delete()
-                .addOnSuccessListener(unused -> {
-                    Log.d(TAG, "Proyecto eliminado correctamente");
+
+        // Verificar integridad referencial: comprobar si tiene actividades asociadas
+        verificarActividadesAsociadas(proyecto.getId(), new OnActividadesVerificadasListener() {
+            @Override
+            public void onActividadesVerificadas(boolean tieneActividades) {
+                if (tieneActividades) {
                     if (callback != null) {
-                        callback.onSuccess();
+                        callback.onFailure(new IllegalStateException("No se puede eliminar el proyecto porque tiene actividades asociadas. Elimine o reasigne las actividades primero."));
                     }
-                })
-                .addOnFailureListener(e -> {
-                    Log.w(TAG, "Error al eliminar el proyecto", e);
-                    if (callback != null) {
-                        callback.onFailure(e);
-                    }
-                });
+                    return;
+                }
+
+                // Si no tiene actividades, proceder con la eliminación
+                db.collection(COLLECTION)
+                        .document(proyecto.getId())
+                        .delete()
+                        .addOnSuccessListener(unused -> {
+                            Log.d(TAG, "Proyecto eliminado correctamente");
+                            if (callback != null) {
+                                callback.onSuccess();
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.w(TAG, "Error al eliminar el proyecto", e);
+                            if (callback != null) {
+                                callback.onFailure(e);
+                            }
+                        });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (callback != null) {
+                    callback.onFailure(e);
+                }
+            }
+        });
     }
 
     public interface OnProyectosLoadedListener {
@@ -163,6 +246,89 @@ public class ProyectoDAO {
                         Log.w(TAG, "Error obteniendo proyectos", task.getException());
                         listener.onError(task.getException());
                     }
+                });
+    }
+
+    // ============ MÉTODOS DE VALIDACIÓN ============
+
+    /**
+     * Valida que un proyecto tenga todos los campos obligatorios
+     * @param proyecto El proyecto a validar
+     * @return null si es válido, o una Exception con el mensaje de error
+     */
+    private Exception validarProyecto(Proyecto proyecto) {
+        if (proyecto == null) {
+            return new IllegalArgumentException("El proyecto no puede ser nulo");
+        }
+
+        if (TextUtils.isEmpty(proyecto.getNombre()) || proyecto.getNombre().trim().length() < 3) {
+            return new IllegalArgumentException("El nombre del proyecto es obligatorio y debe tener al menos 3 caracteres");
+        }
+
+        return null;
+    }
+
+    /**
+     * Interface para verificar duplicados
+     */
+    private interface OnDuplicadoListener {
+        void onResultado(boolean esDuplicado);
+        void onError(Exception e);
+    }
+
+    /**
+     * Verifica si ya existe un proyecto con el mismo nombre
+     * @param nombre Nombre a verificar
+     * @param excludeId ID del proyecto a excluir (para updates), o null
+     */
+    private void verificarNombreDuplicado(String nombre, @Nullable String excludeId, OnDuplicadoListener listener) {
+        if (TextUtils.isEmpty(nombre)) {
+            listener.onError(new IllegalArgumentException("El nombre no puede ser nulo o vacío"));
+            return;
+        }
+
+        db.collection(COLLECTION)
+                .whereEqualTo("nombre", nombre.trim())
+                .limit(2)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    boolean esDuplicado = false;
+                    for (QueryDocumentSnapshot document : querySnapshot) {
+                        if (excludeId == null || !document.getId().equals(excludeId)) {
+                            esDuplicado = true;
+                            break;
+                        }
+                    }
+                    listener.onResultado(esDuplicado);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error verificando nombre duplicado", e);
+                    listener.onError(e);
+                });
+    }
+
+    /**
+     * Interface para verificar actividades asociadas
+     */
+    private interface OnActividadesVerificadasListener {
+        void onActividadesVerificadas(boolean tieneActividades);
+        void onError(Exception e);
+    }
+
+    /**
+     * Verifica si un proyecto tiene actividades asociadas
+     */
+    private void verificarActividadesAsociadas(String proyectoId, OnActividadesVerificadasListener listener) {
+        db.collection("actividades")
+                .whereEqualTo("proyectoId", proyectoId)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    listener.onActividadesVerificadas(!querySnapshot.isEmpty());
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error verificando actividades asociadas", e);
+                    listener.onError(e);
                 });
     }
 }

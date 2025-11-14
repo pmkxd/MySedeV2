@@ -17,6 +17,10 @@ public class SessionManager {
     private static final String KEY_USER_EMAIL = "user_email";
     private static final String KEY_USER_ROL = "user_rol";
     private static final String KEY_IS_LOGGED_IN = "is_logged_in";
+    private static final String KEY_SESSION_TIMESTAMP = "session_timestamp";
+
+    // Timeout de sesión: 24 horas en milisegundos
+    private static final long SESSION_TIMEOUT = 24 * 60 * 60 * 1000L;
 
     private final SharedPreferences prefs;
     private final SharedPreferences.Editor editor;
@@ -35,6 +39,8 @@ public class SessionManager {
         editor.putString(KEY_USER_NAME, usuario.getNombre());
         editor.putString(KEY_USER_EMAIL, usuario.getEmail());
         editor.putString(KEY_USER_ROL, usuario.getRol().name());
+        // Guardar timestamp de creación de sesión para control de expiración
+        editor.putLong(KEY_SESSION_TIMESTAMP, System.currentTimeMillis());
         editor.apply();
 
         // Configurar en PermissionManager
@@ -42,10 +48,55 @@ public class SessionManager {
     }
 
     /**
-     * Verifica si hay una sesión activa
+     * Verifica si hay una sesión activa y no ha expirado
+     * Si la sesión ha expirado, la cierra automáticamente
      */
     public boolean haySesionActiva() {
-        return prefs.getBoolean(KEY_IS_LOGGED_IN, false);
+        if (!prefs.getBoolean(KEY_IS_LOGGED_IN, false)) {
+            return false;
+        }
+
+        // Verificar si la sesión ha expirado
+        long sessionTimestamp = prefs.getLong(KEY_SESSION_TIMESTAMP, 0);
+        long currentTime = System.currentTimeMillis();
+        long sessionDuration = currentTime - sessionTimestamp;
+
+        if (sessionDuration > SESSION_TIMEOUT) {
+            // Sesión expirada, cerrarla automáticamente
+            cerrarSesion();
+            return false;
+        }
+
+        // Sesión válida y no expirada
+        return true;
+    }
+
+    /**
+     * Verifica si la sesión está próxima a expirar (menos de 1 hora restante)
+     * @return true si quedan menos de 60 minutos para que expire
+     */
+    public boolean sesionProximaAExpirar() {
+        if (!prefs.getBoolean(KEY_IS_LOGGED_IN, false)) {
+            return false;
+        }
+
+        long sessionTimestamp = prefs.getLong(KEY_SESSION_TIMESTAMP, 0);
+        long currentTime = System.currentTimeMillis();
+        long sessionDuration = currentTime - sessionTimestamp;
+        long tiempoRestante = SESSION_TIMEOUT - sessionDuration;
+
+        // Retorna true si quedan menos de 60 minutos
+        return tiempoRestante < (60 * 60 * 1000L) && tiempoRestante > 0;
+    }
+
+    /**
+     * Renueva el timestamp de la sesión, extendiendo su tiempo de vida
+     */
+    public void renovarSesion() {
+        if (haySesionActiva()) {
+            editor.putLong(KEY_SESSION_TIMESTAMP, System.currentTimeMillis());
+            editor.apply();
+        }
     }
 
     /**

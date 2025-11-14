@@ -50,6 +50,15 @@ public class SocioComunitarioDAO {
     }
 
     private void addSocioComunitario(SocioComunitario socioComunitario, @Nullable FirestoreOperationCallback callback) {
+        // Validar campos obligatorios
+        Exception validationError = validarSocioComunitario(socioComunitario);
+        if (validationError != null) {
+            if (callback != null) {
+                callback.onFailure(validationError);
+            }
+            return;
+        }
+
         Map<String, Object> data = FirestoreModelMapper.socioComunitarioToMap(socioComunitario);
         db.collection(COLLECTION)
                 .add(data)
@@ -86,6 +95,16 @@ public class SocioComunitarioDAO {
             }
             return;
         }
+
+        // Validar campos obligatorios
+        Exception validationError = validarSocioComunitario(socioComunitario);
+        if (validationError != null) {
+            if (callback != null) {
+                callback.onFailure(validationError);
+            }
+            return;
+        }
+
         Map<String, Object> data = FirestoreModelMapper.socioComunitarioToMap(socioComunitario);
         db.collection(COLLECTION)
                 .document(socioComunitario.getId())
@@ -164,5 +183,24 @@ public class SocioComunitarioDAO {
                         listener.onError(task.getException());
                     }
                 });
+    }
+
+    // ============ MÉTODOS DE VALIDACIÓN ============
+
+    /**
+     * Valida que un socio comunitario tenga todos los campos obligatorios
+     * @param socio El socio comunitario a validar
+     * @return null si es válido, o una Exception con el mensaje de error
+     */
+    private Exception validarSocioComunitario(SocioComunitario socio) {
+        if (socio == null) {
+            return new IllegalArgumentException("El socio comunitario no puede ser nulo");
+        }
+
+        if (TextUtils.isEmpty(socio.getNombre()) || socio.getNombre().trim().length() < 3) {
+            return new IllegalArgumentException("El nombre del socio comunitario es obligatorio y debe tener al menos 3 caracteres");
+        }
+
+        return null;
     }
 }

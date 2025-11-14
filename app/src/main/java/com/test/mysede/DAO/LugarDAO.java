@@ -50,6 +50,15 @@ public class LugarDAO {
     }
 
     private void addLugar(Lugar lugar, @Nullable FirestoreOperationCallback callback) {
+        // Validar campos obligatorios
+        Exception validationError = validarLugar(lugar);
+        if (validationError != null) {
+            if (callback != null) {
+                callback.onFailure(validationError);
+            }
+            return;
+        }
+
         Map<String, Object> data = FirestoreModelMapper.lugarToMap(lugar);
         db.collection(COLLECTION)
                 .add(data)
@@ -86,6 +95,16 @@ public class LugarDAO {
             }
             return;
         }
+
+        // Validar campos obligatorios
+        Exception validationError = validarLugar(lugar);
+        if (validationError != null) {
+            if (callback != null) {
+                callback.onFailure(validationError);
+            }
+            return;
+        }
+
         Map<String, Object> data = FirestoreModelMapper.lugarToMap(lugar);
         db.collection(COLLECTION)
                 .document(lugar.getId())
@@ -121,21 +140,43 @@ public class LugarDAO {
             }
             return;
         }
-        db.collection(COLLECTION)
-                .document(lugar.getId())
-                .delete()
-                .addOnSuccessListener(unused -> {
-                    Log.d(TAG, "Lugar eliminado correctamente");
+
+        // Verificar integridad referencial: comprobar si tiene citas asociadas
+        verificarCitasAsociadas(lugar.getId(), new OnCitasVerificadasListener() {
+            @Override
+            public void onCitasVerificadas(boolean tieneCitas) {
+                if (tieneCitas) {
                     if (callback != null) {
-                        callback.onSuccess();
+                        callback.onFailure(new IllegalStateException("No se puede eliminar el lugar porque tiene citas asociadas. Elimine o reasigne las citas primero."));
                     }
-                })
-                .addOnFailureListener(e -> {
-                    Log.w(TAG, "Error al eliminar el lugar", e);
-                    if (callback != null) {
-                        callback.onFailure(e);
-                    }
-                });
+                    return;
+                }
+
+                // Si no tiene citas, proceder con la eliminación
+                db.collection(COLLECTION)
+                        .document(lugar.getId())
+                        .delete()
+                        .addOnSuccessListener(unused -> {
+                            Log.d(TAG, "Lugar eliminado correctamente");
+                            if (callback != null) {
+                                callback.onSuccess();
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.w(TAG, "Error al eliminar el lugar", e);
+                            if (callback != null) {
+                                callback.onFailure(e);
+                            }
+                        });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (callback != null) {
+                    callback.onFailure(e);
+                }
+            }
+        });
     }
 
     public interface OnLugaresLoadedListener {
@@ -163,6 +204,54 @@ public class LugarDAO {
                         Log.w(TAG, "Error obteniendo lugares", task.getException());
                         listener.onError(task.getException());
                     }
+                });
+    }
+
+    // ============ MÉTODOS DE VALIDACIÓN ============
+
+    /**
+     * Valida que un lugar tenga todos los campos obligatorios
+     * @param lugar El lugar a validar
+     * @return null si es válido, o una Exception con el mensaje de error
+     */
+    private Exception validarLugar(Lugar lugar) {
+        if (lugar == null) {
+            return new IllegalArgumentException("El lugar no puede ser nulo");
+        }
+
+        if (TextUtils.isEmpty(lugar.getNombre()) || lugar.getNombre().trim().length() < 3) {
+            return new IllegalArgumentException("El nombre del lugar es obligatorio y debe tener al menos 3 caracteres");
+        }
+
+        if (lugar.getTipo() == null) {
+            return new IllegalArgumentException("El tipo de lugar es obligatorio");
+        }
+
+        return null;
+    }
+
+    /**
+     * Interface para verificar citas asociadas
+     */
+    private interface OnCitasVerificadasListener {
+        void onCitasVerificadas(boolean tieneCitas);
+        void onError(Exception e);
+    }
+
+    /**
+     * Verifica si un lugar tiene citas asociadas
+     */
+    private void verificarCitasAsociadas(String lugarId, OnCitasVerificadasListener listener) {
+        db.collection("citas")
+                .whereEqualTo("lugarId", lugarId)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    listener.onCitasVerificadas(!querySnapshot.isEmpty());
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error verificando citas asociadas", e);
+                    listener.onError(e);
                 });
     }
 }
