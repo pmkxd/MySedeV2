@@ -637,7 +637,7 @@ public class CrearActividadActivity extends AppCompatActivity {
         }
         if (nombre.length() < 3) {
             Toast.makeText(this, "El nombre debe tener al menos 3 caracteres", Toast.LENGTH_SHORT).show();
-            return;
+            return null;
         }
         Lugar lugarSeleccionado = obtenerLugarSeleccionado();
         if (lugarSeleccionado == null) {
@@ -669,7 +669,7 @@ public class CrearActividadActivity extends AppCompatActivity {
         }
         if (cupo != null && cupo <= 0) {
             Toast.makeText(this, "El cupo debe ser mayor a cero", Toast.LENGTH_SHORT).show();
-            return;
+            return null;
         }
         actividad.setCupo(cupo);
 
@@ -688,7 +688,7 @@ public class CrearActividadActivity extends AppCompatActivity {
             }
             if (diasAviso > 365) {
                 Toast.makeText(this, "Los días de aviso no pueden ser mayores a 365", Toast.LENGTH_SHORT).show();
-                return;
+                return null;
             }
         }
         actividad.setDiasAvisoPrevio(diasAviso);
