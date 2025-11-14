@@ -7,7 +7,9 @@
     android:layout_height="match_parent"
     android:background="?attr/colorSurface"
     android:padding="24dp"
-    tools:context=".login.ActivityForgotPassword">
+    tools:context=".login.ActivityForgotPassword"
+    android:fitsSystemWindows="true">
+
 
     <!-- Título -->
     <TextView

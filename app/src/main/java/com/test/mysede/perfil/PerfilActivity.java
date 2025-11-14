@@ -30,7 +30,8 @@ public class PerfilActivity extends AppCompatActivity {
     private static final String PREF_MODO_OSCURO = "modoOscuro";
 
     private SwitchMaterial switchNotificaciones, switchModoOscuro;
-    private MaterialButton btnCambiarContrasena, btnVerNotificaciones, btnCerrarSesion;
+    private MaterialButton btnCambiarContrasena;
+    private MaterialButton btnVerNotificaciones, btnCerrarSesion;
     private TextView txtNombreUsuario;
     private TextView txtRolUsuario;
     private SessionManager sessionManager;
@@ -75,6 +76,10 @@ public class PerfilActivity extends AppCompatActivity {
         // Abrir notificaciones
         btnVerNotificaciones.setOnClickListener(v ->
                 startActivity(new Intent(this, NotificacionesActivity.class))
+        );
+        // Abrir cambiar contraseña
+        btnCambiarContrasena.setOnClickListener(v ->
+                startActivity(new Intent(this, CambiarContrasenaActivity.class))
         );
 
         btnCerrarSesion.setOnClickListener(v -> cerrarSesion());
