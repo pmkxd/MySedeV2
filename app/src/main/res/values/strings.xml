@@ -154,4 +154,16 @@ Hora: %4$s</string>
     <string name="perfil_preview_confirmar">Guardar</string>
     <string name="perfil_preview_cancelar">Cancelar</string>
     <string name="perfil_preview_reajustar">Reajustar</string>
+
+    <string name="cambiar_contrasena_title">Cambiar contraseña</string>
+    <string name="cambiar_contrasena_description">Actualiza tu contraseña para mantener tu cuenta segura.</string>
+    <string name="cambiar_contrasena_hint_actual">Contraseña actual</string>
+    <string name="cambiar_contrasena_hint_nueva">Nueva contraseña</string>
+    <string name="cambiar_contrasena_hint_confirmar">Confirmar nueva contraseña</string>
+    <string name="cambiar_contrasena_button">Guardar cambios</string>
+    <string name="cambiar_contrasena_recomendaciones_title">Recomendaciones para una contraseña segura</string>
+    <string name="cambiar_contrasena_recomendaciones">• Usa al menos 8 caracteres.
+• Combina letras mayúsculas y minúsculas.
+• Incluye números y símbolos.
+• Evita repetir contraseñas o datos personales.</string>
 </resources>
