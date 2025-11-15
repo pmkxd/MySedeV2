@@ -102,6 +102,27 @@ Hora: %4$s</string>
         <item quantity="one">%d cita programada</item>
         <item quantity="other">%d citas programadas</item>
     </plurals>
+    <string name="archivos_adjuntos_label">Archivos adjuntos</string>
+    <string name="ver_actividad_total_archivos_placeholder">Archivos adjuntos agregados: 0</string>
+    <string name="ver_actividad_total_archivos">Archivos adjuntos agregados: %1$d</string>
+    <string name="ver_archivos_adjuntos_button">Ver archivos adjuntos</string>
+    <string name="ver_archivos_adjuntos_title">Archivos adjuntos</string>
+    <string name="ver_archivos_adjuntos_empty">Sin archivos adjuntos</string>
+    <string name="ver_archivos_adjuntos_loading">Cargando archivos adjuntos…</string>
+    <string name="ver_archivos_adjuntos_success_add">Archivos agregados correctamente</string>
+    <string name="ver_archivos_adjuntos_error_general">No fue posible completar la acción. Inténtalo nuevamente.</string>
+    <string name="ver_archivos_adjuntos_error_nombre">El nombre no puede estar vacío</string>
+    <string name="ver_archivos_adjuntos_delete_success">Archivo eliminado correctamente</string>
+    <string name="ver_archivos_adjuntos_download_start">Descarga iniciada</string>
+    <string name="ver_archivos_adjuntos_no_selection">No se seleccionaron archivos</string>
+    <string name="ver_archivos_adjuntos_open_error">No se encontró una aplicación para abrir el archivo</string>
+    <string name="ver_archivos_adjuntos_permission_add">No tienes permiso para agregar archivos</string>
+    <string name="ver_archivos_adjuntos_permission_view">No tienes permiso para ver actividades</string>
+    <string name="ver_archivos_adjuntos_rename_success">Archivo renombrado correctamente</string>
+    <string name="ver_archivos_adjuntos_delete_message">¿Deseas eliminar el archivo "%1$s"?</string>
+    <string name="ver_archivos_adjuntos_tipo_desconocido">Tipo desconocido</string>
+    <string name="ver_archivos_adjuntos_tipo_formato">Tipo: %1$s</string>
+    <string name="agregar_archivos_button">Agregar archivos</string>
     <string name="perfil_title">Perfil</string>
     <string name="perfil_nombre_placeholder">Nombre del Usuario</string>
     <string name="perfil_nombre_desconocido">Usuario</string>
@@ -133,4 +154,16 @@ Hora: %4$s</string>
     <string name="perfil_preview_confirmar">Guardar</string>
     <string name="perfil_preview_cancelar">Cancelar</string>
     <string name="perfil_preview_reajustar">Reajustar</string>
+
+    <string name="cambiar_contrasena_title">Cambiar contraseña</string>
+    <string name="cambiar_contrasena_description">Actualiza tu contraseña para mantener tu cuenta segura.</string>
+    <string name="cambiar_contrasena_hint_actual">Contraseña actual</string>
+    <string name="cambiar_contrasena_hint_nueva">Nueva contraseña</string>
+    <string name="cambiar_contrasena_hint_confirmar">Confirmar nueva contraseña</string>
+    <string name="cambiar_contrasena_button">Guardar cambios</string>
+    <string name="cambiar_contrasena_recomendaciones_title">Recomendaciones para una contraseña segura</string>
+    <string name="cambiar_contrasena_recomendaciones">• Usa al menos 8 caracteres.
+• Combina letras mayúsculas y minúsculas.
+• Incluye números y símbolos.
+• Evita repetir contraseñas o datos personales.</string>
 </resources>

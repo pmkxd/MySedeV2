@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
+import com.google.android.material.appbar.MaterialToolbar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.AuthCredential;
@@ -32,6 +32,10 @@ public class CambiarContrasenaActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
 
+        MaterialToolbar toolbar = findViewById(R.id.toolbarCambiarContrasena);
+        if (toolbar != null) {
+            toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+        }
         etContrasenaActual = findViewById(R.id.etContrasenaActual);
         etNuevaContrasena = findViewById(R.id.etNuevaContrasena);
         etConfirmarContrasena = findViewById(R.id.etConfirmarContrasena);

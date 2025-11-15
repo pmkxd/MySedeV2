@@ -47,12 +47,13 @@ public class VerActividadActivity extends AppCompatActivity {
     private TextView tvNombre, tvTipo, tvPeriodicidad, tvFechas, tvCupo;
     private TextView tvProyecto, tvOferentes, tvSocio, tvDiasAviso;
     private Button btnEditar, btnEliminar;
-    private LinearLayout layoutArchivosAdjuntos;
+    private TextView tvTotalArchivosAdjuntos;
+    private MaterialButton btnVerArchivosAdjuntos;
     private Actividad actividad;
     private String actividadId;
     private final ActividadDAO actividadDAO = new ActividadDAO();
     private final CitaDAO citaDAO = new CitaDAO();
-    private final ArchivoAdjuntoDAO archivoAdjuntoDAO = new ArchivoAdjuntoDAO();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,7 +90,12 @@ public class VerActividadActivity extends AppCompatActivity {
         tvDiasAviso = findViewById(R.id.tvDiasAviso);
         btnEditar = findViewById(R.id.btnEditar);
         btnEliminar = findViewById(R.id.btnEliminar);
-        layoutArchivosAdjuntos = findViewById(R.id.layoutArchivosAdjuntos);
+        tvTotalArchivosAdjuntos = findViewById(R.id.tvTotalArchivosAdjuntos);
+        btnVerArchivosAdjuntos = findViewById(R.id.btnVerArchivosAdjuntos);
+        if (btnVerArchivosAdjuntos != null) {
+            btnVerArchivosAdjuntos.setEnabled(false);
+            btnVerArchivosAdjuntos.setOnClickListener(v -> abrirVistaArchivosAdjuntos());
+        }
         actividadId = getIntent().getStringExtra("actividadId");
         if (actividadId == null) {
             Toast.makeText(this, "No se encontró la actividad seleccionada", Toast.LENGTH_SHORT).show();
@@ -214,316 +220,34 @@ public class VerActividadActivity extends AppCompatActivity {
         // Días de aviso previo
         tvDiasAviso.setText(actividad.getDiasAvisoPrevio() + " días antes");
 
-        mostrarArchivosAdjuntos();
+        actualizarResumenArchivos();
     }
 
-    private void mostrarArchivosAdjuntos() {
-        if (layoutArchivosAdjuntos == null) {
+    private void actualizarResumenArchivos() {
+        if (tvTotalArchivosAdjuntos == null) {
             return;
         }
-        layoutArchivosAdjuntos.removeAllViews();
-
-        if (actividad == null) {
-            return;
+        int totalAdjuntos = 0;
+        if (actividad != null && actividad.getArchivosAdjuntos() != null) {
+            totalAdjuntos = actividad.getArchivosAdjuntos().size();
         }
 
-        List<ArchivoAdjunto> adjuntos = actividad.getArchivosAdjuntos();
-        if (adjuntos == null || adjuntos.isEmpty()) {
-            TextView emptyView = new TextView(this);
-            emptyView.setText("Sin archivos adjuntos");
-            emptyView.setTextColor(ContextCompat.getColor(this, R.color.md_theme_onSurfaceVariant));
-            layoutArchivosAdjuntos.addView(emptyView);
-            return;
+        tvTotalArchivosAdjuntos.setText(getString(R.string.ver_actividad_total_archivos, totalAdjuntos));
+        if (btnVerArchivosAdjuntos != null) {
+            btnVerArchivosAdjuntos.setEnabled(actividad != null);
         }
 
-        LayoutInflater inflater = LayoutInflater.from(this);
-        boolean puedeRenombrar = PermissionManager.tienePermiso(Permiso.EDITAR_ACTIVIDAD);
-        boolean puedeEliminar = PermissionManager.tienePermiso(Permiso.ELIMINAR_ACTIVIDAD);
 
-        for (ArchivoAdjunto archivo : adjuntos) {
-            View itemView = inflater.inflate(R.layout.item_archivo_adjunto_detalle, layoutArchivosAdjuntos, false);
-
-            TextView nombre = itemView.findViewById(R.id.tvNombreArchivo);
-            TextView tipo = itemView.findViewById(R.id.tvTipoArchivo);
-            TextView tamaño = itemView.findViewById(R.id.tvTamanoArchivo);
-            MaterialButton btnVer = itemView.findViewById(R.id.btnVerArchivo);
-            MaterialButton btnDescargar = itemView.findViewById(R.id.btnDescargarArchivo);
-            MaterialButton btnRenombrar = itemView.findViewById(R.id.btnRenombrarArchivo);
-            MaterialButton btnEliminar = itemView.findViewById(R.id.btnEliminarArchivo);
-
-            nombre.setText("📄 " + archivo.getNombre());
-            tipo.setText("Tipo: " + (archivo.getTipo() != null ? archivo.getTipo() : "Desconocido"));
-            tamaño.setText("Tamaño: " + formatearTamano(archivo.getTamaño()));
-
-            btnVer.setOnClickListener(v -> abrirArchivo(archivo));
-            btnDescargar.setOnClickListener(v -> descargarArchivo(archivo));
-
-            if (puedeRenombrar) {
-                btnRenombrar.setOnClickListener(v -> mostrarDialogoRenombrarArchivo(archivo));
-            } else {
-                btnRenombrar.setVisibility(View.GONE);
-            }
-
-            if (puedeEliminar) {
-                btnEliminar.setOnClickListener(v -> mostrarDialogoEliminarArchivo(archivo));
-            } else {
-                btnEliminar.setVisibility(View.GONE);
-            }
-
-            layoutArchivosAdjuntos.addView(itemView);
-        }
     }
 
-    private String formatearTamano(long bytes) {
-        if (bytes < 1024) {
-            return bytes + " B";
-        }
-        double kb = bytes / 1024.0;
-        if (kb < 1024) {
-            return String.format(Locale.getDefault(), "%.1f KB", kb);
-        }
-        double mb = kb / 1024.0;
-        if (mb < 1024) {
-            return String.format(Locale.getDefault(), "%.1f MB", mb);
-        }
-        double gb = mb / 1024.0;
-        return String.format(Locale.getDefault(), "%.1f GB", gb);
-    }
-
-    private void abrirArchivo(ArchivoAdjunto archivo) {
-        if (archivo == null || TextUtils.isEmpty(archivo.getUrl())) {
-            Toast.makeText(this, "El archivo no tiene una URL disponible", Toast.LENGTH_SHORT).show();
+    private void abrirVistaArchivosAdjuntos() {
+        if (actividad == null || actividadId == null) {
+            Toast.makeText(this, R.string.ver_archivos_adjuntos_loading, Toast.LENGTH_SHORT).show();
             return;
         }
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(archivo.getUrl()));
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        try {
-            startActivity(intent);
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(this, "No se encontró una aplicación para abrir el archivo", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void descargarArchivo(ArchivoAdjunto archivo) {
-        if (archivo == null || TextUtils.isEmpty(archivo.getUrl())) {
-            Toast.makeText(this, "No se encontró la URL del archivo", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-        if (downloadManager == null) {
-            Toast.makeText(this, "No se pudo acceder al gestor de descargas", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        try {
-            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(archivo.getUrl()));
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-            request.setTitle(archivo.getNombre());
-            request.setDescription("Descargando archivo adjunto");
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, archivo.getNombre());
-            downloadManager.enqueue(request);
-            Toast.makeText(this, "Descarga iniciada", Toast.LENGTH_SHORT).show();
-        } catch (IllegalArgumentException | SecurityException e) {
-            Toast.makeText(this, "No fue posible iniciar la descarga", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void mostrarDialogoRenombrarArchivo(ArchivoAdjunto archivo) {
-        if (!PermissionManager.tienePermiso(Permiso.EDITAR_ACTIVIDAD)) {
-            Toast.makeText(this, "No tienes permiso para renombrar archivos", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (archivo == null) {
-            return;
-        }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Renombrar archivo");
-
-        final EditText input = new EditText(this);
-        String extension = obtenerExtension(archivo.getNombre());
-        String nombreBase = archivo.getNombre();
-        if (!TextUtils.isEmpty(extension) && nombreBase.endsWith(extension)) {
-            nombreBase = nombreBase.substring(0, nombreBase.length() - extension.length());
-        }
-        input.setText(nombreBase);
-        input.setSelection(nombreBase.length());
-        builder.setView(input);
-        builder.setNegativeButton("Cancelar", null);
-        builder.setPositiveButton("Guardar", null);
-
-        AlertDialog dialog = builder.create();
-        dialog.setOnShowListener(d -> {
-            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            positiveButton.setOnClickListener(v -> {
-                String nuevoNombreBase = input.getText().toString().trim();
-                if (nuevoNombreBase.isEmpty()) {
-                    input.setError("El nombre no puede estar vacío");
-                    return;
-                }
-                String extensionActual = obtenerExtension(archivo.getNombre());
-                String nombreFinal = nuevoNombreBase;
-                if (!TextUtils.isEmpty(extensionActual) && !nuevoNombreBase.endsWith(extensionActual)) {
-                    nombreFinal = nuevoNombreBase + extensionActual;
-                }
-                if (nombreFinal.equals(archivo.getNombre())) {
-                    dialog.dismiss();
-                    return;
-                }
-                dialog.dismiss();
-                ejecutarRenombrarArchivo(archivo, nombreFinal);
-            });
-        });
-        dialog.show();
-    }
-
-    private void ejecutarRenombrarArchivo(ArchivoAdjunto archivo, String nombreFinal) {
-        if (archivo == null) {
-            return;
-        }
-        if (TextUtils.isEmpty(archivo.getId())) {
-            Toast.makeText(this, "El archivo no se puede renombrar porque no tiene un identificador", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String nombreAnterior = archivo.getNombre();
-        ArchivoAdjunto actualizado = clonarArchivo(archivo);
-        actualizado.setNombre(nombreFinal);
-
-        archivoAdjuntoDAO.updateArchivoAdjunto(actualizado, new FirestoreOperationCallback() {
-            @Override
-            public void onSuccess() {
-                archivo.setNombre(nombreFinal);
-                List<ArchivoAdjunto> adjuntosActuales = new ArrayList<>(actividad.getArchivosAdjuntos());
-                actividad.setArchivosAdjuntos(adjuntosActuales);
-                actividadDAO.updateActividad(actividad, new FirestoreOperationCallback() {
-                    @Override
-                    public void onSuccess() {
-                        Toast.makeText(VerActividadActivity.this, "Archivo renombrado correctamente", Toast.LENGTH_SHORT).show();
-                        mostrarArchivosAdjuntos();
-                    }
-
-                    @Override
-                    public void onFailure(Exception exception) {
-                        archivo.setNombre(nombreAnterior);
-                        Toast.makeText(VerActividadActivity.this, "No fue posible actualizar la actividad", Toast.LENGTH_SHORT).show();
-                        cargarActividad();
-                    }
-                });
-            }
-
-            @Override
-            public void onFailure(Exception exception) {
-                Toast.makeText(VerActividadActivity.this, "Error al renombrar el archivo", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void mostrarDialogoEliminarArchivo(ArchivoAdjunto archivo) {
-        if (!PermissionManager.tienePermiso(Permiso.ELIMINAR_ACTIVIDAD)) {
-            Toast.makeText(this, "No tienes permiso para eliminar archivos", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (archivo == null) {
-            return;
-        }
-
-        new AlertDialog.Builder(this)
-                .setTitle("Eliminar archivo")
-                .setMessage("¿Desea eliminar el archivo \"" + archivo.getNombre() + "\"?")
-                .setPositiveButton("Eliminar", (dialog, which) -> eliminarArchivoAdjunto(archivo))
-                .setNegativeButton("Cancelar", null)
-                .show();
-    }
-
-    private void eliminarArchivoAdjunto(ArchivoAdjunto archivo) {
-        if (archivo == null) {
-            return;
-        }
-        if (TextUtils.isEmpty(archivo.getId())) {
-            removerArchivoDeActividad(archivo);
-            return;
-        }
-        archivoAdjuntoDAO.deleteArchivoAdjunto(archivo.getId(), new FirestoreOperationCallback() {
-            @Override
-            public void onSuccess() {
-                removerArchivoDeActividad(archivo);
-            }
-
-            @Override
-            public void onFailure(Exception exception) {
-                Toast.makeText(VerActividadActivity.this, "No fue posible eliminar el archivo", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void removerArchivoDeActividad(ArchivoAdjunto archivo) {
-        if (actividad == null) {
-            return;
-        }
-        List<ArchivoAdjunto> adjuntosActuales = new ArrayList<>(actividad.getArchivosAdjuntos());
-        ArchivoAdjunto encontrado = null;
-        for (ArchivoAdjunto item : adjuntosActuales) {
-            if (coincideArchivo(item, archivo)) {
-                encontrado = item;
-                break;
-            }
-        }
-        if (encontrado == null) {
-            Toast.makeText(this, "El archivo ya no está disponible", Toast.LENGTH_SHORT).show();
-            mostrarArchivosAdjuntos();
-            return;
-        }
-        adjuntosActuales.remove(encontrado);
-        actividad.setArchivosAdjuntos(adjuntosActuales);
-        actividadDAO.updateActividad(actividad, new FirestoreOperationCallback() {
-            @Override
-            public void onSuccess() {
-                Toast.makeText(VerActividadActivity.this, "Archivo eliminado correctamente", Toast.LENGTH_SHORT).show();
-                mostrarArchivosAdjuntos();
-            }
-
-            @Override
-            public void onFailure(Exception exception) {
-                Toast.makeText(VerActividadActivity.this, "No fue posible actualizar la actividad", Toast.LENGTH_SHORT).show();
-                cargarActividad();
-            }
-        });
-    }
-
-    private boolean coincideArchivo(ArchivoAdjunto a, ArchivoAdjunto b) {
-        if (a == null || b == null) {
-            return false;
-        }
-        if (!TextUtils.isEmpty(a.getId()) && !TextUtils.isEmpty(b.getId())) {
-            return TextUtils.equals(a.getId(), b.getId());
-        }
-        return TextUtils.equals(a.getUrl(), b.getUrl());
-    }
-
-    private ArchivoAdjunto clonarArchivo(ArchivoAdjunto original) {
-        ArchivoAdjunto copia = new ArchivoAdjunto(
-                original.getNombre(),
-                original.getTipo(),
-                original.getTamaño(),
-                original.getUri(),
-                original.getUrl(),
-                original.getResourceType(),
-                original.getUploadPreset(),
-                original.getPublicId()
-        );
-        copia.setId(original.getId());
-        return copia;
-    }
-
-    private String obtenerExtension(String nombre) {
-        if (TextUtils.isEmpty(nombre)) {
-            return "";
-        }
-        int index = nombre.lastIndexOf('.');
-        if (index == -1 || index == nombre.length() - 1) {
-            return "";
-        }
-        return nombre.substring(index);
+        Intent intent = new Intent(this, VerArchivosAdjuntosActivity.class);
+        intent.putExtra("actividadId", actividadId);
+        startActivity(intent);
     }
 
     private void mostrarDialogoEliminar() {
