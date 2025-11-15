@@ -32,7 +32,7 @@ import okio.BufferedSink;
 public class PerfilImagenDAO {
 
     private static final String CLOUD_NAME = "dgnbyuqyd";
-    private static final String RESOURCE_TYPE = "image";
+    private static final String RESOURCE_TYPE = "Image";
     private static final String UPLOAD_PRESET = "mysede_avatar";
     private static final String AVATAR_FOLDER = "mysede/avatars";
 
@@ -61,13 +61,19 @@ public class PerfilImagenDAO {
 
         executorService.execute(() -> {
             try (Response response = httpClient.newCall(request).execute()) {
+                String bodyString = response.body() != null ? response.body().string() : null;
+
                 if (!response.isSuccessful()) {
-                    throw new IOException("Error al subir imagen: " + response.code());
+                    // Aquí verás el mensaje real de Cloudinary (ej: preset inválido, parámetro no permitido, etc.)
+                    String detalle = bodyString != null ? (" - " + bodyString) : "";
+                    throw new IOException("Error al subir imagen: " + response.code() + detalle);
                 }
-                if (response.body() == null) {
+
+                if (bodyString == null) {
                     throw new IOException("Respuesta vacía del servidor de archivos");
                 }
-                JSONObject json = new JSONObject(response.body().string());
+
+                JSONObject json = new JSONObject(bodyString);
                 PerfilImagenResultado resultado = new PerfilImagenResultado(
                         json.optString("secure_url", null),
                         json.optString("public_id", null),

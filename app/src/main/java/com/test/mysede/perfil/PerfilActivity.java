@@ -1,12 +1,18 @@
 package com.test.mysede.perfil;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,10 +22,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -29,12 +39,14 @@ import com.test.mysede.DAO.UsuariosDAO;
 import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.auth.SessionManager;
 import com.test.mysede.login.ActivityLogin;
+import com.test.mysede.BuildConfig;
 import com.test.mysede.model.PerfilImagenResultado;
 import com.test.mysede.model.Usuario;
 import com.test.mysede.notificaciones.NotificacionesActivity;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Activity del perfil de usuario.
@@ -63,7 +75,15 @@ public class PerfilActivity extends AppCompatActivity {
     private UsuariosDAO usuariosDAO;
     private ActivityResultLauncher<String> seleccionarImagenLauncher;
     private ActivityResultLauncher<Intent> recortarImagenLauncher;
-
+    private ActivityResultLauncher<Uri> tomarFotoLauncher;
+    private ActivityResultLauncher<String> permisoCamaraLauncher;
+    @Nullable
+    private Uri uriImagenOriginal;
+    @Nullable
+    private Uri uriFotoTemporal;
+    @Nullable
+    private File archivoFotoTemporal;
+    private boolean imagenDesdeCamara;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,12 +137,32 @@ public class PerfilActivity extends AppCompatActivity {
         btnCambiarContrasena.setOnClickListener(v ->
                 startActivity(new Intent(this, CambiarContrasenaActivity.class))
         );
-        btnEditarFotoPerfil.setOnClickListener(v -> iniciarSeleccionImagen());
+        btnEditarFotoPerfil.setOnClickListener(v -> mostrarOpcionesImagen());
         btnCerrarSesion.setOnClickListener(v -> cerrarSesion());
     }
     private void configurarLaunchers() {
+        permisoCamaraLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+            if (granted) {
+                iniciarCapturaFoto();
+            } else {
+                Toast.makeText(this, R.string.perfil_error_permiso_camara, Toast.LENGTH_SHORT).show();
+            }
+        });
+        tomarFotoLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), result -> {
+            if (Boolean.TRUE.equals(result)) {
+                if (uriFotoTemporal != null) {
+                    uriImagenOriginal = uriFotoTemporal;
+                    iniciarRecorte(uriFotoTemporal);
+                }
+            } else {
+                eliminarTemporal(uriFotoTemporal);
+                limpiarCapturaCamara();
+            }
+        });
         seleccionarImagenLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
             if (uri != null) {
+                imagenDesdeCamara = false;
+                uriImagenOriginal = uri;
                 iniciarRecorte(uri);
             }
         });
@@ -130,14 +170,18 @@ public class PerfilActivity extends AppCompatActivity {
             if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                 Uri uriResultado = UCrop.getOutput(result.getData());
                 if (uriResultado != null) {
-                    subirNuevaImagen(uriResultado);
+                    mostrarPreviewAvatar(uriResultado);
                 } else {
                     Toast.makeText(this, R.string.perfil_error_procesar_imagen, Toast.LENGTH_SHORT).show();
+                    if (imagenDesdeCamara) {
+                        limpiarCapturaCamara();
+                    }
                 }
             } else if (result.getResultCode() == UCrop.RESULT_ERROR) {
                 Throwable error = UCrop.getError(result.getData());
                 String mensaje = error != null ? error.getMessage() : getString(R.string.perfil_error_procesar_imagen);
                 Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show();
+                limpiarCapturaCamara();
             }
         });
     }
@@ -145,8 +189,52 @@ public class PerfilActivity extends AppCompatActivity {
     private void iniciarSeleccionImagen() {
         seleccionarImagenLauncher.launch("image/*");
     }
+    private void mostrarOpcionesImagen() {
+        String[] opciones = {
+                getString(R.string.perfil_imagen_opcion_tomar_foto),
+                getString(R.string.perfil_imagen_opcion_galeria)
+        };
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.perfil_imagen_opciones_titulo)
+                .setItems(opciones, (dialog, which) -> {
+                    if (which == 0) {
+                        verificarPermisoCamara();
+                    } else {
+                        iniciarSeleccionImagen();
+                    }
+                })
+                .show();
+    }
 
+    private void verificarPermisoCamara() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            iniciarCapturaFoto();
+        } else {
+            permisoCamaraLauncher.launch(Manifest.permission.CAMERA);
+        }
+    }
+
+    private void iniciarCapturaFoto() {
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+            Toast.makeText(this, R.string.perfil_error_camara_no_disponible, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            File directorio = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            if (directorio == null) {
+                directorio = getCacheDir();
+            }
+            archivoFotoTemporal = File.createTempFile("avatar_captura_", ".jpg", directorio);
+            uriFotoTemporal = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileprovider", archivoFotoTemporal);
+            imagenDesdeCamara = true;
+            tomarFotoLauncher.launch(uriFotoTemporal);
+        } catch (IOException e) {
+            Toast.makeText(this, R.string.perfil_error_generar_archivo, Toast.LENGTH_SHORT).show();
+            limpiarCapturaCamara();
+        }
+    }
     private void iniciarRecorte(@NonNull Uri origen) {
+        uriImagenOriginal = origen;
         Uri destino = Uri.fromFile(new File(getCacheDir(), "avatar_cortado_" + System.currentTimeMillis() + ".jpg"));
         UCrop.Options options = new UCrop.Options();
         options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
@@ -163,6 +251,45 @@ public class PerfilActivity extends AppCompatActivity {
         recortarImagenLauncher.launch(intent);
     }
 
+    private void mostrarPreviewAvatar(@NonNull Uri uriRecortada) {
+        View vista = LayoutInflater.from(this).inflate(R.layout.dialog_preview_avatar, null, false);
+        ImageView imagenPreview = vista.findViewById(R.id.imgPreviewAvatar);
+        imagenPreview.setImageURI(uriRecortada);
+
+        AlertDialog dialogo = new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.perfil_preview_titulo)
+                .setView(vista)
+                .setPositiveButton(R.string.perfil_preview_confirmar, null)
+                .setNegativeButton(R.string.perfil_preview_cancelar, (dialog, which) -> {
+                    eliminarTemporal(uriRecortada);
+                    uriImagenOriginal = null;
+                    if (imagenDesdeCamara) {
+                        limpiarCapturaCamara();
+                    }
+                })
+                .setNeutralButton(R.string.perfil_preview_reajustar, null)
+                .create();
+        dialogo.setCanceledOnTouchOutside(false);
+        dialogo.setCancelable(false);
+        dialogo.setOnShowListener(d -> {
+            Button botonConfirmar = dialogo.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button botonReajustar = dialogo.getButton(AlertDialog.BUTTON_NEUTRAL);
+            botonConfirmar.setOnClickListener(v -> {
+                dialogo.dismiss();
+                subirNuevaImagen(uriRecortada);
+            });
+            botonReajustar.setOnClickListener(v -> {
+                dialogo.dismiss();
+                eliminarTemporal(uriRecortada);
+                if (uriImagenOriginal != null) {
+                    iniciarRecorte(uriImagenOriginal);
+                } else {
+                    Toast.makeText(this, R.string.perfil_error_procesar_imagen, Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+        dialogo.show();
+    }
     private void subirNuevaImagen(@NonNull Uri uriRecortada) {
         if (usuario == null) {
             Toast.makeText(this, R.string.perfil_error_usuario_no_disponible, Toast.LENGTH_SHORT).show();
@@ -202,7 +329,10 @@ public class PerfilActivity extends AppCompatActivity {
                     Toast.makeText(this, getString(R.string.perfil_error_subir_imagen_detalle, e.getMessage()), Toast.LENGTH_SHORT).show();
                     finalizarActualizacion(uriRecortada);
                 })
-                .addOnCompleteListener(task -> eliminarTemporal(uriRecortada));
+                .addOnCompleteListener(task -> {
+                    eliminarTemporal(uriRecortada);
+                    limpiarCapturaCamara();
+                });
     }
 
     private void finalizarActualizacion(@NonNull Uri uriRecortada) {
@@ -226,6 +356,16 @@ public class PerfilActivity extends AppCompatActivity {
         }
     }
 
+    private void limpiarCapturaCamara() {
+        if (archivoFotoTemporal != null && archivoFotoTemporal.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            archivoFotoTemporal.delete();
+        }
+        archivoFotoTemporal = null;
+        uriFotoTemporal = null;
+        imagenDesdeCamara = false;
+        uriImagenOriginal = null;
+    }
     private void mostrarCargaImagen(boolean mostrar) {
         progressAvatar.setVisibility(mostrar ? View.VISIBLE : View.GONE);
         progressAvatar.setIndeterminate(mostrar);

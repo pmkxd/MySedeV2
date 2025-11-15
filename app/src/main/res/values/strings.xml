@@ -122,4 +122,15 @@ Hora: %4$s</string>
     <string name="perfil_error_guardar_imagen">Error al guardar la imagen: %1$s</string>
     <string name="perfil_error_subir_imagen_detalle">Error al subir imagen: %1$s</string>
     <string name="perfil_editar_foto_content_description">Editar foto de perfil</string>
+    <string name="perfil_imagen_opciones_titulo">Actualizar foto de perfil</string>
+    <string name="perfil_imagen_opcion_tomar_foto">Tomar foto</string>
+    <string name="perfil_imagen_opcion_galeria">Elegir de la galería</string>
+    <string name="perfil_error_permiso_camara">Se requiere permiso de cámara para tomar una foto.</string>
+    <string name="perfil_error_camara_no_disponible">Este dispositivo no tiene cámara disponible.</string>
+    <string name="perfil_error_generar_archivo">No se pudo preparar el archivo temporal para la foto.</string>
+    <string name="perfil_preview_titulo">Vista previa</string>
+    <string name="perfil_preview_mensaje">Así se verá tu nueva foto de perfil. Puedes reajustarla antes de guardar.</string>
+    <string name="perfil_preview_confirmar">Guardar</string>
+    <string name="perfil_preview_cancelar">Cancelar</string>
+    <string name="perfil_preview_reajustar">Reajustar</string>
 </resources>
