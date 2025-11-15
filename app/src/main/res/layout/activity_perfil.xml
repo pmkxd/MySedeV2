@@ -69,7 +69,7 @@
                     android:padding="6dp"
                     app:backgroundTint="@color/md_theme_primary"
                     app:cornerRadius="100dp"
-                    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Full"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
                     app:icon="@drawable/ic_edit"
                     app:iconTint="@color/md_theme_onPrimary" />
 
