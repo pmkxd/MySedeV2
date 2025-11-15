@@ -24,6 +24,12 @@ public class Usuario implements Serializable {
     private boolean activo;
     private long fechaCreacion;
     private long ultimoAcceso;
+    private String profileImageUrl;
+    private String profileImagePublicId;
+    private String profileImageDeleteToken;
+
+    public static final String DEFAULT_PROFILE_IMAGE_URL = "android.resource://com.test.mysede/drawable/ic_usuario";
+    public static final String DEFAULT_PROFILE_IMAGE_PUBLIC_ID = "mysede/avatars/default_placeholder";
 
     // Constructor vacío
     public Usuario() {
@@ -31,6 +37,8 @@ public class Usuario implements Serializable {
         this.activo = true;
         this.fechaCreacion = System.currentTimeMillis();
         this.ultimoAcceso = System.currentTimeMillis();
+        this.profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
+        this.profileImagePublicId = DEFAULT_PROFILE_IMAGE_PUBLIC_ID;
     }
 
     // Constructor con datos básicos
@@ -40,6 +48,8 @@ public class Usuario implements Serializable {
         this.email = email;
         this.rol = rol;
         this.id = generarId(email);
+        this.profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
+        this.profileImagePublicId = DEFAULT_PROFILE_IMAGE_PUBLIC_ID;
     }
 
     // Genera un ID único basado en el email
@@ -113,6 +123,33 @@ public class Usuario implements Serializable {
 
     public void setUltimoAcceso(long ultimoAcceso) {
         this.ultimoAcceso = ultimoAcceso;
+    }
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = (profileImageUrl == null || profileImageUrl.isEmpty())
+                ? DEFAULT_PROFILE_IMAGE_URL
+                : profileImageUrl;
+    }
+
+    public String getProfileImagePublicId() {
+        return profileImagePublicId;
+    }
+
+    public void setProfileImagePublicId(String profileImagePublicId) {
+        this.profileImagePublicId = (profileImagePublicId == null || profileImagePublicId.isEmpty())
+                ? DEFAULT_PROFILE_IMAGE_PUBLIC_ID
+                : profileImagePublicId;
+    }
+
+    public String getProfileImageDeleteToken() {
+        return profileImageDeleteToken;
+    }
+
+    public void setProfileImageDeleteToken(String profileImageDeleteToken) {
+        this.profileImageDeleteToken = profileImageDeleteToken;
     }
 
     // Métodos de utilidad para permisos

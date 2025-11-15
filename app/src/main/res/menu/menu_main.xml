@@ -5,9 +5,10 @@
     <!-- Opción para ver información del perfil -->
     <item
         android:id="@+id/action_perfil"
-        android:icon="@android:drawable/ic_menu_info_details"
+        android:icon="@drawable/ic_usuario"
         android:title="Mi Perfil"
-        app:showAsAction="never" />
+        app:showAsAction="always" />
+
 
     <!-- Opción para cambiar de rol (cerrar sesión) -->
     <item

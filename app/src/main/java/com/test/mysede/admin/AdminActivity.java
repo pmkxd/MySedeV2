@@ -21,18 +21,28 @@ import com.test.mysede.R;
 import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.auth.SessionManager;
 import com.test.mysede.login.ActivityLogin;
+import com.test.mysede.model.Usuario;
+import com.test.mysede.perfil.PerfilActivity; // Import nuevo para abrir el perfil
+import com.test.mysede.perfil.ProfileImageLoader;
 
 public class AdminActivity extends AppCompatActivity {
 
-    private SessionManager sessionManager;
     private AppBarConfiguration appBarConfiguration;
-
+    private SessionManager sessionManager;
+    private Usuario usuarioActual;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
 
         sessionManager = new SessionManager(this);
+        usuarioActual = PermissionManager.getUsuarioActual();
+        if (usuarioActual == null) {
+            usuarioActual = sessionManager.obtenerUsuarioSesion();
+            if (usuarioActual != null) {
+                PermissionManager.setUsuarioActual(usuarioActual);
+            }
+        }
 
         // Validar que el usuario tenga rol ADMINISTRADOR
         if (!PermissionManager.esAdministrador()) {
@@ -47,6 +57,7 @@ public class AdminActivity extends AppCompatActivity {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // Configurar Navigation (menú inferior)
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         if (navHostFragment != null) {
             NavController navController = navHostFragment.getNavController();
@@ -76,24 +87,34 @@ public class AdminActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_admin, menu);
+        MenuItem item = menu.findItem(R.id.menu_perfil);
+        ProfileImageLoader.loadIntoMenuItem(this, item,
+                usuarioActual != null ? usuarioActual.getProfileImageUrl() : null);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_cerrar_sesion) {
-            cerrarSesion();
+        int id = item.getItemId();
+
+        //  Nueva opción: abrir el perfil del usuario
+        if (id == R.id.menu_perfil) {
+            Intent intent = new Intent(this, PerfilActivity.class);
+            startActivity(intent);
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
-    private void cerrarSesion() {
-        sessionManager.cerrarSesion();
-        PermissionManager.setUsuarioActual(null);
-        Intent intent = new Intent(this, ActivityLogin.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Usuario actualizado = sessionManager.obtenerUsuarioSesion();
+        if (actualizado != null) {
+            usuarioActual = actualizado;
+            PermissionManager.setUsuarioActual(actualizado);
+        }
+        invalidateOptionsMenu();
     }
 }

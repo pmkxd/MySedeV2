@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/md_theme_surface"
+    android:fitsSystemWindows="true">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarPerfil"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="?attr/colorOnPrimary"
+        app:title="@string/perfil_title"
+        app:titleTextColor="?attr/colorOnPrimary" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="24dp"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/imgPerfil"
+                    android:layout_width="@dimen/avatar_profile_size"
+                    android:layout_height="@dimen/avatar_profile_size"
+                    android:contentDescription="@string/perfil_imagen_content_description"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                    app:strokeColor="@color/md_theme_primaryContainer"
+                    app:strokeWidth="2dp"
+                    android:src="@drawable/ic_usuario" />
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/progressAvatar"
+                    style="@style/Widget.MaterialComponents.CircularProgressIndicator.Small"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEditarFotoPerfil"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginTop="-8dp"
+                    android:layout_marginEnd="-8dp"
+                    android:contentDescription="@string/perfil_editar_foto_content_description"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:padding="6dp"
+                    app:backgroundTint="@color/md_theme_primary"
+                    app:cornerRadius="100dp"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                    app:icon="@drawable/ic_edit"
+                    app:iconTint="@color/md_theme_onPrimary" />
+
+            </FrameLayout>
+            <TextView
+                android:id="@+id/txtNombreUsuario"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/perfil_nombre_placeholder"
+                android:textColor="@color/md_theme_onSurface"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtRolUsuario"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/perfil_rol_placeholder"
+                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:textSize="14sp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchNotificaciones"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:checked="true"
+                android:text="@string/perfil_switch_notificaciones"
+                android:textColor="@color/md_theme_onSurface"
+                android:textSize="16sp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchModoOscuro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:checked="false"
+                android:text="@string/perfil_switch_modo_oscuro"
+                android:textColor="@color/md_theme_onSurface"
+                android:textSize="16sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCambiarContrasena"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="?attr/colorPrimary"
+                android:text="@string/perfil_btn_cambiar_contrasena"
+                android:textColor="?attr/colorOnPrimary" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnVerNotificaciones"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/perfil_btn_ver_notificaciones"
+                android:textColor="?attr/colorPrimary" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCerrarSesion"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/perfil_btn_cerrar_sesion"
+                android:textColor="@color/md_theme_error"
+                app:icon="@drawable/ic_logout"
+                app:iconTint="@color/md_theme_error" />
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

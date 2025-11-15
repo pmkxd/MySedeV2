@@ -102,4 +102,35 @@ Hora: %4$s</string>
         <item quantity="one">%d cita programada</item>
         <item quantity="other">%d citas programadas</item>
     </plurals>
+    <string name="perfil_title">Perfil</string>
+    <string name="perfil_nombre_placeholder">Nombre del Usuario</string>
+    <string name="perfil_nombre_desconocido">Usuario</string>
+    <string name="perfil_rol_placeholder">Rol del usuario</string>
+    <string name="perfil_rol_desconocido">Rol no disponible</string>
+    <string name="perfil_switch_notificaciones">Recibir notificaciones</string>
+    <string name="perfil_switch_modo_oscuro">Activar modo oscuro</string>
+    <string name="perfil_btn_cambiar_contrasena">Cambiar contraseña</string>
+    <string name="perfil_btn_ver_notificaciones">Ver notificaciones</string>
+    <string name="perfil_btn_cerrar_sesion">Cerrar sesión</string>
+    <string name="perfil_notificaciones_activadas">Notificaciones activadas</string>
+    <string name="perfil_notificaciones_desactivadas">Notificaciones desactivadas</string>
+    <string name="perfil_imagen_content_description">Imagen de perfil del usuario</string>
+    <string name="perfil_imagen_actualizada">Imagen de perfil actualizada</string>
+    <string name="perfil_error_procesar_imagen">No se pudo procesar la imagen seleccionada</string>
+    <string name="perfil_error_usuario_no_disponible">No se pudo cargar la información del usuario</string>
+    <string name="perfil_error_subir_imagen">No se pudo actualizar la imagen de perfil</string>
+    <string name="perfil_error_guardar_imagen">Error al guardar la imagen: %1$s</string>
+    <string name="perfil_error_subir_imagen_detalle">Error al subir imagen: %1$s</string>
+    <string name="perfil_editar_foto_content_description">Editar foto de perfil</string>
+    <string name="perfil_imagen_opciones_titulo">Actualizar foto de perfil</string>
+    <string name="perfil_imagen_opcion_tomar_foto">Tomar foto</string>
+    <string name="perfil_imagen_opcion_galeria">Elegir de la galería</string>
+    <string name="perfil_error_permiso_camara">Se requiere permiso de cámara para tomar una foto.</string>
+    <string name="perfil_error_camara_no_disponible">Este dispositivo no tiene cámara disponible.</string>
+    <string name="perfil_error_generar_archivo">No se pudo preparar el archivo temporal para la foto.</string>
+    <string name="perfil_preview_titulo">Vista previa</string>
+    <string name="perfil_preview_mensaje">Así se verá tu nueva foto de perfil. Puedes reajustarla antes de guardar.</string>
+    <string name="perfil_preview_confirmar">Guardar</string>
+    <string name="perfil_preview_cancelar">Cancelar</string>
+    <string name="perfil_preview_reajustar">Reajustar</string>
 </resources>
