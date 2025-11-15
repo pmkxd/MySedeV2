@@ -15,7 +15,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -320,13 +320,33 @@ public class PerfilActivity extends AppCompatActivity {
                                 }
                             })
                             .addOnFailureListener(e -> {
-                                Toast.makeText(this, getString(R.string.perfil_error_guardar_imagen, e.getMessage()), Toast.LENGTH_SHORT).show();
-                                restaurarAvatar();
+                                String mensaje = getString(
+                                        R.string.perfil_error_subir_imagen_detalle,
+                                        e != null ? e.getMessage() : "Error desconocido"
+                                );
+
+                                new MaterialAlertDialogBuilder(this)
+                                        .setTitle("Error al subir imagen") // si quieres, luego lo pasas a strings.xml
+                                        .setMessage(mensaje)
+                                        .setPositiveButton(android.R.string.ok, (dialog, which) -> dialog.dismiss())
+                                        .show();
+
+                                finalizarActualizacion(uriRecortada);
                             })
                             .addOnCompleteListener(task -> finalizarActualizacion(uriRecortada));
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, getString(R.string.perfil_error_subir_imagen_detalle, e.getMessage()), Toast.LENGTH_SHORT).show();
+                    String mensaje = getString(
+                            R.string.perfil_error_subir_imagen_detalle,
+                            e != null ? e.getMessage() : "Error desconocido"
+                    );
+
+                    new MaterialAlertDialogBuilder(this)
+                            .setTitle("Error al subir imagen") // si quieres, luego lo pasas a strings.xml
+                            .setMessage(mensaje)
+                            .setPositiveButton(android.R.string.ok, (dialog, which) -> dialog.dismiss())
+                            .show();
+
                     finalizarActualizacion(uriRecortada);
                 })
                 .addOnCompleteListener(task -> {

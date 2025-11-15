@@ -31,26 +31,40 @@ import okio.BufferedSink;
 
 public class PerfilImagenDAO {
 
+    // Mismos valores que ya usas
     private static final String CLOUD_NAME = "dgnbyuqyd";
-    private static final String RESOURCE_TYPE = "Image";
+    private static final String RESOURCE_TYPE = "image";
     private static final String UPLOAD_PRESET = "mysede_avatar";
-    private static final String AVATAR_FOLDER = "mysede/avatars";
+    // El folder ahora lo maneja el preset en Cloudinary
+    // private static final String AVATAR_FOLDER = "mysede/avatars";
 
     private final OkHttpClient httpClient = new OkHttpClient();
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
+    /**
+     * Sube el avatar a Cloudinary usando el upload preset unsigned "mysede_avatar",
+     * siguiendo el mismo patrón que ArchivoAdjuntoDAO.subirArchivoACloudinary.
+     */
     public Task<PerfilImagenResultado> subirAvatar(@NonNull Context context, @NonNull Uri imagenUri) {
         TaskCompletionSource<PerfilImagenResultado> source = new TaskCompletionSource<>();
+
+        // mimeType opcional, cae en octet-stream si viene null
         String mimeType = context.getContentResolver().getType(imagenUri);
-        RequestBody fileBody = buildStreamRequestBody(context.getContentResolver(), imagenUri, mimeType);
+        if (mimeType == null) {
+            mimeType = "application/octet-stream";
+        }
+
+        RequestBody fileBody =
+                buildStreamRequestBody(context.getContentResolver(), imagenUri, mimeType);
+
+        // Mismo esquema que ArchivoAdjuntoDAO: https://api.cloudinary.com/v1_1/<cloud_name>/<resource_type>/upload
         String url = "https://api.cloudinary.com/v1_1/" + CLOUD_NAME + "/" + RESOURCE_TYPE + "/upload";
         String fileName = "avatar_" + System.currentTimeMillis() + obtenerExtension(imagenUri, mimeType);
 
         MultipartBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("upload_preset", UPLOAD_PRESET)
-                .addFormDataPart("folder", AVATAR_FOLDER)
-                .addFormDataPart("return_delete_token", "1")
+                // El folder y el delete token se configuran en el preset
                 .addFormDataPart("file", fileName, fileBody)
                 .build();
 
@@ -64,11 +78,9 @@ public class PerfilImagenDAO {
                 String bodyString = response.body() != null ? response.body().string() : null;
 
                 if (!response.isSuccessful()) {
-                    // Aquí verás el mensaje real de Cloudinary (ej: preset inválido, parámetro no permitido, etc.)
                     String detalle = bodyString != null ? (" - " + bodyString) : "";
                     throw new IOException("Error al subir imagen: " + response.code() + detalle);
                 }
-
                 if (bodyString == null) {
                     throw new IOException("Respuesta vacía del servidor de archivos");
                 }
@@ -88,21 +100,29 @@ public class PerfilImagenDAO {
         return source.getTask();
     }
 
+    /**
+     * Elimina un avatar anterior usando delete_token, igual que antes pero
+     * con la misma estructura de ejecución que el upload.
+     */
     public Task<Void> eliminarAvatarPorToken(@Nullable String deleteToken) {
         TaskCompletionSource<Void> source = new TaskCompletionSource<>();
+
         if (TextUtils.isEmpty(deleteToken)) {
             source.setResult(null);
             return source.getTask();
         }
+
         String url = "https://api.cloudinary.com/v1_1/" + CLOUD_NAME + "/delete_by_token";
         MultipartBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("token", deleteToken)
                 .build();
+
         Request request = new Request.Builder()
                 .url(url)
                 .post(requestBody)
                 .build();
+
         executorService.execute(() -> {
             try (Response response = httpClient.newCall(request).execute()) {
                 if (!response.isSuccessful()) {
@@ -113,11 +133,17 @@ public class PerfilImagenDAO {
                 source.setException(e);
             }
         });
+
         return source.getTask();
     }
 
+    /**
+     * Igual idea que en ArchivoAdjuntoDAO: stream del contentResolver hacia OkHttp.
+     */
     private RequestBody buildStreamRequestBody(ContentResolver resolver, Uri uri, String mimeType) {
-        MediaType mediaType = MediaType.parse(mimeType != null ? mimeType : "application/octet-stream");
+        MediaType mediaType = MediaType.parse(
+                mimeType != null ? mimeType : "application/octet-stream"
+        );
         return new RequestBody() {
             @Override
             public MediaType contentType() {
@@ -125,16 +151,22 @@ public class PerfilImagenDAO {
             }
 
             @Override
-            public void writeTo(@NonNull okio.BufferedSink sink) throws IOException {
+            public void writeTo(@NonNull BufferedSink sink) throws IOException {
                 InputStream inputStream = null;
                 try {
                     inputStream = resolver.openInputStream(uri);
                 } catch (SecurityException se) {
-                    throw new IOException("No hay permiso para acceder al archivo seleccionado", se);
+                    throw new IOException(
+                            "No hay permiso para acceder al archivo seleccionado. " +
+                                    "Si elegiste el archivo con ACTION_OPEN_DOCUMENT, " +
+                                    "asegúrate de haber concedido permisos persistentes.",
+                            se
+                    );
                 }
                 if (inputStream == null) {
                     throw new IOException("No fue posible abrir el archivo seleccionado");
                 }
+
                 try (InputStream in = inputStream) {
                     byte[] buffer = new byte[8192];
                     int read;
@@ -146,6 +178,9 @@ public class PerfilImagenDAO {
         };
     }
 
+    /**
+     * Obtiene una extensión razonable para el archivo (para el nombre que se ve en Cloudinary).
+     */
     private String obtenerExtension(Uri uri, @Nullable String mimeType) {
         if (mimeType != null) {
             String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
@@ -160,6 +195,7 @@ public class PerfilImagenDAO {
                 return path.substring(lastDot);
             }
         }
+        // fallback
         return ".jpg";
     }
 }
