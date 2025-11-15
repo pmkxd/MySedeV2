@@ -103,6 +103,11 @@
             android:label="Crear Actividad"
             android:parentActivityName=".actividades.ListarActividadesActivity"/>
         <activity
+            android:name=".actividades.VerArchivosAdjuntosActivity"
+            android:exported="false"
+            android:label="@string/ver_archivos_adjuntos_title"
+            android:parentActivityName=".actividades.VerActividadActivity"/>
+        <activity
             android:name=".actividades.VerActividadActivity"
             android:exported="false"
             android:label="Detalle de Actividad"
