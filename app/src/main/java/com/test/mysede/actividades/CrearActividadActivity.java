@@ -754,8 +754,91 @@ public class CrearActividadActivity extends AppCompatActivity {
             finalizarEdicion();
             return;
         }
+
+        // Primero verificar conflictos de horario antes de guardar
+        verificarConflictosYGuardar(actividad, citas);
+    }
+
+    /**
+     * Verifica conflictos de horario en todas las citas antes de guardarlas
+     */
+    private void verificarConflictosYGuardar(Actividad actividad, List<Cita> citas) {
+        AtomicInteger pendientesVerificacion = new AtomicInteger(citas.size());
+        AtomicBoolean conflictoEncontrado = new AtomicBoolean(false);
+        List<String> citasConConflicto = new ArrayList<>();
+
+        for (Cita cita : citas) {
+            verificarConflictoHorarioCita(cita, actividad.getId(), new CitaDAO.OnConflictoHorarioListener() {
+                @Override
+                public void onResultado(boolean hayConflicto) {
+                    if (hayConflicto) {
+                        conflictoEncontrado.set(true);
+                        String mensaje = cita.getFecha() + " a las " + cita.getHora();
+                        citasConConflicto.add(mensaje);
+                    }
+
+                    // Cuando terminamos de verificar todas las citas
+                    if (pendientesVerificacion.decrementAndGet() == 0) {
+                        if (conflictoEncontrado.get()) {
+                            mostrarErrorConflictos(citasConConflicto);
+                        } else {
+                            // No hay conflictos, proceder a guardar
+                            guardarCitasSinConflictos(actividad, citas);
+                        }
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    if (pendientesVerificacion.decrementAndGet() == 0) {
+                        btnGuardar.setEnabled(true);
+                        Toast.makeText(CrearActividadActivity.this,
+                            "Error al verificar conflictos de horario", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * Verifica si una cita tiene conflicto de horario
+     */
+    private void verificarConflictoHorarioCita(Cita cita, String actividadId,
+                                               CitaDAO.OnConflictoHorarioListener listener) {
+        if (cita.getLugar() == null || cita.getFecha() == null || cita.getHora() == null) {
+            listener.onResultado(false);
+            return;
+        }
+
+        // Convertir los datos localmente sin usar FirestoreModelMapper
+        String lugarId = cita.getLugar().getId();
+        String fecha = cita.getFecha().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String hora = cita.getHora().format(DateTimeFormatter.ISO_LOCAL_TIME);
+
+        citaDAO.verificarConflictoHorario(lugarId, fecha, hora, actividadId, listener);
+    }
+
+    /**
+     * Muestra mensaje de error cuando hay conflictos de horario
+     */
+    private void mostrarErrorConflictos(List<String> citasConConflicto) {
+        btnGuardar.setEnabled(true);
+        StringBuilder mensaje = new StringBuilder("Conflicto de horario en:\n");
+        for (String cita : citasConConflicto) {
+            mensaje.append("• ").append(cita).append("\n");
+        }
+        mensaje.append("\nYa existe otra actividad en el mismo lugar y horario.");
+
+        Toast.makeText(CrearActividadActivity.this, mensaje.toString(), Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Guarda las citas después de verificar que no hay conflictos
+     */
+    private void guardarCitasSinConflictos(Actividad actividad, List<Cita> citas) {
         AtomicInteger pendientes = new AtomicInteger(citas.size());
         AtomicBoolean errorReportado = new AtomicBoolean(false);
+
         for (Cita cita : citas) {
             citaDAO.saveCita(cita, new FirestoreOperationCallback() {
                 @Override
@@ -768,7 +851,9 @@ public class CrearActividadActivity extends AppCompatActivity {
                 public void onFailure(Exception exception) {
                     if (errorReportado.compareAndSet(false, true)) {
                         btnGuardar.setEnabled(true);
-                        Toast.makeText(CrearActividadActivity.this, "Error al guardar las citas", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CrearActividadActivity.this,
+                            "Error al guardar las citas: " + exception.getMessage(),
+                            Toast.LENGTH_SHORT).show();
                     }
                 }
             });

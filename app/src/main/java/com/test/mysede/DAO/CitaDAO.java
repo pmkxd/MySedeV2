@@ -53,28 +53,58 @@ public class CitaDAO {
     }
 
     private void addCita(Cita cita, @Nullable FirestoreOperationCallback callback) {
-        Map<String, Object> data = FirestoreModelMapper.citaToMap(cita);
-        db.collection(COLLECTION)
-                .add(data)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        cita.setId(documentReference.getId());
-                        Log.d(TAG, "Cita registrada con ID: " + documentReference.getId());
-                        if (callback != null) {
-                            callback.onSuccess();
-                        }
+        // Validar campos obligatorios antes de insertar
+        Exception validationError = validarCita(cita);
+        if (validationError != null) {
+            if (callback != null) {
+                callback.onFailure(validationError);
+            }
+            return;
+        }
+
+        // Verificar duplicados antes de insertar
+        verificarCitaDuplicada(cita, new OnCitaDuplicadaListener() {
+            @Override
+            public void onResultado(boolean esDuplicada) {
+                if (esDuplicada) {
+                    if (callback != null) {
+                        callback.onFailure(new IllegalStateException("Ya existe una cita para esta actividad en la misma fecha, hora y lugar"));
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error al registrar la cita", e);
-                        if (callback != null) {
-                            callback.onFailure(e);
-                        }
-                    }
-                });
+                    return;
+                }
+
+                // Si no es duplicada, proceder con la inserción
+                Map<String, Object> data = FirestoreModelMapper.citaToMap(cita);
+                db.collection(COLLECTION)
+                        .add(data)
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                cita.setId(documentReference.getId());
+                                Log.d(TAG, "Cita registrada con ID: " + documentReference.getId());
+                                if (callback != null) {
+                                    callback.onSuccess();
+                                }
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error al registrar la cita", e);
+                                if (callback != null) {
+                                    callback.onFailure(e);
+                                }
+                            }
+                        });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (callback != null) {
+                    callback.onFailure(e);
+                }
+            }
+        });
     }
 
     public void updateCita(Cita cita) {
@@ -89,6 +119,16 @@ public class CitaDAO {
             }
             return;
         }
+
+        // Validar campos obligatorios antes de actualizar
+        Exception validationError = validarCita(cita);
+        if (validationError != null) {
+            if (callback != null) {
+                callback.onFailure(validationError);
+            }
+            return;
+        }
+
         Map<String, Object> data = FirestoreModelMapper.citaToMap(cita);
         db.collection(COLLECTION)
                 .document(cita.getId())
@@ -211,6 +251,126 @@ public class CitaDAO {
                     if (callback != null) {
                         callback.onFailure(e);
                     }
+                });
+    }
+
+    // ============ MÉTODOS DE VALIDACIÓN ============
+
+    /**
+     * Valida que una cita tenga todos los campos obligatorios
+     * @param cita La cita a validar
+     * @return null si es válida, o una Exception con el mensaje de error
+     */
+    private Exception validarCita(Cita cita) {
+        if (cita == null) {
+            return new IllegalArgumentException("La cita no puede ser nula");
+        }
+
+        if (cita.getActividad() == null) {
+            return new IllegalArgumentException("La actividad es obligatoria");
+        }
+
+        if (cita.getLugar() == null) {
+            return new IllegalArgumentException("El lugar es obligatorio");
+        }
+
+        if (cita.getFecha() == null) {
+            return new IllegalArgumentException("La fecha es obligatoria");
+        }
+
+        if (cita.getHora() == null) {
+            return new IllegalArgumentException("La hora es obligatoria");
+        }
+
+        return null;
+    }
+
+    /**
+     * Verifica si ya existe una cita con la misma actividad, fecha, hora y lugar
+     */
+    private interface OnCitaDuplicadaListener {
+        void onResultado(boolean esDuplicada);
+        void onError(Exception e);
+    }
+
+    private void verificarCitaDuplicada(Cita cita, OnCitaDuplicadaListener listener) {
+        if (cita.getActividad() == null || TextUtils.isEmpty(cita.getActividad().getId())) {
+            listener.onError(new IllegalArgumentException("La cita debe tener una actividad válida"));
+            return;
+        }
+
+        Map<String, Object> citaMap = FirestoreModelMapper.citaToMap(cita);
+        String fecha = (String) citaMap.get("fecha");
+        String hora = (String) citaMap.get("hora");
+        String lugarId = (String) citaMap.get("lugarId");
+
+        db.collection(COLLECTION)
+                .whereEqualTo("actividadId", cita.getActividad().getId())
+                .whereEqualTo("fecha", fecha)
+                .whereEqualTo("hora", hora)
+                .whereEqualTo("lugarId", lugarId)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    listener.onResultado(!querySnapshot.isEmpty());
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error verificando cita duplicada", e);
+                    listener.onError(e);
+                });
+    }
+
+    /**
+     * Interface para verificar conflictos de horario
+     */
+    public interface OnConflictoHorarioListener {
+        void onResultado(boolean hayConflicto);
+        void onError(Exception e);
+    }
+
+    /**
+     * Verifica si existe conflicto de horario en un lugar específico
+     * Un conflicto ocurre cuando hay otra cita en el mismo lugar, fecha y hora
+     * @param lugarId ID del lugar a verificar
+     * @param fecha Fecha en formato String
+     * @param hora Hora en formato String
+     * @param excludeActividadId ID de actividad a excluir (null para no excluir ninguna)
+     */
+    public void verificarConflictoHorario(String lugarId, String fecha, String hora,
+                                          @Nullable String excludeActividadId,
+                                          OnConflictoHorarioListener listener) {
+        if (TextUtils.isEmpty(lugarId) || TextUtils.isEmpty(fecha) || TextUtils.isEmpty(hora)) {
+            listener.onError(new IllegalArgumentException("Lugar, fecha y hora son obligatorios"));
+            return;
+        }
+
+        db.collection(COLLECTION)
+                .whereEqualTo("lugarId", lugarId)
+                .whereEqualTo("fecha", fecha)
+                .whereEqualTo("hora", hora)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    boolean hayConflicto = false;
+
+                    // Si estamos editando una actividad existente, excluir sus citas
+                    if (excludeActividadId != null) {
+                        for (QueryDocumentSnapshot document : querySnapshot) {
+                            String actividadId = document.getString("actividadId");
+                            if (actividadId != null && !actividadId.equals(excludeActividadId)) {
+                                hayConflicto = true;
+                                break;
+                            }
+                        }
+                    } else {
+                        // Si no hay exclusión, cualquier cita existente es un conflicto
+                        hayConflicto = !querySnapshot.isEmpty();
+                    }
+
+                    listener.onResultado(hayConflicto);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error verificando conflicto de horario", e);
+                    listener.onError(e);
                 });
     }
 }

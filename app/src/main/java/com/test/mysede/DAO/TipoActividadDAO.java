@@ -50,6 +50,15 @@ public class TipoActividadDAO {
     }
 
     private void addTipoActividad(TipoActividad tipoActividad, @Nullable FirestoreOperationCallback callback) {
+        // Validar campos obligatorios
+        Exception validationError = validarTipoActividad(tipoActividad);
+        if (validationError != null) {
+            if (callback != null) {
+                callback.onFailure(validationError);
+            }
+            return;
+        }
+
         Map<String, Object> data = FirestoreModelMapper.tipoActividadToMap(tipoActividad);
         db.collection(COLLECTION)
                 .add(data)
@@ -86,6 +95,16 @@ public class TipoActividadDAO {
             }
             return;
         }
+
+        // Validar campos obligatorios
+        Exception validationError = validarTipoActividad(tipoActividad);
+        if (validationError != null) {
+            if (callback != null) {
+                callback.onFailure(validationError);
+            }
+            return;
+        }
+
         Map<String, Object> data = FirestoreModelMapper.tipoActividadToMap(tipoActividad);
         db.collection(COLLECTION)
                 .document(tipoActividad.getId())
@@ -164,5 +183,24 @@ public class TipoActividadDAO {
                         listener.onError(task.getException());
                     }
                 });
+    }
+
+    // ============ MÉTODOS DE VALIDACIÓN ============
+
+    /**
+     * Valida que un tipo de actividad tenga todos los campos obligatorios
+     * @param tipoActividad El tipo de actividad a validar
+     * @return null si es válido, o una Exception con el mensaje de error
+     */
+    private Exception validarTipoActividad(TipoActividad tipoActividad) {
+        if (tipoActividad == null) {
+            return new IllegalArgumentException("El tipo de actividad no puede ser nulo");
+        }
+
+        if (TextUtils.isEmpty(tipoActividad.getNombre()) || tipoActividad.getNombre().trim().length() < 3) {
+            return new IllegalArgumentException("El nombre del tipo de actividad es obligatorio y debe tener al menos 3 caracteres");
+        }
+
+        return null;
     }
 }
