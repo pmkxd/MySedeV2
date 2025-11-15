@@ -238,7 +238,9 @@ public class CrearUsuarioActivity extends AppCompatActivity {
         data.put("activo", true);
         data.put("fechaCreacion", user.getFechaCreacion());
         data.put("pass", pass);
-
+        data.put("profileImageUrl", Usuario.DEFAULT_PROFILE_IMAGE_URL);
+        data.put("profileImagePublicId", Usuario.DEFAULT_PROFILE_IMAGE_PUBLIC_ID);
+        data.put("profileImageDeleteToken", null);
         db.collection("usuarios")
                 .document(uid)
                 .set(data)

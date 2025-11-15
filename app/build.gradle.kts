@@ -51,6 +51,10 @@ dependencies {
     implementation("com.google.android.material:material:1.13.0")
     // Subida de archivos a Cloudinary
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    // Manejo de imágenes de perfil
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+    implementation("com.github.yalantis:ucrop:2.2.8")
     // Firebase BoM (asegura versiones compatibles)
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
 

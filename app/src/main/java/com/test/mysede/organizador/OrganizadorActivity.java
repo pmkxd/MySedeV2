@@ -13,7 +13,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-
+import com.test.mysede.perfil.ProfileImageLoader;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.test.mysede.R;
@@ -28,21 +28,21 @@ public class OrganizadorActivity extends AppCompatActivity {
 
     private SessionManager sessionManager;
     private AppBarConfiguration appBarConfiguration;
-
+    private Usuario usuarioActual;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_organizador);
 
         sessionManager = new SessionManager(this);
-        Usuario usuario = PermissionManager.getUsuarioActual();
-        if (usuario == null) {
-            usuario = sessionManager.obtenerUsuarioSesion();
-            if (usuario != null) {
-                PermissionManager.setUsuarioActual(usuario);
+        usuarioActual = PermissionManager.getUsuarioActual();
+        if (usuarioActual == null) {
+            usuarioActual = sessionManager.obtenerUsuarioSesion();
+            if (usuarioActual != null) {
+                PermissionManager.setUsuarioActual(usuarioActual);
             }
         }
-        if (usuario == null) {
+        if (usuarioActual == null) {
             Toast.makeText(this, "Sesión inválida, por favor ingresa nuevamente", Toast.LENGTH_LONG).show();
             startActivity(new Intent(this, ActivityLogin.class));
             finish();
@@ -61,7 +61,7 @@ public class OrganizadorActivity extends AppCompatActivity {
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setSubtitle(usuario.getNombre());
+        toolbar.setSubtitle(usuarioActual.getNombre());
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         if (navHostFragment != null) {
@@ -89,6 +89,8 @@ public class OrganizadorActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_user_options, menu);
+        ProfileImageLoader.loadIntoMenuItem(this, menu.findItem(R.id.menu_perfil),
+                usuarioActual != null ? usuarioActual.getProfileImageUrl() : null);
         return true;
     }
 
@@ -105,5 +107,14 @@ public class OrganizadorActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Usuario actualizado = sessionManager.obtenerUsuarioSesion();
+        if (actualizado != null) {
+            usuarioActual = actualizado;
+            PermissionManager.setUsuarioActual(actualizado);
+        }
+        invalidateOptionsMenu();
+    }
 }

@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-
+import com.test.mysede.perfil.ProfileImageLoader;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,7 +33,7 @@ public class ProgramadorActivity extends AppCompatActivity {
 
     private SessionManager sessionManager;
     private AppBarConfiguration appBarConfiguration;
-
+    private Usuario usuarioActual;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +42,7 @@ public class ProgramadorActivity extends AppCompatActivity {
         sessionManager = new SessionManager(this);
 
         // Verificar usuario logueado
-        Usuario usuarioActual = PermissionManager.getUsuarioActual();
+        usuarioActual = PermissionManager.getUsuarioActual();
         if (usuarioActual == null) {
             usuarioActual = sessionManager.obtenerUsuarioSesion();
             if (usuarioActual != null) {
@@ -105,6 +105,8 @@ public class ProgramadorActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         //  Infla el menú con la opción de Perfil
         getMenuInflater().inflate(R.menu.menu_user_options, menu);
+        ProfileImageLoader.loadIntoMenuItem(this, menu.findItem(R.id.menu_perfil),
+                usuarioActual != null ? usuarioActual.getProfileImageUrl() : null);
         return true;
     }
 
@@ -121,4 +123,14 @@ public class ProgramadorActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Usuario actualizado = sessionManager.obtenerUsuarioSesion();
+        if (actualizado != null) {
+            usuarioActual = actualizado;
+            PermissionManager.setUsuarioActual(actualizado);
+        }
+        invalidateOptionsMenu();
+    }
 }

@@ -19,18 +19,30 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.test.mysede.R;
 import com.test.mysede.auth.PermissionManager;
+import com.test.mysede.auth.SessionManager;
 import com.test.mysede.login.ActivityLogin;
+import com.test.mysede.model.Usuario;
 import com.test.mysede.perfil.PerfilActivity; // Import nuevo para abrir el perfil
+import com.test.mysede.perfil.ProfileImageLoader;
 
 public class AdminActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
-
+    private SessionManager sessionManager;
+    private Usuario usuarioActual;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
 
+        sessionManager = new SessionManager(this);
+        usuarioActual = PermissionManager.getUsuarioActual();
+        if (usuarioActual == null) {
+            usuarioActual = sessionManager.obtenerUsuarioSesion();
+            if (usuarioActual != null) {
+                PermissionManager.setUsuarioActual(usuarioActual);
+            }
+        }
 
         // Validar que el usuario tenga rol ADMINISTRADOR
         if (!PermissionManager.esAdministrador()) {
@@ -75,6 +87,9 @@ public class AdminActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_admin, menu);
+        MenuItem item = menu.findItem(R.id.menu_perfil);
+        ProfileImageLoader.loadIntoMenuItem(this, item,
+                usuarioActual != null ? usuarioActual.getProfileImageUrl() : null);
         return true;
     }
 
@@ -92,4 +107,14 @@ public class AdminActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Usuario actualizado = sessionManager.obtenerUsuarioSesion();
+        if (actualizado != null) {
+            usuarioActual = actualizado;
+            PermissionManager.setUsuarioActual(actualizado);
+        }
+        invalidateOptionsMenu();
+    }
 }

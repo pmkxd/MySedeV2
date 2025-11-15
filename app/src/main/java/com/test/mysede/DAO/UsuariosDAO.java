@@ -5,7 +5,7 @@ import static android.content.ContentValues.TAG;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-
+import com.google.firebase.firestore.SetOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
@@ -14,7 +14,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.test.mysede.auth.Permiso;
 import com.test.mysede.auth.Rol;
 import com.test.mysede.model.Usuario;
-
+import com.google.android.gms.tasks.Task;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,6 +49,10 @@ public class UsuariosDAO {
         usuario_nuevo.put("activo", usuario.isActivo());
         usuario_nuevo.put("fechaCreacion", usuario.getFechaCreacion());
         usuario_nuevo.put("ultimoAcceso", usuario.getUltimoAcceso());
+        usuario_nuevo.put("profileImageUrl", usuario.getProfileImageUrl());
+        usuario_nuevo.put("profileImagePublicId", usuario.getProfileImagePublicId());
+        usuario_nuevo.put("profileImageDeleteToken", usuario.getProfileImageDeleteToken());
+
 
         db.collection("usuarios")
                 .add(usuario_nuevo)
@@ -77,6 +81,9 @@ public class UsuariosDAO {
         usuario_mod.put("activo", usuario.isActivo());
         usuario_mod.put("fechaCreacion", usuario.getFechaCreacion());
         usuario_mod.put("ultimoAcceso", usuario.getUltimoAcceso());
+        usuario_mod.put("profileImageUrl", usuario.getProfileImageUrl());
+        usuario_mod.put("profileImagePublicId", usuario.getProfileImagePublicId());
+        usuario_mod.put("profileImageDeleteToken", usuario.getProfileImageDeleteToken());
 
         db.collection("usuarios").document(usuario.getId())
                 .set(usuario_mod)
@@ -207,10 +214,28 @@ public class UsuariosDAO {
         List<String> permisosString = (List<String>) document.get("permisos");
         Set<Permiso> permisos = convertirListaAPermisos(permisosString);
         usuario.setPermisos(permisos);
+        String profileImageUrl = document.getString("profileImageUrl");
+        usuario.setProfileImageUrl(profileImageUrl);
+        String profileImagePublicId = document.getString("profileImagePublicId");
+        usuario.setProfileImagePublicId(profileImagePublicId);
+        usuario.setProfileImageDeleteToken(document.getString("profileImageDeleteToken"));
 
         return usuario;
     }
-
+    public Task<Void> actualizarImagenPerfil(@NonNull Usuario usuario) {
+        if (usuario.getId() == null || usuario.getId().isEmpty()) {
+            return com.google.android.gms.tasks.Tasks.forException(
+                    new IllegalArgumentException("El usuario debe tener un ID válido"));
+        }
+        Map<String, Object> data = new HashMap<>();
+        data.put("profileImageUrl", usuario.getProfileImageUrl());
+        data.put("profileImagePublicId", usuario.getProfileImagePublicId());
+        data.put("profileImageDeleteToken", usuario.getProfileImageDeleteToken());
+        data.put("ultimoAcceso", usuario.getUltimoAcceso());
+        return db.collection("usuarios")
+                .document(usuario.getId())
+                .set(data, SetOptions.merge());
+    }
     /**
      * Convierte una lista de strings a un Set de Permisos
      */

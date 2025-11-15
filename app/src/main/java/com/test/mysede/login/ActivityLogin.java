@@ -126,7 +126,9 @@ public class ActivityLogin extends AppCompatActivity {
                     String rut = doc.getString("rut");
                     String rolString = doc.getString("rol");
                     List<String> permisosList = (List<String>) doc.get("permisos");
-
+                    String avatarUrl = doc.getString("profileImageUrl");
+                    String avatarPublicId = doc.getString("profileImagePublicId");
+                    String avatarDeleteToken = doc.getString("profileImageDeleteToken");
                     // Convertir rol de Firestore a enum Rol
                     Rol rol = Rol.fromNombreCompleto(rolString);
                     if (rol == null) {
@@ -154,7 +156,9 @@ public class ActivityLogin extends AppCompatActivity {
                         }
                     }
                     usuario.setPermisos(permisos);
-
+                    usuario.setProfileImageUrl(avatarUrl);
+                    usuario.setProfileImagePublicId(avatarPublicId);
+                    usuario.setProfileImageDeleteToken(avatarDeleteToken);
                     // Guardar sesión y PermissionManager
                     sessionManager.crearSesion(usuario);
                     PermissionManager.setUsuarioActual(usuario);

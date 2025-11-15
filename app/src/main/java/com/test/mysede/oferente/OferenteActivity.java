@@ -31,7 +31,7 @@ import com.test.mysede.model.Usuario;
 import com.test.mysede.perfil.PerfilActivity; //  Para abrir el perfil del usuario
 import com.test.mysede.login.ActivityLogin; //  Para redirigir al login si la sesión es inválida
 import com.test.mysede.ui.SystemBarsHelper;
-
+import com.test.mysede.perfil.ProfileImageLoader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,6 +121,8 @@ public class OferenteActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_user_options, menu);
+        ProfileImageLoader.loadIntoMenuItem(this, menu.findItem(R.id.menu_perfil),
+                usuarioActual != null ? usuarioActual.getProfileImageUrl() : null);
         return true;
     }
 
@@ -354,5 +356,15 @@ public class OferenteActivity extends AppCompatActivity {
             }
         }
         return false;
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Usuario actualizado = sessionManager.obtenerUsuarioSesion();
+        if (actualizado != null) {
+            usuarioActual = actualizado;
+            PermissionManager.setUsuarioActual(actualizado);
+        }
+        invalidateOptionsMenu();
     }
 }
