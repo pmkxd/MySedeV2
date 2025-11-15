@@ -50,6 +50,15 @@ public class OferenteActividadDAO {
     }
 
     private void addOferente(OferenteActividad oferenteActividad, @Nullable FirestoreOperationCallback callback) {
+        // Validar campos obligatorios
+        Exception validationError = validarOferente(oferenteActividad);
+        if (validationError != null) {
+            if (callback != null) {
+                callback.onFailure(validationError);
+            }
+            return;
+        }
+
         Map<String, Object> data = FirestoreModelMapper.oferenteToMap(oferenteActividad);
         db.collection(COLLECTION)
                 .add(data)
@@ -86,6 +95,16 @@ public class OferenteActividadDAO {
             }
             return;
         }
+
+        // Validar campos obligatorios
+        Exception validationError = validarOferente(oferenteActividad);
+        if (validationError != null) {
+            if (callback != null) {
+                callback.onFailure(validationError);
+            }
+            return;
+        }
+
         Map<String, Object> data = FirestoreModelMapper.oferenteToMap(oferenteActividad);
         db.collection(COLLECTION)
                 .document(oferenteActividad.getId())
@@ -164,5 +183,24 @@ public class OferenteActividadDAO {
                         listener.onError(task.getException());
                     }
                 });
+    }
+
+    // ============ MÉTODOS DE VALIDACIÓN ============
+
+    /**
+     * Valida que un oferente tenga todos los campos obligatorios
+     * @param oferente El oferente a validar
+     * @return null si es válido, o una Exception con el mensaje de error
+     */
+    private Exception validarOferente(OferenteActividad oferente) {
+        if (oferente == null) {
+            return new IllegalArgumentException("El oferente no puede ser nulo");
+        }
+
+        if (TextUtils.isEmpty(oferente.getNombre()) || oferente.getNombre().trim().length() < 3) {
+            return new IllegalArgumentException("El nombre del oferente es obligatorio y debe tener al menos 3 caracteres");
+        }
+
+        return null;
     }
 }

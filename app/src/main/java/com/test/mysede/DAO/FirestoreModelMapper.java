@@ -185,6 +185,8 @@ final class FirestoreModelMapper {
         data.put("id", cita.getId());
         data.put("actividadId", cita.getActividad() != null ? cita.getActividad().getId() : null);
         data.put("lugar", lugarToMap(cita.getLugar()));
+        // Agregar lugarId como campo separado para poder hacer queries de conflictos de horario
+        data.put("lugarId", cita.getLugar() != null ? cita.getLugar().getId() : null);
         data.put("fecha", cita.getFecha() != null ? cita.getFecha().format(DATE_FORMATTER) : null);
         data.put("hora", cita.getHora() != null ? cita.getHora().format(TIME_FORMATTER) : null);
         return data;
