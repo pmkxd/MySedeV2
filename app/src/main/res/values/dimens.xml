@@ -3,4 +3,6 @@
     <dimen name="calendar_event_margin">8dp</dimen>
     <dimen name="calendar_month_day_today_stroke">3dp</dimen>
     <dimen name="calendar_month_day_default_stroke">1dp</dimen>
+    <dimen name="avatar_profile_size">120dp</dimen>
+    <dimen name="avatar_menu_size">40dp</dimen>
 </resources>

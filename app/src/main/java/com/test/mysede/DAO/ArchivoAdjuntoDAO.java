@@ -35,7 +35,7 @@ import okio.BufferedSink;
 
 public class ArchivoAdjuntoDAO {
     private static final String COLLECTION = "archivosAdjuntos";
-    private static final String CLOUD_NAME = "dtzndokk9";
+    private static final String CLOUD_NAME = "dgnbyuqyd";
     public static final String PRESET_IMAGEN = "mysede_image_10mb";
     public static final String PRESET_VIDEO = "mysede_video_50mb";
     public static final String RESOURCE_IMAGE = "image";
