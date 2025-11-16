@@ -60,7 +60,7 @@ public class VerArchivosAdjuntosActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (!PermissionManager.tienePermiso(Permiso.VER_ACTIVIDADES)) {
+        if (!PermissionManager.tienePermiso(Permiso.VER_ARCHIVOS)) {
             Toast.makeText(this, R.string.ver_archivos_adjuntos_permission_view, Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -89,7 +89,7 @@ public class VerArchivosAdjuntosActivity extends AppCompatActivity {
         }
 
         btnAgregarArchivos.setOnClickListener(v -> {
-            if (!PermissionManager.tienePermiso(Permiso.EDITAR_ACTIVIDAD)) {
+            if (!PermissionManager.tienePermiso(Permiso.ADJUNTAR_ARCHIVOS)) {
                 Toast.makeText(this, R.string.ver_archivos_adjuntos_permission_add, Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -150,8 +150,7 @@ public class VerArchivosAdjuntosActivity extends AppCompatActivity {
         }
         tvEmptyState.setVisibility(View.GONE);
         LayoutInflater inflater = LayoutInflater.from(this);
-        boolean puedeRenombrar = PermissionManager.tienePermiso(Permiso.EDITAR_ACTIVIDAD);
-        boolean puedeEliminar = PermissionManager.tienePermiso(Permiso.ELIMINAR_ACTIVIDAD);
+        boolean puedeEliminar = PermissionManager.tienePermiso(Permiso.ELIMINAR_ARCHIVOS);
 
         for (ArchivoAdjunto archivo : actividad.getArchivosAdjuntos()) {
             View itemView = inflater.inflate(R.layout.item_archivo_adjunto_detalle, layoutArchivosAdjuntos, false);
@@ -161,7 +160,6 @@ public class VerArchivosAdjuntosActivity extends AppCompatActivity {
             TextView tamano = itemView.findViewById(R.id.tvTamanoArchivo);
             MaterialButton btnVer = itemView.findViewById(R.id.btnVerArchivo);
             MaterialButton btnDescargar = itemView.findViewById(R.id.btnDescargarArchivo);
-            MaterialButton btnRenombrar = itemView.findViewById(R.id.btnRenombrarArchivo);
             MaterialButton btnEliminar = itemView.findViewById(R.id.btnEliminarArchivo);
 
             nombre.setText("📄 " + archivo.getNombre());
@@ -171,12 +169,6 @@ public class VerArchivosAdjuntosActivity extends AppCompatActivity {
 
             btnVer.setOnClickListener(v -> abrirArchivo(archivo));
             btnDescargar.setOnClickListener(v -> descargarArchivo(archivo));
-
-            if (puedeRenombrar) {
-                btnRenombrar.setOnClickListener(v -> mostrarDialogoRenombrarArchivo(archivo));
-            } else {
-                btnRenombrar.setVisibility(View.GONE);
-            }
 
             if (puedeEliminar) {
                 btnEliminar.setOnClickListener(v -> mostrarDialogoEliminarArchivo(archivo));
@@ -278,95 +270,8 @@ public class VerArchivosAdjuntosActivity extends AppCompatActivity {
         }
     }
 
-    private void mostrarDialogoRenombrarArchivo(ArchivoAdjunto archivo) {
-        if (!PermissionManager.tienePermiso(Permiso.EDITAR_ACTIVIDAD)) {
-            Toast.makeText(this, R.string.ver_archivos_adjuntos_permission_add, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (archivo == null) {
-            return;
-        }
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.editar);
-        final EditText input = new EditText(this);
-        String extension = obtenerExtension(archivo.getNombre());
-        String nombreBase = archivo.getNombre();
-        if (!TextUtils.isEmpty(extension) && nombreBase.endsWith(extension)) {
-            nombreBase = nombreBase.substring(0, nombreBase.length() - extension.length());
-        }
-        input.setText(nombreBase);
-        input.setSelection(nombreBase.length());
-        builder.setView(input);
-        builder.setNegativeButton(android.R.string.cancel, null);
-        builder.setPositiveButton(android.R.string.ok, null);
-
-        AlertDialog dialog = builder.create();
-        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            String nuevoNombre = input.getText().toString().trim();
-            if (nuevoNombre.isEmpty()) {
-                input.setError(getString(R.string.ver_archivos_adjuntos_error_nombre));
-                return;
-            }
-            String extensionActual = obtenerExtension(archivo.getNombre());
-            if (!TextUtils.isEmpty(extensionActual) && !nuevoNombre.endsWith(extensionActual)) {
-                nuevoNombre += extensionActual;
-            }
-            dialog.dismiss();
-            ejecutarRenombrarArchivo(archivo, nuevoNombre);
-        }));
-        dialog.show();
-    }
-
-    private void ejecutarRenombrarArchivo(ArchivoAdjunto archivo, String nombreFinal) {
-        if (archivo == null || TextUtils.isEmpty(archivo.getId())) {
-            Toast.makeText(this, R.string.ver_archivos_adjuntos_error_general, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        ArchivoAdjunto copia = clonarArchivo(archivo);
-        copia.setNombre(nombreFinal);
-        archivoAdjuntoDAO.updateArchivoAdjunto(copia, new FirestoreOperationCallback() {
-            @Override
-            public void onSuccess() {
-                archivo.setNombre(nombreFinal);
-                actualizarArchivoEnActividad(archivo, copia);
-                Toast.makeText(VerArchivosAdjuntosActivity.this, R.string.ver_archivos_adjuntos_rename_success, Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(Exception exception) {
-                Toast.makeText(VerArchivosAdjuntosActivity.this, R.string.ver_archivos_adjuntos_error_general, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void actualizarArchivoEnActividad(ArchivoAdjunto original, ArchivoAdjunto actualizado) {
-        if (actividad == null || actividad.getArchivosAdjuntos() == null) {
-            return;
-        }
-        List<ArchivoAdjunto> actuales = new ArrayList<>(actividad.getArchivosAdjuntos());
-        for (int i = 0; i < actuales.size(); i++) {
-            if (coincideArchivo(actuales.get(i), original)) {
-                actuales.set(i, actualizado);
-                break;
-            }
-        }
-        actividad.setArchivosAdjuntos(actuales);
-        actividadDAO.updateActividad(actividad, new FirestoreOperationCallback() {
-            @Override
-            public void onSuccess() {
-                mostrarArchivosAdjuntos();
-            }
-
-            @Override
-            public void onFailure(Exception exception) {
-                Toast.makeText(VerArchivosAdjuntosActivity.this, R.string.ver_archivos_adjuntos_error_general, Toast.LENGTH_SHORT).show();
-                cargarActividad();
-            }
-        });
-    }
-
     private void mostrarDialogoEliminarArchivo(ArchivoAdjunto archivo) {
-        if (!PermissionManager.tienePermiso(Permiso.ELIMINAR_ACTIVIDAD)) {
+        if (!PermissionManager.tienePermiso(Permiso.ELIMINAR_ARCHIVOS)) {
             Toast.makeText(this, R.string.ver_archivos_adjuntos_permission_add, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -446,32 +351,6 @@ public class VerArchivosAdjuntosActivity extends AppCompatActivity {
         return TextUtils.equals(a.getUrl(), b.getUrl());
     }
 
-    private ArchivoAdjunto clonarArchivo(ArchivoAdjunto original) {
-        ArchivoAdjunto copia = new ArchivoAdjunto(
-                original.getNombre(),
-                original.getTipo(),
-                original.getTamaño(),
-                original.getUri(),
-                original.getUrl(),
-                original.getResourceType(),
-                original.getUploadPreset(),
-                original.getPublicId()
-        );
-        copia.setId(original.getId());
-        return copia;
-    }
-
-    private String obtenerExtension(String nombre) {
-        if (TextUtils.isEmpty(nombre)) {
-            return "";
-        }
-        int index = nombre.lastIndexOf('.');
-        if (index == -1 || index == nombre.length() - 1) {
-            return "";
-        }
-        return nombre.substring(index);
-    }
-
     private String formatearTamano(long bytes) {
         if (bytes < 1024) {
             return bytes + " B";
@@ -536,8 +415,8 @@ public class VerArchivosAdjuntosActivity extends AppCompatActivity {
         if (btnAgregarArchivos == null) {
             return;
         }
-        boolean puedeEditar = PermissionManager.tienePermiso(Permiso.EDITAR_ACTIVIDAD);
-        boolean habilitado = puedeEditar && !bloqueadoPorCarga;
+        boolean puedeAdjuntar = PermissionManager.tienePermiso(Permiso.ADJUNTAR_ARCHIVOS);
+        boolean habilitado = puedeAdjuntar && !bloqueadoPorCarga;
         btnAgregarArchivos.setEnabled(habilitado);
         btnAgregarArchivos.setAlpha(habilitado ? 1f : 0.5f);
     }
