@@ -216,19 +216,5 @@
             android:value="notificaciones_mysede" />
         <!-- ========================================== -->
 
-        <!-- ========== WORKMANAGER (Para notificaciones programadas) ========== -->
-        <!-- WorkManager se inicializa automáticamente, pero puedes configurarlo aquí -->
-        <provider
-            android:name="androidx.startup.InitializationProvider"
-            android:authorities="${applicationId}.androidx-startup"
-            android:exported="false"
-            tools:node="merge">
-            <meta-data
-                android:name="androidx.work.WorkManagerInitializer"
-                android:value="androidx.startup"
-                tools:node="remove" />
-        </provider>
-        <!-- ==================================================================== -->
-
     </application>
 </manifest>

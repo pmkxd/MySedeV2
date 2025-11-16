@@ -26,6 +26,7 @@ import com.test.mysede.DAO.ActividadDAO;
 import com.test.mysede.DAO.ArchivoAdjuntoDAO;
 import com.test.mysede.DAO.CitaDAO;
 import com.test.mysede.DAO.FirestoreOperationCallback;
+import com.test.mysede.notificaciones.GestorNotificaciones;
 
 import com.test.mysede.R;
 import com.test.mysede.auth.Permiso;
@@ -312,26 +313,49 @@ public class VerActividadActivity extends AppCompatActivity {
         if (actividad == null) {
             return;
         }
+
+        // Guardar datos de la actividad antes de eliminarla (para la notificación)
+        final String actividadIdTemp = actividad.getId();
+        final String nombreActividadTemp = actividad.getNombre();
+
         citaDAO.deleteCitasPorActividad(actividad, new FirestoreOperationCallback() {
             @Override
             public void onSuccess() {
+                // Cancelar notificaciones programadas de todas las citas
+                GestorNotificaciones gestor = new GestorNotificaciones(VerActividadActivity.this);
+                if (actividad.getCitas() != null) {
+                    for (com.test.mysede.model.Cita cita : actividad.getCitas()) {
+                        gestor.cancelarNotificacionesCita(cita.getId());
+                    }
+                }
+
                 actividadDAO.deleteActividad(actividad, new FirestoreOperationCallback() {
                     @Override
                     public void onSuccess() {
-                        Toast.makeText(VerActividadActivity.this, "Actividad eliminada correctamente", Toast.LENGTH_SHORT).show();
+                        // Notificar cancelación a los usuarios inscritos
+                        gestor.notificarCancelacionActividad(
+                                actividadIdTemp,
+                                nombreActividadTemp,
+                                "La actividad ha sido eliminada del sistema"
+                        );
+
+                        Toast.makeText(VerActividadActivity.this,
+                                "Actividad eliminada correctamente", Toast.LENGTH_SHORT).show();
                         finish();
                     }
 
                     @Override
                     public void onFailure(Exception exception) {
-                        Toast.makeText(VerActividadActivity.this, "Error al eliminar la actividad", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(VerActividadActivity.this,
+                                "Error al eliminar la actividad", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
 
             @Override
             public void onFailure(Exception exception) {
-                Toast.makeText(VerActividadActivity.this, "No fue posible eliminar las citas asociadas", Toast.LENGTH_SHORT).show();
+                Toast.makeText(VerActividadActivity.this,
+                        "No fue posible eliminar las citas asociadas", Toast.LENGTH_SHORT).show();
             }
         });
     }
