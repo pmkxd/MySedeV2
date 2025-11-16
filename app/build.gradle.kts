@@ -35,39 +35,53 @@ android {
 }
 
 dependencies {
-    implementation(libs.firebase.firestore)
+    // Desugar para compatibilidad con APIs modernas en versiones antiguas de Android
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+
+    // AndroidX Core
+    implementation(libs.appcompat)
+    implementation(libs.activity)
+    implementation(libs.constraintlayout)
+
+    // Material Design (usar solo una versión)
+    implementation("com.google.android.material:material:1.13.0")
+
+    // Navigation Components
     implementation(libs.navigation.runtime)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-    implementation(libs.firebase.messaging)
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
-    implementation(libs.appcompat)
-    implementation(libs.material)
-    implementation(libs.activity)
-    implementation(libs.constraintlayout)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso.core)
-    implementation("com.google.android.material:material:1.13.0")
-    // Subida de archivos a Cloudinary
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    // Manejo de imágenes de perfil
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
-    implementation("com.github.yalantis:ucrop:2.2.8")
-    // Firebase BoM (asegura versiones compatibles)
-    implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
 
-    // SDKs de Firebase
+    // ========== FIREBASE (usando BoM para versiones compatibles) ==========
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0")) // Última versión estable
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-firestore") // Para guardar notificaciones
+    implementation("com.google.firebase:firebase-messaging") // Para FCM (notificaciones push)
 
-    implementation("com.google.firebase:firebase-storage:21.0.1")
-    implementation("com.google.firebase:firebase-auth:23.0.0")
-    implementation("com.google.android.material:material:1.12.0")
-    implementation("com.google.android.material:material:1.12.0") // switches y botones
-    implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.0")
+    // ========== WORK MANAGER (Para notificaciones programadas) ==========
+    implementation("androidx.work:work-runtime:2.9.0")
+
+    // ========== SWIPE REFRESH LAYOUT (Para refrescar notificaciones) ==========
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    // ========== CARDVIEW (Para los items de notificación) ==========
+    implementation("androidx.cardview:cardview:1.0.0")
+
+    // ========== RECYCLERVIEW (Si no está incluido en tus libs) ==========
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+    // Subida de archivos a Cloudinary
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // Manejo de imágenes de perfil
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+    implementation("com.github.yalantis:ucrop:2.2.8")
+
+    // Testing
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
 }

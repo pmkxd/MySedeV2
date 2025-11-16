@@ -49,6 +49,7 @@ import com.test.mysede.model.Periodicidad;
 import com.test.mysede.model.Proyecto;
 import com.test.mysede.model.SocioComunitario;
 import com.test.mysede.model.TipoActividad;
+import com.test.mysede.notificaciones.GestorNotificaciones;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -66,6 +67,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+
 
 public class CrearActividadActivity extends AppCompatActivity {
     private static final String TAG = "CrearActividadActivity";
@@ -862,6 +864,10 @@ public class CrearActividadActivity extends AppCompatActivity {
     private void finalizarEdicion() {
         Toast.makeText(this, modoEditar ? "Actividad actualizada correctamente" : "Actividad creada correctamente", Toast.LENGTH_SHORT).show();
         btnGuardar.setEnabled(true);
+
+        // Enviar notificaciones
+        enviarNotificaciones();
+
         finish();
     }
 
@@ -1089,4 +1095,138 @@ public class CrearActividadActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    /**
+     * Envía notificaciones cuando se crea o edita una actividad
+     */
+    private void enviarNotificaciones() {
+        // Obtener la actividad construida desde el formulario
+        Actividad actividad = modoEditar ? actividadEditar : construirActividadDesdeFormulario();
+        if (actividad == null) {
+            return;
+        }
+
+        GestorNotificaciones gestor = new GestorNotificaciones(this);
+
+        // 1. Notificar creación de nueva actividad (solo si NO es modo editar)
+        if (!modoEditar) {
+            String fechaStr = "";
+            String horaStr = "";
+
+            if (actividad.getPeriodicidad().getTipo() == Periodicidad.Tipo.PUNTUAL) {
+                // Actividad puntual
+                if (fechaPuntualSeleccionada != null) {
+                    fechaStr = fechaPuntualSeleccionada.format(formatoFecha);
+                }
+                if (horaPuntualSeleccionada != null) {
+                    horaStr = horaPuntualSeleccionada.format(formatoHora);
+                }
+            } else {
+                // Actividad periódica - usar fecha de inicio
+                if (fechaInicioSeleccionada != null) {
+                    fechaStr = fechaInicioSeleccionada.format(formatoFecha);
+                }
+                if (horaPeriodicaSeleccionada != null) {
+                    horaStr = horaPeriodicaSeleccionada.format(formatoHora);
+                }
+            }
+
+            gestor.notificarNuevaActividad(
+                    actividad.getId(),
+                    actividad.getNombre(),
+                    fechaStr,
+                    horaStr
+            );
+
+            Log.d(TAG, "✓ Notificación de nueva actividad enviada: " + actividad.getNombre());
+        }
+
+        // 2. Programar notificaciones de recordatorio para cada cita
+        List<Cita> citas = actividad.getCitas();
+        if (citas != null && !citas.isEmpty()) {
+            for (Cita cita : citas) {
+                if (cita.getLugar() != null && cita.getFecha() != null && cita.getHora() != null) {
+                    // Convertir LocalDate y LocalTime a milisegundos
+                    long fechaHoraMillis = convertirAMillis(cita.getFecha(), cita.getHora());
+
+                    // Programar todas las notificaciones de recordatorio automáticamente
+                    gestor.programarNotificacionesCita(
+                            actividad.getId(),
+                            cita.getId(),
+                            actividad.getNombre(),
+                            cita.getLugar().getNombre(),
+                            fechaHoraMillis,
+                            actividad.getDiasAvisoPrevio()
+                    );
+
+                    Log.d(TAG, "✓ Notificaciones programadas para cita: " + cita.getFecha() + " " + cita.getHora());
+                }
+            }
+        }
+
+        // 3. Si es modo editar, notificar cambios
+        if (modoEditar) {
+            gestor.notificarCambioActividad(
+                    actividad.getId(),
+                    actividad.getNombre(),
+                    "Actualización",
+                    "Se actualizaron los datos de la actividad"
+            );
+
+            Log.d(TAG, "✓ Notificación de cambio enviada: " + actividad.getNombre());
+        }
+    }
+
+    /**
+     * Convierte LocalDate y LocalTime a milisegundos (timestamp)
+     */
+    private long convertirAMillis(LocalDate fecha, LocalTime hora) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, fecha.getYear());
+        calendar.set(Calendar.MONTH, fecha.getMonthValue() - 1); // Mes es 0-indexed
+        calendar.set(Calendar.DAY_OF_MONTH, fecha.getDayOfMonth());
+        calendar.set(Calendar.HOUR_OF_DAY, hora.getHour());
+        calendar.set(Calendar.MINUTE, hora.getMinute());
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTimeInMillis();
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
