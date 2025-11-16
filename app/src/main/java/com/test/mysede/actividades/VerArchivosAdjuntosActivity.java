@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import com.test.mysede.notificaciones.GestorNotificaciones;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -245,6 +246,11 @@ public class VerArchivosAdjuntosActivity extends AppCompatActivity {
             public void onSuccess() {
                 mostrarCargando(false);
                 Toast.makeText(VerArchivosAdjuntosActivity.this, R.string.ver_archivos_adjuntos_success_add, Toast.LENGTH_SHORT).show();
+
+                // ========== ENVIAR NOTIFICACIONES DE NUEVO MATERIAL ==========
+                enviarNotificacionesNuevoMaterial(nuevos);
+                // =============================================================
+
                 mostrarArchivosAdjuntos();
             }
 
@@ -420,4 +426,66 @@ public class VerArchivosAdjuntosActivity extends AppCompatActivity {
         btnAgregarArchivos.setEnabled(habilitado);
         btnAgregarArchivos.setAlpha(habilitado ? 1f : 0.5f);
     }
+
+    /**
+     * Envía notificaciones cuando se agregan archivos nuevos a una actividad
+     */
+    private void enviarNotificacionesNuevoMaterial(List<ArchivoAdjunto> archivosNuevos) {
+        if (actividad == null || archivosNuevos == null || archivosNuevos.isEmpty()) {
+            return;
+        }
+
+        GestorNotificaciones gestor = new GestorNotificaciones(this);
+
+        // Si se subió un solo archivo, notificar con su nombre
+        if (archivosNuevos.size() == 1) {
+            ArchivoAdjunto archivo = archivosNuevos.get(0);
+            gestor.notificarNuevoMaterial(
+                    actividad.getId(),
+                    actividad.getNombre(),
+                    archivo.getNombre()
+            );
+            Log.d(TAG, "✓ Notificación enviada: Nuevo archivo - " + archivo.getNombre());
+        }
+        // Si se subieron múltiples archivos, notificar la cantidad
+        else {
+            String mensajeArchivos = archivosNuevos.size() + " archivos nuevos";
+            gestor.notificarNuevoMaterial(
+                    actividad.getId(),
+                    actividad.getNombre(),
+                    mensajeArchivos
+            );
+            Log.d(TAG, "✓ Notificación enviada: " + archivosNuevos.size() + " archivos nuevos");
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
