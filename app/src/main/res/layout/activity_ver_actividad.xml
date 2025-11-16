@@ -139,13 +139,13 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- visualizador de imagen -->
+            <!-- Archivos adjuntos -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                android:layout_marginBottom="16dp">
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -156,28 +156,30 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Imagen Cargada"
+                        android:text="@string/archivos_adjuntos_label"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:textColor="@color/md_theme_primary"
-                        android:layout_marginBottom="10dp"/>
+                        android:layout_marginBottom="8dp" />
 
-                    <ImageView
-                        android:id="@+id/ivImagen"
+                    <TextView
+                        android:id="@+id/tvTotalArchivosAdjuntos"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_sin_imagen"
-                        android:layout_marginBottom="10dp"/>
+                        android:text="@string/ver_actividad_total_archivos_placeholder"
+                        android:textColor="@color/md_theme_onSurface"
+                        android:textSize="16sp"
+                        android:layout_marginBottom="12dp" />
 
-                    <Button
-                        android:id="@+id/btnIngresar"
-                        android:layout_width="match_parent"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnVerArchivosAdjuntos"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="8dp"
-                        android:text="Ingresar Imagen"
-                        android:textColor="@color/md_theme_onPrimary"
-                        app:backgroundTint="@color/md_theme_primary"/>
+                        android:text="@string/ver_archivos_adjuntos_button"
+                        android:textAllCaps="false"
+                        android:enabled="false" />
+
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>

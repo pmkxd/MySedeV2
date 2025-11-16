@@ -102,6 +102,7 @@ public class PlantillaPermisos {
                 // Archivos
                 Permiso.ADJUNTAR_ARCHIVOS,
                 Permiso.VER_ARCHIVOS,
+                Permiso.ELIMINAR_ARCHIVOS,
 
                 // Calendario
                 Permiso.VER_CALENDARIO,
@@ -115,6 +116,7 @@ public class PlantillaPermisos {
      * PROGRAMADOR DE CITAS:
      * - Crear, reagendar o cancelar citas
      * - Visualizar calendario de citas
+     * - Ver y descargar archivos adjuntos de actividades
      */
     private static Set<Permiso> permisosProgramadorCitas() {
         return new HashSet<>(Arrays.asList(
@@ -130,6 +132,9 @@ public class PlantillaPermisos {
                 // Ver actividades (necesario para crear citas)
                 Permiso.VER_ACTIVIDADES,
 
+                // Archivos (solo lectura)
+                Permiso.VER_ARCHIVOS,
+
                 // Notificaciones
                 Permiso.RECIBIR_NOTIFICACIONES
         ));
@@ -140,6 +145,7 @@ public class PlantillaPermisos {
      * - Visualizar el calendario de citas
      * - Visualizar actividades
      * - Adjuntar archivos
+     * - Gestionar archivos adjuntos (agregar, ver, descargar, eliminar)
      */
     private static Set<Permiso> permisosPublicista() {
         return new HashSet<>(Arrays.asList(
@@ -150,7 +156,8 @@ public class PlantillaPermisos {
 
                 // Archivos
                 Permiso.ADJUNTAR_ARCHIVOS,
-                Permiso.VER_ARCHIVOS
+                Permiso.VER_ARCHIVOS,
+                Permiso.ELIMINAR_ARCHIVOS
         ));
     }
 }

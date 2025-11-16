@@ -3,16 +3,48 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permisos de almacenamiento-->
+    <!-- Permiso para la cámara -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-permission android:name="android.permission.CAMERA"/>
+
+    <!-- Permisos de almacenamiento (con el permiso moderno para imágenes) -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"
+        tools:ignore="ScopedStorage" />
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED"/>
+
+    <!-- ========== PERMISOS PARA NOTIFICACIONES ========== -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <!-- ================================================== -->
 
     <application
+        android:name=".MySedeApp"
         android:allowBackup="true"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:replace="android:allowBackup">
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <!-- LOGIN como pantalla inicial -->
         <activity
@@ -43,9 +75,6 @@
             android:exported="true"/>
 
         <!-- Citas, Actividades y Calendar -->
-        <activity
-            android:name=".citas.CrearCitaActivity"
-            android:exported="false"/>
         <activity
             android:name=".actividades.ListarActividadesActivity"
             android:exported="false"
@@ -78,6 +107,11 @@
             android:exported="false"
             android:label="Crear Actividad"
             android:parentActivityName=".actividades.ListarActividadesActivity"/>
+        <activity
+            android:name=".actividades.VerArchivosAdjuntosActivity"
+            android:exported="false"
+            android:label="@string/ver_archivos_adjuntos_title"
+            android:parentActivityName=".actividades.VerActividadActivity"/>
         <activity
             android:name=".actividades.VerActividadActivity"
             android:exported="false"
@@ -128,6 +162,56 @@
             android:name=".oferente.OferenteActivity"
             android:exported="false"
             android:label="Oferentes"/>
+        <!-- Perfil de Usuario -->
+        <activity
+            android:name=".perfil.PerfilActivity"
+            android:exported="false"
+            android:label="Perfil de Usuario"
+            android:theme="@style/AppTheme"/>
+
+        <!-- Pantalla de Notificaciones -->
+        <activity
+            android:name=".notificaciones.NotificacionesActivity"
+            android:exported="false"
+            android:label="Notificaciones"
+            android:theme="@style/AppTheme"/>
+
+        <!-- Pantalla de Cambiar Contrasena -->
+        <activity
+            android:name=".perfil.CambiarContrasenaActivity"
+            android:exported="false"
+            android:label="Cambiar Contraseña" />
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+
+        <!-- ========== SERVICIO FCM (Firebase Cloud Messaging) ========== -->
+        <service
+            android:name=".notificaciones.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <!-- ============================================================== -->
+
+        <!-- ========== METADATA DE FIREBASE ========== -->
+        <!-- Ícono por defecto para notificaciones -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notificacion" />
+
+        <!-- Color por defecto para el ícono de notificaciones -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorPrimary" />
+
+        <!-- Canal de notificación por defecto (Android 8.0+) -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="notificaciones_mysede" />
+        <!-- ========================================== -->
 
     </application>
 </manifest>

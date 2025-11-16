@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
-        android:id="@+id/menu_cerrar_sesion"
-        android:title="Cerrar sesión"
-        app:showAsAction="never" />
+        android:id="@+id/menu_perfil"
+        android:title="Mi Perfil"
+        android:icon="@drawable/ic_usuario"
+        app:showAsAction="always" />
 </menu>

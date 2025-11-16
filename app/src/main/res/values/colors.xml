@@ -150,4 +150,6 @@
     <color name="verde_principal">#00695C</color>
     <color name="fondo_claro">#F5F7F5</color>
     <color name="texto_titulo">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
 </resources>

@@ -1,32 +1,46 @@
 package com.test.mysede.actividades;
 
+import android.app.DownloadManager;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.test.mysede.ui.SystemBarsHelper;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.material.button.MaterialButton;
 import com.test.mysede.DAO.ActividadDAO;
+import com.test.mysede.DAO.ArchivoAdjuntoDAO;
 import com.test.mysede.DAO.CitaDAO;
 import com.test.mysede.DAO.FirestoreOperationCallback;
+import com.test.mysede.notificaciones.GestorNotificaciones;
 
 import com.test.mysede.R;
+import com.test.mysede.auth.Permiso;
+import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.model.Actividad;
+import com.test.mysede.model.ArchivoAdjunto;
 import com.test.mysede.model.OferenteActividad;
 import com.test.mysede.model.TipoActividad;
-
-// ============================================
-// IMPORTS DEL SISTEMA DE PERMISOS
-// ============================================
-import com.test.mysede.auth.PermissionManager;
-import com.test.mysede.auth.Permiso;
+import com.test.mysede.ui.SystemBarsHelper;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 
 public class VerActividadActivity extends AppCompatActivity {
@@ -34,6 +48,8 @@ public class VerActividadActivity extends AppCompatActivity {
     private TextView tvNombre, tvTipo, tvPeriodicidad, tvFechas, tvCupo;
     private TextView tvProyecto, tvOferentes, tvSocio, tvDiasAviso;
     private Button btnEditar, btnEliminar;
+    private TextView tvTotalArchivosAdjuntos;
+    private MaterialButton btnVerArchivosAdjuntos;
     private Actividad actividad;
     private String actividadId;
     private final ActividadDAO actividadDAO = new ActividadDAO();
@@ -75,7 +91,12 @@ public class VerActividadActivity extends AppCompatActivity {
         tvDiasAviso = findViewById(R.id.tvDiasAviso);
         btnEditar = findViewById(R.id.btnEditar);
         btnEliminar = findViewById(R.id.btnEliminar);
-
+        tvTotalArchivosAdjuntos = findViewById(R.id.tvTotalArchivosAdjuntos);
+        btnVerArchivosAdjuntos = findViewById(R.id.btnVerArchivosAdjuntos);
+        if (btnVerArchivosAdjuntos != null) {
+            btnVerArchivosAdjuntos.setEnabled(false);
+            btnVerArchivosAdjuntos.setOnClickListener(v -> abrirVistaArchivosAdjuntos());
+        }
         actividadId = getIntent().getStringExtra("actividadId");
         if (actividadId == null) {
             Toast.makeText(this, "No se encontró la actividad seleccionada", Toast.LENGTH_SHORT).show();
@@ -199,6 +220,35 @@ public class VerActividadActivity extends AppCompatActivity {
 
         // Días de aviso previo
         tvDiasAviso.setText(actividad.getDiasAvisoPrevio() + " días antes");
+
+        actualizarResumenArchivos();
+    }
+
+    private void actualizarResumenArchivos() {
+        if (tvTotalArchivosAdjuntos == null) {
+            return;
+        }
+        int totalAdjuntos = 0;
+        if (actividad != null && actividad.getArchivosAdjuntos() != null) {
+            totalAdjuntos = actividad.getArchivosAdjuntos().size();
+        }
+
+        tvTotalArchivosAdjuntos.setText(getString(R.string.ver_actividad_total_archivos, totalAdjuntos));
+        if (btnVerArchivosAdjuntos != null) {
+            btnVerArchivosAdjuntos.setEnabled(actividad != null);
+        }
+
+
+    }
+
+    private void abrirVistaArchivosAdjuntos() {
+        if (actividad == null || actividadId == null) {
+            Toast.makeText(this, R.string.ver_archivos_adjuntos_loading, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Intent intent = new Intent(this, VerArchivosAdjuntosActivity.class);
+        intent.putExtra("actividadId", actividadId);
+        startActivity(intent);
     }
 
     private void mostrarDialogoEliminar() {
@@ -263,26 +313,49 @@ public class VerActividadActivity extends AppCompatActivity {
         if (actividad == null) {
             return;
         }
+
+        // Guardar datos de la actividad antes de eliminarla (para la notificación)
+        final String actividadIdTemp = actividad.getId();
+        final String nombreActividadTemp = actividad.getNombre();
+
         citaDAO.deleteCitasPorActividad(actividad, new FirestoreOperationCallback() {
             @Override
             public void onSuccess() {
+                // Cancelar notificaciones programadas de todas las citas
+                GestorNotificaciones gestor = new GestorNotificaciones(VerActividadActivity.this);
+                if (actividad.getCitas() != null) {
+                    for (com.test.mysede.model.Cita cita : actividad.getCitas()) {
+                        gestor.cancelarNotificacionesCita(cita.getId());
+                    }
+                }
+
                 actividadDAO.deleteActividad(actividad, new FirestoreOperationCallback() {
                     @Override
                     public void onSuccess() {
-                        Toast.makeText(VerActividadActivity.this, "Actividad eliminada correctamente", Toast.LENGTH_SHORT).show();
+                        // Notificar cancelación a los usuarios inscritos
+                        gestor.notificarCancelacionActividad(
+                                actividadIdTemp,
+                                nombreActividadTemp,
+                                "La actividad ha sido eliminada del sistema"
+                        );
+
+                        Toast.makeText(VerActividadActivity.this,
+                                "Actividad eliminada correctamente", Toast.LENGTH_SHORT).show();
                         finish();
                     }
 
                     @Override
                     public void onFailure(Exception exception) {
-                        Toast.makeText(VerActividadActivity.this, "Error al eliminar la actividad", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(VerActividadActivity.this,
+                                "Error al eliminar la actividad", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
 
             @Override
             public void onFailure(Exception exception) {
-                Toast.makeText(VerActividadActivity.this, "No fue posible eliminar las citas asociadas", Toast.LENGTH_SHORT).show();
+                Toast.makeText(VerActividadActivity.this,
+                        "No fue posible eliminar las citas asociadas", Toast.LENGTH_SHORT).show();
             }
         });
     }

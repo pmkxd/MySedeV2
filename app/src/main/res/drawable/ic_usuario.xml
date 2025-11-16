@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorControlNormal">
+
+    <!-- Círculo de la cabeza -->
+    <path
+        android:fillColor="@android:color/black"
+        android:pathData="M12,12a5,5 0 1,0 -0.001,-10.001A5,5 0 0,0 12,12z" />
+
+    <!-- Parte del cuerpo -->
+    <path
+        android:fillColor="@android:color/black"
+        android:pathData="M4,20c0,-4 4,-6 8,-6s8,2 8,6v1H4v-1z" />
+
+</vector>
