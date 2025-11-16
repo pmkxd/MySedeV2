@@ -76,9 +76,6 @@
 
         <!-- Citas, Actividades y Calendar -->
         <activity
-            android:name=".citas.CrearCitaActivity"
-            android:exported="false"/>
-        <activity
             android:name=".actividades.ListarActividadesActivity"
             android:exported="false"
             android:label="Actividades"/>
