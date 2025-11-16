@@ -166,4 +166,25 @@ Hora: %4$s</string>
 • Combina letras mayúsculas y minúsculas.
 • Incluye números y símbolos.
 • Evita repetir contraseñas o datos personales.</string>
+
+
+    <!-- ========== STRINGS DE NOTIFICACIONES ========== -->
+    <string name="sin_notificaciones">No tienes notificaciones</string>
+    <string name="icono_notificacion">Ícono de notificación</string>
+    <string name="notificaciones">Notificaciones</string>
+    <string name="notificacion_nueva_actividad">Nueva actividad disponible</string>
+    <string name="notificacion_confirmacion">Inscripción confirmada</string>
+    <string name="notificacion_recordatorio">Recordatorio de actividad</string>
+    <string name="notificacion_cambio">Cambio en actividad</string>
+    <string name="notificacion_cancelacion">Actividad cancelada</string>
+    <string name="notificacion_cupo_lleno">Cupos agotados</string>
+    <string name="notificacion_cupo_disponible">Cupo disponible</string>
+    <string name="notificacion_nuevo_material">Nuevo material disponible</string>
+    <string name="notificacion_marcar_leida">Marcar como leída</string>
+    <string name="notificacion_eliminar">Eliminar notificación</string>
+    <string name="notificaciones_cargar_error">Error al cargar notificaciones</string>
+    <string name="notificaciones_sin_conexion">Sin conexión. Verifica tu internet.</string>
+    <string name="notificaciones_actualizando">Actualizando notificaciones…</string>
+    <!-- ================================================ -->
+
 </resources>
