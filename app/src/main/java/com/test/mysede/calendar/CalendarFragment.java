@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.test.mysede.model.Periodicidad;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
@@ -374,7 +374,63 @@ public class CalendarFragment extends Fragment implements
         dialog.setContentView(dialogView);
         dialog.show();
     }
+    private boolean perteneceActividad(CalendarUiCita uiCita, Actividad actividad) {
+        if (uiCita == null || actividad == null) {
+            return false;
+        }
+        String actividadId = actividad.getId();
+        if (!TextUtils.isEmpty(actividadId)) {
+            return actividadId.equals(uiCita.getActividadId());
+        }
+        Actividad citaActividad = uiCita.getActividad();
+        return citaActividad != null && citaActividad == actividad;
+    }
 
+    private void ajustarPeriodicidadActividad(@Nullable Actividad actividad) {
+        if (actividad == null) {
+            return;
+        }
+
+        Periodicidad periodicidadActual = actividad.getPeriodicidad();
+        if (periodicidadActual == null) {
+            return;
+        }
+
+        List<LocalDate> fechasActividad = new ArrayList<>();
+        for (CalendarUiCita uiCita : allAppointments) {
+            if (perteneceActividad(uiCita, actividad)) {
+                fechasActividad.add(uiCita.getFecha());
+            }
+        }
+
+        if (fechasActividad.isEmpty()) {
+            return;
+        }
+
+        LocalDate nuevaFechaInicio = Collections.min(fechasActividad);
+        LocalDate nuevaFechaFin = Collections.max(fechasActividad);
+
+        LocalDate inicioActual = periodicidadActual.getFechaInicio().orElse(null);
+        LocalDate finActual = periodicidadActual.getFechaFin().orElse(null);
+
+        Periodicidad nuevaPeriodicidad;
+        if (periodicidadActual.getTipo() == Periodicidad.Tipo.PUNTUAL) {
+            if (Objects.equals(inicioActual, nuevaFechaInicio)) {
+                return;
+            }
+            nuevaPeriodicidad = Periodicidad.puntual(periodicidadActual.getNombre(), nuevaFechaInicio);
+        } else {
+            if (Objects.equals(inicioActual, nuevaFechaInicio) && Objects.equals(finActual, nuevaFechaFin)) {
+                return;
+            }
+            nuevaPeriodicidad = Periodicidad.periodica(periodicidadActual.getNombre(), nuevaFechaInicio, nuevaFechaFin);
+        }
+
+        actividad.setPeriodicidad(nuevaPeriodicidad);
+        if (!TextUtils.isEmpty(actividad.getId())) {
+            actividadDAO.updateActividad(actividad, null);
+        }
+    }
     private void reagendarCita(CalendarUiCita cita, LocalDate nuevaFecha, LocalTime nuevaHora) {
         Objects.requireNonNull(cita, "La cita es obligatoria");
         Objects.requireNonNull(nuevaFecha, "La fecha es obligatoria");
@@ -425,8 +481,10 @@ public class CalendarFragment extends Fragment implements
             public void onSuccess() {
                 requireActivity().runOnUiThread(() -> {
                     cita.actualizarModelo(citaActualizada);
+                    actualizarCitaEnActividad(citaActualizada);
                     actualizarIndicePorFecha();
                     actualizarSeleccion(nuevaFecha);
+                    ajustarPeriodicidadActividad(cita.getActividad());
                     Snackbar.make(root, getString(R.string.calendario_snackbar_reagendada,
                             cita.getActividadNombre(),
                             capitalizar(nuevaFecha.format(dateDetailFormatter)),
@@ -458,6 +516,7 @@ public class CalendarFragment extends Fragment implements
             actualizarIndicePorFecha();
             refrescarSemana();
             refrescarMes();
+            ajustarPeriodicidadActividad(cita.getActividad());
             Snackbar.make(root, getString(R.string.calendario_snackbar_eliminada, cita.getActividadNombre()), Snackbar.LENGTH_LONG).show();
             return;
         }
@@ -470,6 +529,7 @@ public class CalendarFragment extends Fragment implements
             actualizarIndicePorFecha();
             refrescarSemana();
             refrescarMes();
+            ajustarPeriodicidadActividad(cita.getActividad());
             Snackbar.make(root, getString(R.string.calendario_snackbar_eliminada, cita.getActividadNombre()), Snackbar.LENGTH_LONG).show();
             return;
         }
@@ -480,9 +540,11 @@ public class CalendarFragment extends Fragment implements
             public void onSuccess() {
                 requireActivity().runOnUiThread(() -> {
                     allAppointments.remove(cita);
+                    eliminarCitaDeActividad(cita);
                     actualizarIndicePorFecha();
                     refrescarSemana();
                     refrescarMes();
+                    ajustarPeriodicidadActividad(cita.getActividad());
                     Snackbar.make(root, getString(R.string.calendario_snackbar_eliminada, cita.getActividadNombre()), Snackbar.LENGTH_LONG).show();
                 });
             }
@@ -624,6 +686,21 @@ public class CalendarFragment extends Fragment implements
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
+    }
+    private void actualizarCitaEnActividad(@Nullable Cita citaActualizada) {
+        if (citaActualizada == null) return;
+        Actividad actividad = citaActualizada.getActividad();
+        if (actividad == null || TextUtils.isEmpty(actividad.getId())) return;
+        actividad.agregarOCambiarCita(citaActualizada);
+        actividadDAO.saveActividad(actividad);
+    }
+
+    private void eliminarCitaDeActividad(@NonNull CalendarUiCita cita) {
+        Actividad actividad = cita.getActividad();
+        String citaId = cita.getFirestoreId();
+        if (actividad == null || TextUtils.isEmpty(actividad.getId()) || TextUtils.isEmpty(citaId)) return;
+        actividad.eliminarCitaPorId(citaId);
+        actividadDAO.saveActividad(actividad);
     }
 
     private String capitalizar(String texto) {

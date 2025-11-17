@@ -171,4 +171,17 @@ public class Actividad {
         LocalDateTime fechaHoraCita = LocalDateTime.of(fechaCita, horaCita);
         return fechaHoraCita.minusDays(diasAvisoPrevio);
     }
+    public void agregarOCambiarCita(Cita citaActualizada) {
+        Objects.requireNonNull(citaActualizada, "La cita es obligatoria");
+        String citaId = citaActualizada.getId();
+        if (citaId != null) {
+            citas.removeIf(cita -> citaId.equals(cita.getId()));
+        }
+        citas.add(citaActualizada);
+    }
+
+    public void eliminarCitaPorId(String citaId) {
+        if (citaId == null) return;
+        citas.removeIf(cita -> citaId.equals(cita.getId()));
+    }
 }
