@@ -330,12 +330,21 @@ public class VerArchivosAdjuntosActivity extends AppCompatActivity {
             mostrarArchivosAdjuntos();
             return;
         }
+
+        // Guardar nombre del archivo antes de eliminarlo (para la notificación)
+        final String nombreArchivoEliminado = encontrado.getNombre();
+
         actuales.remove(encontrado);
         actividad.setArchivosAdjuntos(actuales);
         actividadDAO.updateActividad(actividad, new FirestoreOperationCallback() {
             @Override
             public void onSuccess() {
                 Toast.makeText(VerArchivosAdjuntosActivity.this, R.string.ver_archivos_adjuntos_delete_success, Toast.LENGTH_SHORT).show();
+
+                // ========== NOTIFICAR ELIMINACIÓN DE ARCHIVO ==========
+                notificarArchivoEliminado(nombreArchivoEliminado);
+                // ======================================================
+
                 mostrarArchivosAdjuntos();
             }
 
@@ -459,33 +468,28 @@ public class VerArchivosAdjuntosActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Notifica cuando se elimina un archivo de una actividad
+     */
+    private void notificarArchivoEliminado(String nombreArchivo) {
+        if (actividad == null || nombreArchivo == null) {
+            return;
+        }
 
+        GestorNotificaciones gestor = new GestorNotificaciones(this);
 
+        String titulo = "Archivo eliminado 🗑️";
+        String mensaje = "Se eliminó " + nombreArchivo + " de " + actividad.getNombre();
 
+        // Usar el método de cambio de actividad para notificar
+        gestor.notificarCambioActividad(
+                actividad.getId(),
+                actividad.getNombre(),
+                "Archivo eliminado",
+                "Se eliminó: " + nombreArchivo
+        );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        Log.d(TAG, "✓ Notificación enviada: Archivo eliminado - " + nombreArchivo);
+    }
 
 }
