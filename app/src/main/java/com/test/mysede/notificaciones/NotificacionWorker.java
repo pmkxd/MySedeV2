@@ -41,8 +41,8 @@ public class NotificacionWorker extends Worker {
             String citaId = getInputData().getString("citaId");
 
             if (titulo != null && mensaje != null) {
-                // Guardar en Firestore
-                guardarNotificacionEnFirestore(titulo, mensaje, tipo, actividadId, citaId);
+                // Guardar en Firestore  ← COMENTA ESTA LÍNEA
+                // guardarNotificacionEnFirestore(titulo, mensaje, tipo, actividadId, citaId);
 
                 // Mostrar notificación local
                 mostrarNotificacionLocal(titulo, mensaje, tipo);

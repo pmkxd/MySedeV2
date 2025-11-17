@@ -119,25 +119,38 @@ public class Actividad {
     }
 
     public Cita crearCita(Lugar lugar, LocalDate fecha, LocalTime hora) {
+        return crearCita(lugar, fecha, hora, true); // Validar por defecto
+    }
+
+    /**
+     * Crear cita con opción de validar o no (útil para cargar datos desde Firestore)
+     */
+    public Cita crearCita(Lugar lugar, LocalDate fecha, LocalTime hora, boolean validar) {
         Objects.requireNonNull(lugar, "El lugar es obligatorio");
         Objects.requireNonNull(fecha, "La fecha es obligatoria");
         Objects.requireNonNull(hora, "La hora es obligatoria");
 
         if (periodicidad.getTipo() == Periodicidad.Tipo.PUNTUAL && !citas.isEmpty()) {
-            throw new IllegalStateException("Una actividad puntual solo puede tener una cita");
+            if (validar) {
+                throw new IllegalStateException("Una actividad puntual solo puede tener una cita");
+            }
         }
 
-        periodicidad.getFechaInicio().ifPresent(fechaInicio -> {
-            if (fecha.isBefore(fechaInicio)) {
-                throw new IllegalArgumentException("La fecha de la cita no puede ser anterior al inicio de la periodicidad");
-            }
-        });
+        if (validar) {
+            periodicidad.getFechaInicio().ifPresent(fechaInicio -> {
+                if (fecha.isBefore(fechaInicio)) {
+                    // Solo log de warning, no crash
+                    android.util.Log.w("Actividad", "La fecha de la cita (" + fecha + ") es anterior al inicio de la periodicidad (" + fechaInicio + ")");
+                }
+            });
 
-        periodicidad.getFechaFin().ifPresent(fechaFin -> {
-            if (fecha.isAfter(fechaFin)) {
-                throw new IllegalArgumentException("La fecha de la cita no puede ser posterior al fin de la periodicidad");
-            }
-        });
+            periodicidad.getFechaFin().ifPresent(fechaFin -> {
+                if (fecha.isAfter(fechaFin)) {
+                    // Solo log de warning, no crash
+                    android.util.Log.w("Actividad", "La fecha de la cita (" + fecha + ") es posterior al fin de la periodicidad (" + fechaFin + ")");
+                }
+            });
+        }
 
         Cita nuevaCita = new Cita(this, lugar, fecha, hora);
         citas.add(nuevaCita);
@@ -157,5 +170,18 @@ public class Actividad {
         LocalTime horaCita = cita.getHora();
         LocalDateTime fechaHoraCita = LocalDateTime.of(fechaCita, horaCita);
         return fechaHoraCita.minusDays(diasAvisoPrevio);
+    }
+    public void agregarOCambiarCita(Cita citaActualizada) {
+        Objects.requireNonNull(citaActualizada, "La cita es obligatoria");
+        String citaId = citaActualizada.getId();
+        if (citaId != null) {
+            citas.removeIf(cita -> citaId.equals(cita.getId()));
+        }
+        citas.add(citaActualizada);
+    }
+
+    public void eliminarCitaPorId(String citaId) {
+        if (citaId == null) return;
+        citas.removeIf(cita -> citaId.equals(cita.getId()));
     }
 }
