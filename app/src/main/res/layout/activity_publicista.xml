@@ -15,8 +15,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/md_theme_primary"
-            android:title="Panel de Publicista"
-            android:titleTextColor="@color/md_theme_onPrimary" />
+            app:title="Panel de Publicista"
+            app:titleTextColor="@color/md_theme_onPrimary" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
