@@ -425,6 +425,7 @@ public class CalendarFragment extends Fragment implements
             public void onSuccess() {
                 requireActivity().runOnUiThread(() -> {
                     cita.actualizarModelo(citaActualizada);
+                    actualizarCitaEnActividad(citaActualizada);
                     actualizarIndicePorFecha();
                     actualizarSeleccion(nuevaFecha);
                     Snackbar.make(root, getString(R.string.calendario_snackbar_reagendada,
@@ -480,6 +481,7 @@ public class CalendarFragment extends Fragment implements
             public void onSuccess() {
                 requireActivity().runOnUiThread(() -> {
                     allAppointments.remove(cita);
+                    eliminarCitaDeActividad(cita);
                     actualizarIndicePorFecha();
                     refrescarSemana();
                     refrescarMes();
@@ -624,6 +626,21 @@ public class CalendarFragment extends Fragment implements
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
+    }
+    private void actualizarCitaEnActividad(@Nullable Cita citaActualizada) {
+        if (citaActualizada == null) return;
+        Actividad actividad = citaActualizada.getActividad();
+        if (actividad == null || TextUtils.isEmpty(actividad.getId())) return;
+        actividad.agregarOCambiarCita(citaActualizada);
+        actividadDAO.saveActividad(actividad);
+    }
+
+    private void eliminarCitaDeActividad(@NonNull CalendarUiCita cita) {
+        Actividad actividad = cita.getActividad();
+        String citaId = cita.getFirestoreId();
+        if (actividad == null || TextUtils.isEmpty(actividad.getId()) || TextUtils.isEmpty(citaId)) return;
+        actividad.eliminarCitaPorId(citaId);
+        actividadDAO.saveActividad(actividad);
     }
 
     private String capitalizar(String texto) {
