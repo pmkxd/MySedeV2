@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import java.time.ZoneOffset;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -570,14 +570,19 @@ public class CalendarFragment extends Fragment implements
     }
 
     private void mostrarDialogoReagendar(CalendarUiCita cita, boolean notificar) {
-        long seleccionInicial = cita.getFecha().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long seleccionInicial = cita.getFecha()
+                .atStartOfDay(ZoneOffset.UTC)
+                .toInstant()
+                .toEpochMilli();
         MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
                 .setTitleText(R.string.calendario_dialogo_reagendar_fecha)
                 .setSelection(seleccionInicial)
                 .build();
         datePicker.addOnPositiveButtonClickListener(selection -> {
             if (selection == null) return;
-            LocalDate nuevaFecha = Instant.ofEpochMilli(selection).atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate nuevaFecha = Instant.ofEpochMilli(selection)
+                    .atZone(ZoneOffset.UTC)
+                    .toLocalDate();
 
             // Validar que la nueva fecha sea futura (no hoy ni fechas pasadas)
             if (!nuevaFecha.isAfter(LocalDate.now())) {
