@@ -58,6 +58,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.test.mysede.auth.PermissionManager;
 import com.test.mysede.auth.Permiso;
+import android.app.Activity;
 
 /**
  * Fragment que muestra el calendario de actividades/citas.
@@ -114,6 +115,11 @@ public class CalendarFragment extends Fragment implements
     private LocalDate selectedDate = LocalDate.now();
     private LocalDate currentWeekStart = selectedDate.with(DayOfWeek.MONDAY);
     private YearMonth currentMonth = YearMonth.from(selectedDate);
+
+    // ============================================
+    // NUEVA VARIABLE PARA CONTROLAR ESTADO DEL FRAGMENT
+    // ============================================
+    private boolean isFragmentActive = false;
 
     @Nullable
     @Override
@@ -173,6 +179,45 @@ public class CalendarFragment extends Fragment implements
 
         actualizarSeleccion(selectedDate);
         cargarCitasDesdeDao();
+    }
+
+    // ============================================
+    // CONTROL DE CICLO DE VIDA DEL FRAGMENT
+    // ============================================
+    @Override
+    public void onResume() {
+        super.onResume();
+        isFragmentActive = true;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        isFragmentActive = false;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        isFragmentActive = false;
+    }
+
+    // ============================================
+    // MÉTODO AUXILIAR PARA EJECUTAR EN UI THREAD DE FORMA SEGURA
+    // ============================================
+    private void runOnUiThreadSafely(Runnable action) {
+        if (!isFragmentActive || !isAdded() || getActivity() == null) {
+            return;
+        }
+
+        Activity activity = getActivity();
+        if (activity != null && !activity.isFinishing()) {
+            activity.runOnUiThread(() -> {
+                if (isFragmentActive && isAdded() && getActivity() != null) {
+                    action.run();
+                }
+            });
+        }
     }
 
     private void cambiarModo(ViewMode mode) {
@@ -257,12 +302,20 @@ public class CalendarFragment extends Fragment implements
         currentMonth = YearMonth.from(selectedDate);
     }
 
+    // ============================================
+    // MÉTODO CORREGIDO: cargarCitasDesdeDao
+    // ============================================
     private void cargarCitasDesdeDao() {
         actividadDAO.getAllActividades(new ActividadDAO.OnActividadesLoadedListener() {
             @Override
             public void onActividadesLoaded(ArrayList<Actividad> actividades) {
+                // Validar si el Fragment aún está adjunto
+                if (!isFragmentActive || !isAdded() || getActivity() == null) {
+                    return;
+                }
+
                 if (actividades == null || actividades.isEmpty()) {
-                    requireActivity().runOnUiThread(() -> {
+                    runOnUiThreadSafely(() -> {
                         allAppointments.clear();
                         actualizarIndicePorFecha();
                         refrescarSemana();
@@ -279,6 +332,11 @@ public class CalendarFragment extends Fragment implements
                     citaDAO.getCitasPorActividad(actividad, new CitaDAO.OnCitasLoadedListener() {
                         @Override
                         public void onCitasLoaded(ArrayList<Cita> citas) {
+                            // Validar si el Fragment aún está adjunto
+                            if (!isFragmentActive || !isAdded() || getActivity() == null) {
+                                return;
+                            }
+
                             if (citas != null) {
                                 for (Cita cita : citas) {
                                     citasRecolectadas.add(CalendarUiCita.fromCita(cita));
@@ -289,21 +347,33 @@ public class CalendarFragment extends Fragment implements
 
                         @Override
                         public void onError(Exception e) {
+                            // Validar si el Fragment aún está adjunto
+                            if (!isFragmentActive || !isAdded() || getActivity() == null) {
+                                return;
+                            }
+
                             if (errorReportado.compareAndSet(false, true)) {
-                                requireActivity().runOnUiThread(() ->
-                                        Snackbar.make(root, R.string.calendario_error_cargar_citas, Snackbar.LENGTH_LONG).show()
-                                );
+                                runOnUiThreadSafely(() -> {
+                                    if (root != null) {
+                                        Snackbar.make(root, R.string.calendario_error_cargar_citas, Snackbar.LENGTH_LONG).show();
+                                    }
+                                });
                             }
                             verificarFinalizacion();
                         }
 
                         private void verificarFinalizacion() {
+                            // Validar si el Fragment aún está adjunto
+                            if (!isFragmentActive || !isAdded() || getActivity() == null) {
+                                return;
+                            }
+
                             if (pendientes.decrementAndGet() == 0) {
                                 List<CalendarUiCita> snapshot;
                                 synchronized (citasRecolectadas) {
                                     snapshot = new ArrayList<>(citasRecolectadas);
                                 }
-                                requireActivity().runOnUiThread(() -> actualizarCalendario(snapshot));
+                                runOnUiThreadSafely(() -> actualizarCalendario(snapshot));
                             }
                         }
                     });
@@ -312,8 +382,10 @@ public class CalendarFragment extends Fragment implements
 
             @Override
             public void onError(Exception e) {
-                requireActivity().runOnUiThread(() -> {
-                    Snackbar.make(root, R.string.calendario_error_cargar_citas, Snackbar.LENGTH_LONG).show();
+                runOnUiThreadSafely(() -> {
+                    if (root != null) {
+                        Snackbar.make(root, R.string.calendario_error_cargar_citas, Snackbar.LENGTH_LONG).show();
+                    }
                     allAppointments.clear();
                     actualizarIndicePorFecha();
                     refrescarSemana();
@@ -350,6 +422,8 @@ public class CalendarFragment extends Fragment implements
     }
 
     private void mostrarCitasDelDia(LocalDate fecha) {
+        if (!isAdded() || getContext() == null) return;
+
         BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
         View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.bottom_sheet_calendar_day, null, false);
         MaterialTextView titulo = dialogView.findViewById(R.id.calendar_day_sheet_title);
@@ -374,6 +448,7 @@ public class CalendarFragment extends Fragment implements
         dialog.setContentView(dialogView);
         dialog.show();
     }
+
     private boolean perteneceActividad(CalendarUiCita uiCita, Actividad actividad) {
         if (uiCita == null || actividad == null) {
             return false;
@@ -431,36 +506,37 @@ public class CalendarFragment extends Fragment implements
             actividadDAO.updateActividad(actividad, null);
         }
     }
+
     private void reagendarCita(CalendarUiCita cita, LocalDate nuevaFecha, LocalTime nuevaHora) {
         Objects.requireNonNull(cita, "La cita es obligatoria");
         Objects.requireNonNull(nuevaFecha, "La fecha es obligatoria");
         Objects.requireNonNull(nuevaHora, "La hora es obligatoria");
 
-        // ============================================
-        // VALIDAR PERMISO PARA REAGENDAR CITAS
-        // ============================================
         if (!PermissionManager.tienePermiso(Permiso.EDITAR_CITA)) {
-            Snackbar.make(root, "No tienes permiso para reagendar citas", Snackbar.LENGTH_LONG).show();
+            if (root != null) {
+                Snackbar.make(root, "No tienes permiso para reagendar citas", Snackbar.LENGTH_LONG).show();
+            }
             return;
         }
-        // FIN VALIDACIÓN DE PERMISOS
-
 
         if (!nuevaFecha.isAfter(LocalDate.now())) {
-            Snackbar.make(root, R.string.calendario_error_fecha_pasada, Snackbar.LENGTH_LONG).show();
+            if (root != null) {
+                Snackbar.make(root, R.string.calendario_error_fecha_pasada, Snackbar.LENGTH_LONG).show();
+            }
             return;
         }
-
 
         String firestoreId = cita.getFirestoreId();
         if (TextUtils.isEmpty(firestoreId)) {
             cita.actualizarFechaHora(nuevaFecha, nuevaHora);
             actualizarIndicePorFecha();
             actualizarSeleccion(nuevaFecha);
-            Snackbar.make(root, getString(R.string.calendario_snackbar_reagendada,
-                    cita.getActividadNombre(),
-                    capitalizar(nuevaFecha.format(dateDetailFormatter)),
-                    nuevaHora.format(timeFormatter)), Snackbar.LENGTH_LONG).show();
+            if (root != null) {
+                Snackbar.make(root, getString(R.string.calendario_snackbar_reagendada,
+                        cita.getActividadNombre(),
+                        capitalizar(nuevaFecha.format(dateDetailFormatter)),
+                        nuevaHora.format(timeFormatter)), Snackbar.LENGTH_LONG).show();
+            }
             return;
         }
 
@@ -469,46 +545,51 @@ public class CalendarFragment extends Fragment implements
             cita.actualizarFechaHora(nuevaFecha, nuevaHora);
             actualizarIndicePorFecha();
             actualizarSeleccion(nuevaFecha);
-            Snackbar.make(root, getString(R.string.calendario_snackbar_reagendada,
-                    cita.getActividadNombre(),
-                    capitalizar(nuevaFecha.format(dateDetailFormatter)),
-                    nuevaHora.format(timeFormatter)), Snackbar.LENGTH_LONG).show();
+            if (root != null) {
+                Snackbar.make(root, getString(R.string.calendario_snackbar_reagendada,
+                        cita.getActividadNombre(),
+                        capitalizar(nuevaFecha.format(dateDetailFormatter)),
+                        nuevaHora.format(timeFormatter)), Snackbar.LENGTH_LONG).show();
+            }
             return;
         }
 
         citaDAO.saveCita(citaActualizada, new FirestoreOperationCallback() {
             @Override
             public void onSuccess() {
-                requireActivity().runOnUiThread(() -> {
+                runOnUiThreadSafely(() -> {
                     cita.actualizarModelo(citaActualizada);
                     actualizarCitaEnActividad(citaActualizada);
                     actualizarIndicePorFecha();
                     actualizarSeleccion(nuevaFecha);
                     ajustarPeriodicidadActividad(cita.getActividad());
-                    Snackbar.make(root, getString(R.string.calendario_snackbar_reagendada,
-                            cita.getActividadNombre(),
-                            capitalizar(nuevaFecha.format(dateDetailFormatter)),
-                            nuevaHora.format(timeFormatter)), Snackbar.LENGTH_LONG).show();
+                    if (root != null) {
+                        Snackbar.make(root, getString(R.string.calendario_snackbar_reagendada,
+                                cita.getActividadNombre(),
+                                capitalizar(nuevaFecha.format(dateDetailFormatter)),
+                                nuevaHora.format(timeFormatter)), Snackbar.LENGTH_LONG).show();
+                    }
                 });
             }
 
             @Override
             public void onFailure(Exception exception) {
-                requireActivity().runOnUiThread(() ->
-                        Snackbar.make(root, R.string.calendario_error_actualizar_cita, Snackbar.LENGTH_LONG).show());
+                runOnUiThreadSafely(() -> {
+                    if (root != null) {
+                        Snackbar.make(root, R.string.calendario_error_actualizar_cita, Snackbar.LENGTH_LONG).show();
+                    }
+                });
             }
         });
     }
 
     private void eliminarCita(CalendarUiCita cita) {
-        // ============================================
-        // VALIDAR PERMISO PARA ELIMINAR CITAS
-        // ============================================
         if (!PermissionManager.tienePermiso(Permiso.ELIMINAR_CITA)) {
-            Snackbar.make(root, "No tienes permiso para eliminar citas", Snackbar.LENGTH_LONG).show();
+            if (root != null) {
+                Snackbar.make(root, "No tienes permiso para eliminar citas", Snackbar.LENGTH_LONG).show();
+            }
             return;
         }
-        // FIN VALIDACIÓN DE PERMISOS
 
         String firestoreId = cita.getFirestoreId();
         if (TextUtils.isEmpty(firestoreId)) {
@@ -517,9 +598,12 @@ public class CalendarFragment extends Fragment implements
             refrescarSemana();
             refrescarMes();
             ajustarPeriodicidadActividad(cita.getActividad());
-            Snackbar.make(root, getString(R.string.calendario_snackbar_eliminada, cita.getActividadNombre()), Snackbar.LENGTH_LONG).show();
+            if (root != null) {
+                Snackbar.make(root, getString(R.string.calendario_snackbar_eliminada, cita.getActividadNombre()), Snackbar.LENGTH_LONG).show();
+            }
             return;
         }
+
         Cita modelo = cita.getCita();
         if (modelo == null) {
             modelo = cita.crearModelo(cita.getFecha(), cita.getHora());
@@ -530,7 +614,9 @@ public class CalendarFragment extends Fragment implements
             refrescarSemana();
             refrescarMes();
             ajustarPeriodicidadActividad(cita.getActividad());
-            Snackbar.make(root, getString(R.string.calendario_snackbar_eliminada, cita.getActividadNombre()), Snackbar.LENGTH_LONG).show();
+            if (root != null) {
+                Snackbar.make(root, getString(R.string.calendario_snackbar_eliminada, cita.getActividadNombre()), Snackbar.LENGTH_LONG).show();
+            }
             return;
         }
 
@@ -538,30 +624,33 @@ public class CalendarFragment extends Fragment implements
         citaDAO.deleteCita(finalModelo, new FirestoreOperationCallback() {
             @Override
             public void onSuccess() {
-                requireActivity().runOnUiThread(() -> {
+                runOnUiThreadSafely(() -> {
                     allAppointments.remove(cita);
                     eliminarCitaDeActividad(cita);
                     actualizarIndicePorFecha();
                     refrescarSemana();
                     refrescarMes();
                     ajustarPeriodicidadActividad(cita.getActividad());
-                    Snackbar.make(root, getString(R.string.calendario_snackbar_eliminada, cita.getActividadNombre()), Snackbar.LENGTH_LONG).show();
+                    if (root != null) {
+                        Snackbar.make(root, getString(R.string.calendario_snackbar_eliminada, cita.getActividadNombre()), Snackbar.LENGTH_LONG).show();
+                    }
                 });
             }
 
             @Override
             public void onFailure(Exception exception) {
-                requireActivity().runOnUiThread(() ->
-                        Snackbar.make(root, R.string.calendario_error_eliminar_cita, Snackbar.LENGTH_LONG).show());
+                runOnUiThreadSafely(() -> {
+                    if (root != null) {
+                        Snackbar.make(root, R.string.calendario_error_eliminar_cita, Snackbar.LENGTH_LONG).show();
+                    }
+                });
             }
         });
     }
 
-    // ========================================
-// REEMPLAZA el método mostrarDialogoDetalle COMPLETO
-// ========================================
-
     private void mostrarDialogoDetalle(CalendarUiCita cita) {
+        if (!isAdded() || getContext() == null) return;
+
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_cita_detalle, null, false);
         MaterialTextView titulo = view.findViewById(R.id.calendario_detalle_titulo);
         MaterialTextView horario = view.findViewById(R.id.calendario_detalle_horario);
@@ -576,24 +665,16 @@ public class CalendarFragment extends Fragment implements
                 cita.getHora().format(timeFormatter)));
         descripcion.setText(getString(R.string.calendario_detalle_lugar, cita.getLugarNombre()));
 
-        // ============================================
-        // CREAR EL DIALOG PRIMERO (antes de los listeners)
-        // ============================================
         final AlertDialog[] dialogHolder = new AlertDialog[1];
 
-        // ============================================
-        // VALIDACIÓN DE PERMISOS
-        // ============================================
         boolean puedeEditar = PermissionManager.tienePermiso(Permiso.EDITAR_CITA);
         boolean puedeEliminar = PermissionManager.tienePermiso(Permiso.ELIMINAR_CITA);
         boolean puedeRecibirNotificaciones = PermissionManager.tienePermiso(Permiso.RECIBIR_NOTIFICACIONES);
 
-        // Ocultar switch de notificación si NO tiene permiso o si no puede hacer ninguna acción
         if (!puedeRecibirNotificaciones || (!puedeEditar && !puedeEliminar)) {
             notificarSwitch.setVisibility(View.GONE);
         }
 
-        // Botón Reagendar - Solo visible si tiene permiso EDITAR_CITA
         if (puedeEditar) {
             reagendarButton.setVisibility(View.VISIBLE);
             reagendarButton.setOnClickListener(v -> {
@@ -606,7 +687,6 @@ public class CalendarFragment extends Fragment implements
             reagendarButton.setVisibility(View.GONE);
         }
 
-        // Botón Eliminar - Solo visible si tiene permiso ELIMINAR_CITA
         if (puedeEliminar) {
             eliminarButton.setVisibility(View.VISIBLE);
             eliminarButton.setOnClickListener(v -> {
@@ -618,20 +698,18 @@ public class CalendarFragment extends Fragment implements
         } else {
             eliminarButton.setVisibility(View.GONE);
         }
-        // FIN VALIDACIÓN DE PERMISOS
 
-        // Ahora sí creamos y asignamos el dialog
         AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
                 .create();
 
-        // Guardamos la referencia en el array para que los listeners puedan usarla
         dialogHolder[0] = dialog;
-
         dialog.show();
     }
 
     private void mostrarDialogoReagendar(CalendarUiCita cita, boolean notificar) {
+        if (!isAdded()) return;
+
         long seleccionInicial = cita.getFecha()
                 .atStartOfDay(ZoneOffset.UTC)
                 .toInstant()
@@ -641,23 +719,30 @@ public class CalendarFragment extends Fragment implements
                 .setSelection(seleccionInicial)
                 .build();
         datePicker.addOnPositiveButtonClickListener(selection -> {
-            if (selection == null) return;
+            if (!isAdded() || selection == null) return;
+
             LocalDate nuevaFecha = Instant.ofEpochMilli(selection)
                     .atZone(ZoneOffset.UTC)
                     .toLocalDate();
 
-            // Validar que la nueva fecha sea futura (no hoy ni fechas pasadas)
             if (!nuevaFecha.isAfter(LocalDate.now())) {
-                Snackbar.make(root, R.string.calendario_error_fecha_pasada, Snackbar.LENGTH_LONG).show();
+                if (root != null) {
+                    Snackbar.make(root, R.string.calendario_error_fecha_pasada, Snackbar.LENGTH_LONG).show();
+                }
                 return;
             }
 
             mostrarSelectorHora(cita, nuevaFecha, notificar);
         });
-        datePicker.show(getParentFragmentManager(), "calendario_reagendar_fecha");
+
+        if (getParentFragmentManager() != null) {
+            datePicker.show(getParentFragmentManager(), "calendario_reagendar_fecha");
+        }
     }
 
     private void mostrarSelectorHora(CalendarUiCita cita, LocalDate nuevaFecha, boolean notificar) {
+        if (!isAdded()) return;
+
         MaterialTimePicker picker = new MaterialTimePicker.Builder()
                 .setTimeFormat(TimeFormat.CLOCK_24H)
                 .setHour(cita.getHora().getHour())
@@ -665,28 +750,36 @@ public class CalendarFragment extends Fragment implements
                 .setTitleText(R.string.calendario_dialogo_reagendar_hora)
                 .build();
         picker.addOnPositiveButtonClickListener(v -> {
+            if (!isAdded()) return;
+
             LocalTime nuevaHora = LocalTime.of(picker.getHour(), picker.getMinute());
             reagendarCita(cita, nuevaFecha, nuevaHora);
-            if (notificar) {
+            if (notificar && root != null) {
                 Snackbar.make(root, R.string.calendario_snackbar_notificacion, Snackbar.LENGTH_SHORT).show();
             }
         });
-        picker.show(getParentFragmentManager(), "calendario_reagendar_hora");
+
+        if (getParentFragmentManager() != null) {
+            picker.show(getParentFragmentManager(), "calendario_reagendar_hora");
+        }
     }
 
     private void mostrarDialogoEliminar(CalendarUiCita cita, boolean notificar) {
+        if (!isAdded() || getContext() == null) return;
+
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.calendario_dialogo_eliminar_titulo)
                 .setMessage(getString(R.string.calendario_dialogo_eliminar_mensaje, cita.getActividadNombre()))
                 .setPositiveButton(R.string.calendario_dialogo_eliminar_confirmar, (dialog, which) -> {
                     eliminarCita(cita);
-                    if (notificar) {
+                    if (notificar && root != null) {
                         Snackbar.make(root, R.string.calendario_snackbar_notificacion, Snackbar.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
+
     private void actualizarCitaEnActividad(@Nullable Cita citaActualizada) {
         if (citaActualizada == null) return;
         Actividad actividad = citaActualizada.getActividad();

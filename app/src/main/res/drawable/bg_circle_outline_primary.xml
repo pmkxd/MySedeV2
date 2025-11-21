@@ -1,0 +1,12 @@
+<!-- ================================== -->
+<!-- bg_circle_outline_primary.xml -->
+<!-- res/drawable/bg_circle_outline_primary.xml -->
+<!-- Círculo decorativo para el logo -->
+<!-- ================================== -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <stroke
+        android:width="2dp"
+        android:color="?attr/colorPrimaryContainer"/>
+    <solid android:color="@android:color/transparent"/>
+</shape>
