@@ -70,8 +70,8 @@ Hora: %4$s</string>
     <string name="eliminar">Eliminar</string>
 
     <string name="calendario_title">Calendario de citas</string>
-    <string name="calendario_semana_anterior">Semana anterior</string>
-    <string name="calendario_semana_siguiente">Semana siguiente</string>
+    <string name="calendario_semana_anterior">Anterior</string>
+    <string name="calendario_semana_siguiente">Siguiente</string>
     <string name="calendario_hint">Mantén pulsada una cita para moverla a otro día o selecciónala para ver los detalles.</string>
     <string name="calendario_sin_citas">Sin citas para este día</string>
     <string name="calendario_evento_subtitulo">%1$s · %2$s</string>
