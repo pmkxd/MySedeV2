@@ -8,87 +8,151 @@
     android:background="@color/md_theme_surface"
     tools:context=".calendar.CalendarFragment">
 
+    <!-- Gradient Background Overlay -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@drawable/calendar_gradient_background"
+        android:alpha="0.05" />
+
     <LinearLayout
         android:id="@+id/calendar_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="16dp">
 
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/calendar_view_toggle"
-            style="@style/TextAppearance.Material3.TitleMedium"
+        <!-- Premium Toggle Group with Card Style -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:singleSelection="true">
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/md_theme_surfaceContainerHighest">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/calendar_toggle_week"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/calendar_view_toggle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/calendario_toggle_semana"
-                android:textAllCaps="false" />
+                android:layout_margin="4dp"
+                app:singleSelection="true"
+                app:selectionRequired="true">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/calendar_toggle_month"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/calendario_toggle_mes"
-                android:textAllCaps="false" />
-        </com.google.android.material.button.MaterialButtonToggleGroup>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/calendar_toggle_week"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:text="@string/calendario_toggle_semana"
+                    android:textAllCaps="false"
+                    android:textSize="15sp"
+                    android:letterSpacing="0.01"
+                    android:fontFamily="sans-serif-medium"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_calendar_week"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    app:iconSize="20dp" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/calendar_toggle_month"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:text="@string/calendario_toggle_mes"
+                    android:textAllCaps="false"
+                    android:textSize="15sp"
+                    android:letterSpacing="0.01"
+                    android:fontFamily="sans-serif-medium"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_calendar_month"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    app:iconSize="20dp" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Week View Container -->
         <LinearLayout
             android:id="@+id/calendar_week_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:paddingTop="16dp">
+            android:orientation="vertical">
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/calendar_week_title"
-                style="@style/TextAppearance.Material3.TitleMedium"
+            <!-- Week Title Card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:gravity="center"
-                android:textColor="@color/md_theme_onSurface"
-                tools:text="Semana del 10 al 16 de junio" />
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="@color/md_theme_primaryContainer">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingBottom="12dp">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/calendar_week_previous"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/calendario_semana_anterior"
-                    android:textAllCaps="false" />
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-                <View
-                    android:layout_width="16dp"
-                    android:layout_height="0dp" />
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/calendar_week_title"
+                        style="@style/TextAppearance.Material3.HeadlineSmall"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.005"
+                        android:textColor="@color/md_theme_onPrimaryContainer"
+                        tools:text="Semana del 10 al 16 de junio" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/calendar_week_next"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/calendario_semana_siguiente"
-                    android:textAllCaps="false" />
-            </LinearLayout>
+                    <!-- Navigation Buttons -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
 
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/calendar_week_previous"
+                            style="@style/Widget.Material3.Button.ElevatedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:text="@string/calendario_semana_anterior"
+                            android:textAllCaps="false"
+                            android:fontFamily="sans-serif-medium"
+                            app:cornerRadius="12dp"
+                            app:icon="@drawable/ic_chevron_left"
+                            app:iconGravity="textStart"
+                            app:iconSize="20dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/calendar_week_next"
+                            style="@style/Widget.Material3.Button.ElevatedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/calendario_semana_siguiente"
+                            android:textAllCaps="false"
+                            android:fontFamily="sans-serif-medium"
+                            app:cornerRadius="12dp"
+                            app:icon="@drawable/ic_chevron_right"
+                            app:iconGravity="textEnd"
+                            app:iconSize="20dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Week RecyclerView with Premium Styling -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/calendar_week_recycler"
                 android:layout_width="match_parent"
@@ -96,53 +160,74 @@
                 android:layout_weight="1"
                 android:clipToPadding="false"
                 android:paddingBottom="16dp"
+                android:paddingTop="8dp"
+                android:overScrollMode="never"
+                android:scrollbars="none"
                 tools:listitem="@layout/item_calendar_day" />
         </LinearLayout>
 
+        <!-- Month View Container -->
         <LinearLayout
             android:id="@+id/calendar_month_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:paddingTop="16dp"
             android:visibility="gone"
             tools:visibility="visible">
 
-            <LinearLayout
+            <!-- Month Header Card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingBottom="12dp">
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="@color/md_theme_secondaryContainer">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/calendar_month_previous"
-                    style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/calendario_mes_anterior"
-                    android:textAllCaps="false" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="12dp">
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/calendar_month_title"
-                    style="@style/TextAppearance.Material3.TitleMedium"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textColor="@color/md_theme_onSurface"
-                    tools:text="Junio 2024" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/calendar_month_previous"
+                        style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="@string/calendario_mes_anterior"
+                        app:icon="@drawable/ic_chevron_left"
+                        app:iconSize="24dp"
+                        app:cornerRadius="12dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/calendar_month_next"
-                    style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/calendario_mes_siguiente"
-                    android:textAllCaps="false" />
-            </LinearLayout>
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/calendar_month_title"
+                        style="@style/TextAppearance.Material3.HeadlineSmall"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.005"
+                        android:textColor="@color/md_theme_onSecondaryContainer"
+                        tools:text="Junio 2024" />
 
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/calendar_month_next"
+                        style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="@string/calendario_mes_siguiente"
+                        app:icon="@drawable/ic_chevron_right"
+                        app:iconSize="24dp"
+                        app:cornerRadius="12dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Month RecyclerView with Premium Styling -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/calendar_month_recycler"
                 android:layout_width="match_parent"
@@ -150,11 +235,12 @@
                 android:layout_weight="1"
                 android:clipToPadding="false"
                 android:paddingBottom="8dp"
+                android:paddingTop="8dp"
+                android:overScrollMode="never"
+                android:scrollbars="none"
                 tools:listitem="@layout/item_calendar_month_day" />
         </LinearLayout>
 
     </LinearLayout>
-
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

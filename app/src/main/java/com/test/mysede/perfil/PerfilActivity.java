@@ -11,6 +11,9 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -49,7 +52,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Activity del perfil de usuario.
+ * Activity del perfil de usuario con animaciones premium.
  * Permite cambiar contraseña, alternar modo oscuro y gestionar notificaciones.
  */
 public class PerfilActivity extends AppCompatActivity {
@@ -68,6 +71,10 @@ public class PerfilActivity extends AppCompatActivity {
     private CircularProgressIndicator progressAvatar;
     private TextView txtNombreUsuario;
     private TextView txtRolUsuario;
+    private View profileCard;
+    private View switchesCard;
+    private View buttonsContainer;
+
     private SessionManager sessionManager;
     private SharedPreferences sharedPreferences;
     private Usuario usuario;
@@ -84,6 +91,7 @@ public class PerfilActivity extends AppCompatActivity {
     @Nullable
     private File archivoFotoTemporal;
     private boolean imagenDesdeCamara;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,9 +99,12 @@ public class PerfilActivity extends AppCompatActivity {
 
         MaterialToolbar toolbar = findViewById(R.id.toolbarPerfil);
         setSupportActionBar(toolbar);
-        toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+        toolbar.setNavigationOnClickListener(v -> {
+            animarBoton(v);
+            getOnBackPressedDispatcher().onBackPressed();
+        });
 
-
+        // Inicializar vistas
         txtNombreUsuario = findViewById(R.id.txtNombreUsuario);
         txtRolUsuario = findViewById(R.id.txtRolUsuario);
         switchNotificaciones = findViewById(R.id.switchNotificaciones);
@@ -105,6 +116,25 @@ public class PerfilActivity extends AppCompatActivity {
         imgPerfil = findViewById(R.id.imgPerfil);
         progressAvatar = findViewById(R.id.progressAvatar);
 
+        // Buscar contenedores para animar (con casts seguros)
+        try {
+            profileCard = (View) txtNombreUsuario.getParent().getParent();
+        } catch (ClassCastException e) {
+            profileCard = null;
+        }
+
+        try {
+            switchesCard = (View) switchNotificaciones.getParent().getParent().getParent();
+        } catch (ClassCastException e) {
+            switchesCard = null;
+        }
+
+        try {
+            buttonsContainer = (View) btnCambiarContrasena.getParent();
+        } catch (ClassCastException e) {
+            buttonsContainer = null;
+        }
+
         sessionManager = new SessionManager(this);
         usuario = PermissionManager.getUsuarioActual();
         if (usuario == null) {
@@ -114,6 +144,7 @@ public class PerfilActivity extends AppCompatActivity {
         perfilImagenDAO = new PerfilImagenDAO();
         usuariosDAO = new UsuariosDAO();
         configurarLaunchers();
+
         if (usuario != null) {
             txtNombreUsuario.setText(usuario.getNombre());
             txtRolUsuario.setText(usuario.getRol().getNombreCompleto());
@@ -124,22 +155,136 @@ public class PerfilActivity extends AppCompatActivity {
             ProfileImageLoader.loadIntoImageView(imgPerfil, null);
         }
 
-
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         configurarSwitchNotificaciones();
         configurarSwitchModoOscuro();
 
-        // Abrir notificaciones
-        btnVerNotificaciones.setOnClickListener(v ->
-                startActivity(new Intent(this, NotificacionesActivity.class))
-        );
-        // Abrir cambiar contraseña
-        btnCambiarContrasena.setOnClickListener(v ->
-                startActivity(new Intent(this, CambiarContrasenaActivity.class))
-        );
-        btnEditarFotoPerfil.setOnClickListener(v -> mostrarOpcionesImagen());
-        btnCerrarSesion.setOnClickListener(v -> cerrarSesion());
+        // Configurar listeners con animaciones
+        btnVerNotificaciones.setOnClickListener(v -> {
+            animarBoton(v);
+            startActivity(new Intent(this, NotificacionesActivity.class));
+        });
+
+        btnCambiarContrasena.setOnClickListener(v -> {
+            animarBoton(v);
+            startActivity(new Intent(this, CambiarContrasenaActivity.class));
+        });
+
+        btnEditarFotoPerfil.setOnClickListener(v -> {
+            animarBoton(v);
+            mostrarOpcionesImagen();
+        });
+
+        btnCerrarSesion.setOnClickListener(v -> {
+            animarBoton(v);
+            cerrarSesion();
+        });
+
+        // Animación de entrada
+        animarEntrada();
     }
+
+    /**
+     * Animación de entrada para todos los elementos
+     */
+    private void animarEntrada() {
+        // Animar toolbar (fade in)
+        View toolbar = findViewById(R.id.toolbarPerfil);
+        if (toolbar != null) {
+            toolbar.setAlpha(0f);
+            toolbar.animate()
+                    .alpha(1f)
+                    .setDuration(300)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .start();
+        }
+
+        // Animar card del perfil (scale + fade)
+        if (profileCard != null) {
+            profileCard.setAlpha(0f);
+            profileCard.setScaleX(0.9f);
+            profileCard.setScaleY(0.9f);
+            profileCard.setTranslationY(20f);
+            profileCard.animate()
+                    .alpha(1f)
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .translationY(0f)
+                    .setDuration(400)
+                    .setStartDelay(100)
+                    .setInterpolator(new OvershootInterpolator(0.8f))
+                    .start();
+        }
+
+        // Animar switches card
+        if (switchesCard != null) {
+            switchesCard.setAlpha(0f);
+            switchesCard.setTranslationX(-30f);
+            switchesCard.animate()
+                    .alpha(1f)
+                    .translationX(0f)
+                    .setDuration(350)
+                    .setStartDelay(250)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .start();
+        }
+
+        // Animar botones uno por uno
+        if (buttonsContainer != null) {
+            animarBotonEntrada(btnCambiarContrasena, 0);
+            animarBotonEntrada(btnVerNotificaciones, 50);
+            animarBotonEntrada(btnCerrarSesion, 100);
+        }
+    }
+
+    /**
+     * Anima la entrada de un botón individual
+     */
+    private void animarBotonEntrada(View boton, int delayExtra) {
+        if (boton != null) {
+            boton.setAlpha(0f);
+            boton.setTranslationX(40f);
+            boton.animate()
+                    .alpha(1f)
+                    .translationX(0f)
+                    .setDuration(300)
+                    .setStartDelay(400 + delayExtra)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .start();
+        }
+    }
+
+    /**
+     * Animación de pulsación para botones
+     */
+    private void animarBoton(View boton) {
+        boton.animate()
+                .scaleX(0.92f)
+                .scaleY(0.92f)
+                .setDuration(80)
+                .setInterpolator(new AccelerateInterpolator())
+                .withEndAction(() -> {
+                    boton.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .setDuration(80)
+                            .setInterpolator(new DecelerateInterpolator())
+                            .start();
+                })
+                .start();
+    }
+
+    /**
+     * Animación para el avatar cuando rota
+     */
+    private void animarRotacionAvatar() {
+        imgPerfil.animate()
+                .rotationBy(360f)
+                .setDuration(600)
+                .setInterpolator(new DecelerateInterpolator())
+                .start();
+    }
+
     private void configurarLaunchers() {
         permisoCamaraLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
             if (granted) {
@@ -148,6 +293,7 @@ public class PerfilActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.perfil_error_permiso_camara, Toast.LENGTH_SHORT).show();
             }
         });
+
         tomarFotoLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), result -> {
             if (Boolean.TRUE.equals(result)) {
                 if (uriFotoTemporal != null) {
@@ -159,6 +305,7 @@ public class PerfilActivity extends AppCompatActivity {
                 limpiarCapturaCamara();
             }
         });
+
         seleccionarImagenLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
             if (uri != null) {
                 imagenDesdeCamara = false;
@@ -166,6 +313,7 @@ public class PerfilActivity extends AppCompatActivity {
                 iniciarRecorte(uri);
             }
         });
+
         recortarImagenLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                 Uri uriResultado = UCrop.getOutput(result.getData());
@@ -189,6 +337,7 @@ public class PerfilActivity extends AppCompatActivity {
     private void iniciarSeleccionImagen() {
         seleccionarImagenLauncher.launch("image/*");
     }
+
     private void mostrarOpcionesImagen() {
         String[] opciones = {
                 getString(R.string.perfil_imagen_opcion_tomar_foto),
@@ -233,6 +382,7 @@ public class PerfilActivity extends AppCompatActivity {
             limpiarCapturaCamara();
         }
     }
+
     private void iniciarRecorte(@NonNull Uri origen) {
         uriImagenOriginal = origen;
         Uri destino = Uri.fromFile(new File(getCacheDir(), "avatar_cortado_" + System.currentTimeMillis() + ".jpg"));
@@ -288,8 +438,24 @@ public class PerfilActivity extends AppCompatActivity {
                 }
             });
         });
+
+        // Animar entrada del diálogo
+        vista.setScaleX(0.8f);
+        vista.setScaleY(0.8f);
+        vista.setAlpha(0f);
+        vista.post(() -> {
+            vista.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .alpha(1f)
+                    .setDuration(250)
+                    .setInterpolator(new OvershootInterpolator(1f))
+                    .start();
+        });
+
         dialogo.show();
     }
+
     private void subirNuevaImagen(@NonNull Uri uriRecortada) {
         if (usuario == null) {
             Toast.makeText(this, R.string.perfil_error_usuario_no_disponible, Toast.LENGTH_SHORT).show();
@@ -314,6 +480,10 @@ public class PerfilActivity extends AppCompatActivity {
                                 sessionManager.crearSesion(usuario);
                                 PermissionManager.setUsuarioActual(usuario);
                                 ProfileImageLoader.loadIntoImageView(imgPerfil, usuario.getProfileImageUrl());
+
+                                // Animar actualización exitosa
+                                animarRotacionAvatar();
+
                                 Toast.makeText(this, R.string.perfil_imagen_actualizada, Toast.LENGTH_SHORT).show();
                                 if (!TextUtils.isEmpty(tokenAnterior)) {
                                     perfilImagenDAO.eliminarAvatarPorToken(tokenAnterior);
@@ -324,13 +494,11 @@ public class PerfilActivity extends AppCompatActivity {
                                         R.string.perfil_error_subir_imagen_detalle,
                                         e != null ? e.getMessage() : "Error desconocido"
                                 );
-
                                 new MaterialAlertDialogBuilder(this)
-                                        .setTitle("Error al subir imagen") // si quieres, luego lo pasas a strings.xml
+                                        .setTitle("Error al subir imagen")
                                         .setMessage(mensaje)
                                         .setPositiveButton(android.R.string.ok, (dialog, which) -> dialog.dismiss())
                                         .show();
-
                                 finalizarActualizacion(uriRecortada);
                             })
                             .addOnCompleteListener(task -> finalizarActualizacion(uriRecortada));
@@ -340,13 +508,11 @@ public class PerfilActivity extends AppCompatActivity {
                             R.string.perfil_error_subir_imagen_detalle,
                             e != null ? e.getMessage() : "Error desconocido"
                     );
-
                     new MaterialAlertDialogBuilder(this)
-                            .setTitle("Error al subir imagen") // si quieres, luego lo pasas a strings.xml
+                            .setTitle("Error al subir imagen")
                             .setMessage(mensaje)
                             .setPositiveButton(android.R.string.ok, (dialog, which) -> dialog.dismiss())
                             .show();
-
                     finalizarActualizacion(uriRecortada);
                 })
                 .addOnCompleteListener(task -> {
@@ -386,16 +552,38 @@ public class PerfilActivity extends AppCompatActivity {
         imagenDesdeCamara = false;
         uriImagenOriginal = null;
     }
+
     private void mostrarCargaImagen(boolean mostrar) {
         progressAvatar.setVisibility(mostrar ? View.VISIBLE : View.GONE);
         progressAvatar.setIndeterminate(mostrar);
-        imgPerfil.setAlpha(mostrar ? 0.5f : 1f);
+
+        // Animación del avatar durante la carga
+        if (mostrar) {
+            imgPerfil.animate()
+                    .alpha(0.5f)
+                    .scaleX(0.95f)
+                    .scaleY(0.95f)
+                    .setDuration(200)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .start();
+        } else {
+            imgPerfil.animate()
+                    .alpha(1f)
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(200)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .start();
+        }
     }
 
     private void configurarSwitchNotificaciones() {
         boolean notificacionesActivas = sharedPreferences.getBoolean(PREF_NOTIFICACIONES, true);
         switchNotificaciones.setChecked(notificacionesActivas);
         switchNotificaciones.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // Animación del switch
+            animarSwitch(buttonView);
+
             sharedPreferences.edit().putBoolean(PREF_NOTIFICACIONES, isChecked).apply();
             Toast.makeText(this,
                     isChecked ? getString(R.string.perfil_notificaciones_activadas)
@@ -409,10 +597,33 @@ public class PerfilActivity extends AppCompatActivity {
         switchModoOscuro.setChecked(modoOscuroActivo);
         aplicarModoOscuro(modoOscuroActivo);
         switchModoOscuro.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // Animación del switch
+            animarSwitch(buttonView);
+
             sharedPreferences.edit().putBoolean(PREF_MODO_OSCURO, isChecked).apply();
             aplicarModoOscuro(isChecked);
         });
     }
+
+    /**
+     * Animación para los switches cuando cambian de estado
+     */
+    private void animarSwitch(View switchView) {
+        switchView.animate()
+                .scaleX(1.05f)
+                .scaleY(1.05f)
+                .setDuration(100)
+                .setInterpolator(new OvershootInterpolator(2f))
+                .withEndAction(() -> {
+                    switchView.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .setDuration(100)
+                            .start();
+                })
+                .start();
+    }
+
     private void aplicarModoOscuro(boolean activar) {
         int modoDeseado = activar ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
         if (AppCompatDelegate.getDefaultNightMode() != modoDeseado) {
@@ -422,11 +633,33 @@ public class PerfilActivity extends AppCompatActivity {
     }
 
     private void cerrarSesion() {
-        sessionManager.cerrarSesion();
-        PermissionManager.setUsuarioActual(null);
-        Intent intent = new Intent(this, ActivityLogin.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        // Animación de salida
+        if (profileCard != null) {
+            profileCard.animate()
+                    .alpha(0f)
+                    .scaleX(0.9f)
+                    .scaleY(0.9f)
+                    .setDuration(200)
+                    .setInterpolator(new AccelerateInterpolator())
+                    .withEndAction(() -> {
+                        sessionManager.cerrarSesion();
+                        PermissionManager.setUsuarioActual(null);
+                        Intent intent = new Intent(this, ActivityLogin.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                        // Transición personalizada al cerrar sesión
+                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    })
+                    .start();
+        } else {
+            sessionManager.cerrarSesion();
+            PermissionManager.setUsuarioActual(null);
+            Intent intent = new Intent(this, ActivityLogin.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        }
     }
 }

@@ -5,6 +5,9 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import java.time.ZoneOffset;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -61,7 +64,7 @@ import com.test.mysede.auth.Permiso;
 import android.app.Activity;
 
 /**
- * Fragment que muestra el calendario de actividades/citas.
+ * Fragment que muestra el calendario de actividades/citas con animaciones premium.
  */
 public class CalendarFragment extends Fragment implements
         CalendarWeekAdapter.OnEventInteractionListener,
@@ -81,6 +84,13 @@ public class CalendarFragment extends Fragment implements
             fragment.setArguments(args);
         }
         return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Retener el fragment durante cambios de configuración
+        setRetainInstance(true);
     }
 
     private final Locale locale = new Locale("es", "ES");
@@ -116,15 +126,32 @@ public class CalendarFragment extends Fragment implements
     private LocalDate currentWeekStart = selectedDate.with(DayOfWeek.MONDAY);
     private YearMonth currentMonth = YearMonth.from(selectedDate);
 
-    // ============================================
-    // NUEVA VARIABLE PARA CONTROLAR ESTADO DEL FRAGMENT
-    // ============================================
     private boolean isFragmentActive = false;
+    private boolean datosYaCargados = false;
+
+    private static final String KEY_SELECTED_DATE = "selected_date";
+    private static final String KEY_CURRENT_MONTH = "current_month";
+    private static final String KEY_VIEW_MODE = "view_mode";
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_calendar, container, false);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // Guardar el estado actual
+        outState.putString(KEY_SELECTED_DATE, selectedDate.toString());
+        outState.putString(KEY_CURRENT_MONTH, currentMonth.toString());
+
+        // Guardar modo de vista actual
+        if (viewToggle != null && viewToggle.getCheckedButtonId() == R.id.calendar_toggle_month) {
+            outState.putString(KEY_VIEW_MODE, MODE_MONTH);
+        } else {
+            outState.putString(KEY_VIEW_MODE, MODE_WEEK);
+        }
     }
 
     @Override
@@ -144,6 +171,30 @@ public class CalendarFragment extends Fragment implements
         monthTitle = view.findViewById(R.id.calendar_month_title);
         monthRecycler = view.findViewById(R.id.calendar_month_recycler);
 
+        // Restaurar estado guardado si existe
+        if (savedInstanceState != null) {
+            String savedDate = savedInstanceState.getString(KEY_SELECTED_DATE);
+            String savedMonth = savedInstanceState.getString(KEY_CURRENT_MONTH);
+
+            if (savedDate != null) {
+                try {
+                    selectedDate = LocalDate.parse(savedDate);
+                    currentWeekStart = selectedDate.with(DayOfWeek.MONDAY);
+                } catch (Exception e) {
+                    selectedDate = LocalDate.now();
+                    currentWeekStart = selectedDate.with(DayOfWeek.MONDAY);
+                }
+            }
+
+            if (savedMonth != null) {
+                try {
+                    currentMonth = YearMonth.parse(savedMonth);
+                } catch (Exception e) {
+                    currentMonth = YearMonth.from(selectedDate);
+                }
+            }
+        }
+
         weekAdapter = new CalendarWeekAdapter(currentWeekDays, dayTitleFormatter, this);
         weekRecycler.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         weekRecycler.setAdapter(weekAdapter);
@@ -152,13 +203,45 @@ public class CalendarFragment extends Fragment implements
         monthRecycler.setLayoutManager(new GridLayoutManager(requireContext(), 7));
         monthRecycler.setAdapter(monthAdapter);
 
-        previousWeekButton.setOnClickListener(v -> navegarSemana(-1));
-        nextWeekButton.setOnClickListener(v -> navegarSemana(1));
-        previousMonthButton.setOnClickListener(v -> navegarMes(-1));
-        nextMonthButton.setOnClickListener(v -> navegarMes(1));
+        previousWeekButton.setOnClickListener(v -> {
+            animarBoton(v);
+            navegarSemana(-1);
+        });
+        nextWeekButton.setOnClickListener(v -> {
+            animarBoton(v);
+            navegarSemana(1);
+        });
+        previousMonthButton.setOnClickListener(v -> {
+            animarBoton(v);
+            navegarMes(-1);
+        });
+        nextMonthButton.setOnClickListener(v -> {
+            animarBoton(v);
+            navegarMes(1);
+        });
 
         viewToggle.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             if (!isChecked) return;
+
+            // Micro-animación en el toggle
+            MaterialButton checkedButton = group.findViewById(checkedId);
+            if (checkedButton != null) {
+                checkedButton.animate()
+                        .scaleX(1.05f)
+                        .scaleY(1.05f)
+                        .setDuration(100)
+                        .setInterpolator(new OvershootInterpolator(1.5f))
+                        .withEndAction(() -> {
+                            if (!isFragmentActive || !isAdded()) return;
+                            checkedButton.animate()
+                                    .scaleX(1f)
+                                    .scaleY(1f)
+                                    .setDuration(100)
+                                    .start();
+                        })
+                        .start();
+            }
+
             if (checkedId == R.id.calendar_toggle_week) {
                 cambiarModo(ViewMode.WEEK);
             } else if (checkedId == R.id.calendar_toggle_month) {
@@ -166,45 +249,94 @@ public class CalendarFragment extends Fragment implements
             }
         });
 
+        // Determinar el modo inicial
         String initialMode = null;
         Bundle args = getArguments();
-        if (args != null) {
+
+        // Prioridad: savedInstanceState > arguments
+        if (savedInstanceState != null) {
+            initialMode = savedInstanceState.getString(KEY_VIEW_MODE);
+        } else if (args != null) {
             initialMode = args.getString(ARG_INITIAL_MODE);
         }
+
+        // Establecer el modo sin animar si es la primera vez
         if (MODE_MONTH.equals(initialMode)) {
             viewToggle.check(R.id.calendar_toggle_month);
+            weekContainer.setVisibility(View.GONE);
+            monthContainer.setVisibility(View.VISIBLE);
         } else {
             viewToggle.check(R.id.calendar_toggle_week);
+            weekContainer.setVisibility(View.VISIBLE);
+            monthContainer.setVisibility(View.GONE);
+        }
+
+        // Animación de entrada inicial solo si el fragment está activo y no es una restauración
+        if (isAdded() && getActivity() != null && savedInstanceState == null) {
+            root.setAlpha(0f);
+            root.animate()
+                    .alpha(1f)
+                    .setDuration(400)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .start();
+        } else if (savedInstanceState != null) {
+            // Si es una restauración, mostrar inmediatamente sin animar
+            root.setAlpha(1f);
         }
 
         actualizarSeleccion(selectedDate);
-        cargarCitasDesdeDao();
+
+        // Solo cargar datos en la primera creación, no en restauraciones
+        // onResume se encargará de recargar cuando sea necesario
+        if (savedInstanceState == null && !datosYaCargados) {
+            cargarCitasDesdeDao();
+        } else if (allAppointments.size() > 0) {
+            // Si ya tenemos datos, solo refrescar las vistas
+            refrescarSemana();
+            refrescarMes();
+        }
     }
 
-    // ============================================
-    // CONTROL DE CICLO DE VIDA DEL FRAGMENT
-    // ============================================
     @Override
     public void onResume() {
         super.onResume();
         isFragmentActive = true;
+        // Recargar datos cuando volvemos al fragment - SIEMPRE
+        // Esto asegura que veamos citas nuevas creadas desde otras pantallas
+        cargarCitasDesdeDao();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         isFragmentActive = false;
+        // Cancelar todas las animaciones pendientes
+        cancelarAnimacionesPendientes();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         isFragmentActive = false;
+        // Cancelar todas las animaciones antes de destruir la vista
+        cancelarAnimacionesPendientes();
     }
 
-    // ============================================
-    // MÉTODO AUXILIAR PARA EJECUTAR EN UI THREAD DE FORMA SEGURA
-    // ============================================
+    /**
+     * Cancela todas las animaciones pendientes para evitar crashes
+     */
+    private void cancelarAnimacionesPendientes() {
+        if (root != null) {
+            root.animate().cancel();
+        }
+        if (weekContainer != null) {
+            weekContainer.animate().cancel();
+        }
+        if (monthContainer != null) {
+            monthContainer.animate().cancel();
+        }
+    }
+
     private void runOnUiThreadSafely(Runnable action) {
         if (!isFragmentActive || !isAdded() || getActivity() == null) {
             return;
@@ -220,9 +352,72 @@ public class CalendarFragment extends Fragment implements
         }
     }
 
+    /**
+     * Animación suave para botones
+     */
+    private void animarBoton(View boton) {
+        boton.animate()
+                .scaleX(0.92f)
+                .scaleY(0.92f)
+                .setDuration(80)
+                .setInterpolator(new AccelerateInterpolator())
+                .withEndAction(() -> {
+                    boton.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .setDuration(80)
+                            .setInterpolator(new DecelerateInterpolator())
+                            .start();
+                })
+                .start();
+    }
+
     private void cambiarModo(ViewMode mode) {
-        weekContainer.setVisibility(mode == ViewMode.WEEK ? View.VISIBLE : View.GONE);
-        monthContainer.setVisibility(mode == ViewMode.MONTH ? View.VISIBLE : View.GONE);
+        // Cancelar animaciones previas
+        weekContainer.animate().cancel();
+        monthContainer.animate().cancel();
+
+        View saliente = mode == ViewMode.WEEK ? monthContainer : weekContainer;
+        View entrante = mode == ViewMode.WEEK ? weekContainer : monthContainer;
+
+        // Verificar que el fragment está activo antes de animar
+        if (!isFragmentActive || !isAdded()) {
+            saliente.setVisibility(View.GONE);
+            entrante.setVisibility(View.VISIBLE);
+            if (mode == ViewMode.WEEK) {
+                refrescarSemana();
+            } else {
+                refrescarMes();
+            }
+            return;
+        }
+
+        // Animar salida con fade y translación
+        saliente.animate()
+                .alpha(0f)
+                .translationY(-20f)
+                .setDuration(200)
+                .setInterpolator(new AccelerateInterpolator())
+                .withEndAction(() -> {
+                    if (!isFragmentActive || !isAdded()) return;
+
+                    saliente.setVisibility(View.GONE);
+                    saliente.setAlpha(1f);
+                    saliente.setTranslationY(0f);
+
+                    // Animar entrada con fade y translación
+                    entrante.setVisibility(View.VISIBLE);
+                    entrante.setAlpha(0f);
+                    entrante.setTranslationY(20f);
+                    entrante.animate()
+                            .alpha(1f)
+                            .translationY(0f)
+                            .setDuration(300)
+                            .setInterpolator(new DecelerateInterpolator())
+                            .start();
+                })
+                .start();
+
         if (mode == ViewMode.WEEK) {
             refrescarSemana();
         } else {
@@ -231,15 +426,75 @@ public class CalendarFragment extends Fragment implements
     }
 
     private void navegarSemana(int offset) {
-        LocalDate referencia = selectedDate.plusWeeks(offset);
-        actualizarSeleccion(referencia);
+        if (!isFragmentActive || !isAdded()) {
+            LocalDate referencia = selectedDate.plusWeeks(offset);
+            actualizarSeleccion(referencia);
+            return;
+        }
+
+        // Cancelar animación previa
+        weekContainer.animate().cancel();
+
+        // Animación de deslizamiento direccional
+        float translationX = offset > 0 ? 30f : -30f;
+        weekContainer.animate()
+                .translationX(translationX)
+                .alpha(0.7f)
+                .setDuration(150)
+                .setInterpolator(new AccelerateInterpolator())
+                .withEndAction(() -> {
+                    if (!isFragmentActive || !isAdded()) return;
+
+                    LocalDate referencia = selectedDate.plusWeeks(offset);
+                    actualizarSeleccion(referencia);
+
+                    weekContainer.setTranslationX(-translationX);
+                    weekContainer.animate()
+                            .translationX(0f)
+                            .alpha(1f)
+                            .setDuration(250)
+                            .setInterpolator(new DecelerateInterpolator())
+                            .start();
+                })
+                .start();
     }
 
     private void navegarMes(int offset) {
-        currentMonth = currentMonth.plusMonths(offset);
-        int dia = Math.min(selectedDate.getDayOfMonth(), currentMonth.lengthOfMonth());
-        LocalDate nuevaFecha = currentMonth.atDay(dia);
-        actualizarSeleccion(nuevaFecha);
+        if (!isFragmentActive || !isAdded()) {
+            currentMonth = currentMonth.plusMonths(offset);
+            int dia = Math.min(selectedDate.getDayOfMonth(), currentMonth.lengthOfMonth());
+            LocalDate nuevaFecha = currentMonth.atDay(dia);
+            actualizarSeleccion(nuevaFecha);
+            return;
+        }
+
+        // Cancelar animación previa
+        monthContainer.animate().cancel();
+
+        // Animación de deslizamiento direccional para mes
+        float translationX = offset > 0 ? 30f : -30f;
+        monthContainer.animate()
+                .translationX(translationX)
+                .alpha(0.7f)
+                .setDuration(150)
+                .setInterpolator(new AccelerateInterpolator())
+                .withEndAction(() -> {
+                    if (!isFragmentActive || !isAdded()) return;
+
+                    currentMonth = currentMonth.plusMonths(offset);
+                    int dia = Math.min(selectedDate.getDayOfMonth(), currentMonth.lengthOfMonth());
+                    LocalDate nuevaFecha = currentMonth.atDay(dia);
+                    actualizarSeleccion(nuevaFecha);
+
+                    monthContainer.setTranslationX(-translationX);
+                    monthContainer.animate()
+                            .translationX(0f)
+                            .alpha(1f)
+                            .setDuration(250)
+                            .setInterpolator(new DecelerateInterpolator())
+                            .start();
+                })
+                .start();
     }
 
     private void actualizarSeleccion(LocalDate fecha) {
@@ -302,14 +557,10 @@ public class CalendarFragment extends Fragment implements
         currentMonth = YearMonth.from(selectedDate);
     }
 
-    // ============================================
-    // MÉTODO CORREGIDO: cargarCitasDesdeDao
-    // ============================================
     private void cargarCitasDesdeDao() {
         actividadDAO.getAllActividades(new ActividadDAO.OnActividadesLoadedListener() {
             @Override
             public void onActividadesLoaded(ArrayList<Actividad> actividades) {
-                // Validar si el Fragment aún está adjunto
                 if (!isFragmentActive || !isAdded() || getActivity() == null) {
                     return;
                 }
@@ -320,6 +571,7 @@ public class CalendarFragment extends Fragment implements
                         actualizarIndicePorFecha();
                         refrescarSemana();
                         refrescarMes();
+                        datosYaCargados = true;
                     });
                     return;
                 }
@@ -332,7 +584,6 @@ public class CalendarFragment extends Fragment implements
                     citaDAO.getCitasPorActividad(actividad, new CitaDAO.OnCitasLoadedListener() {
                         @Override
                         public void onCitasLoaded(ArrayList<Cita> citas) {
-                            // Validar si el Fragment aún está adjunto
                             if (!isFragmentActive || !isAdded() || getActivity() == null) {
                                 return;
                             }
@@ -347,7 +598,6 @@ public class CalendarFragment extends Fragment implements
 
                         @Override
                         public void onError(Exception e) {
-                            // Validar si el Fragment aún está adjunto
                             if (!isFragmentActive || !isAdded() || getActivity() == null) {
                                 return;
                             }
@@ -363,7 +613,6 @@ public class CalendarFragment extends Fragment implements
                         }
 
                         private void verificarFinalizacion() {
-                            // Validar si el Fragment aún está adjunto
                             if (!isFragmentActive || !isAdded() || getActivity() == null) {
                                 return;
                             }
@@ -373,7 +622,10 @@ public class CalendarFragment extends Fragment implements
                                 synchronized (citasRecolectadas) {
                                     snapshot = new ArrayList<>(citasRecolectadas);
                                 }
-                                runOnUiThreadSafely(() -> actualizarCalendario(snapshot));
+                                runOnUiThreadSafely(() -> {
+                                    actualizarCalendario(snapshot);
+                                    datosYaCargados = true;
+                                });
                             }
                         }
                     });
@@ -390,19 +642,64 @@ public class CalendarFragment extends Fragment implements
                     actualizarIndicePorFecha();
                     refrescarSemana();
                     refrescarMes();
+                    datosYaCargados = true;
                 });
             }
         });
     }
 
     private void actualizarCalendario(List<CalendarUiCita> nuevasCitas) {
+        // Guardar el estado actual antes de limpiar
+        boolean teníaCitas = !allAppointments.isEmpty();
+
         allAppointments.clear();
         if (nuevasCitas != null) {
             allAppointments.addAll(nuevasCitas);
         }
-        actualizarIndicePorFecha();
-        refrescarSemana();
-        refrescarMes();
+
+        // Verificar que el fragment está activo antes de animar
+        if (!isFragmentActive || !isAdded()) {
+            actualizarIndicePorFecha();
+            refrescarSemana();
+            refrescarMes();
+            datosYaCargados = true;
+            return;
+        }
+
+        // Solo animar si ya había citas antes (es una actualización)
+        // No animar si es la primera carga
+        if (teníaCitas) {
+            View vistaActiva = weekContainer.getVisibility() == View.VISIBLE ? weekContainer : monthContainer;
+
+            // Cancelar animación previa
+            vistaActiva.animate().cancel();
+
+            vistaActiva.animate()
+                    .alpha(0.5f)
+                    .setDuration(100)
+                    .setInterpolator(new AccelerateInterpolator())
+                    .withEndAction(() -> {
+                        if (!isFragmentActive || !isAdded()) return;
+
+                        actualizarIndicePorFecha();
+                        refrescarSemana();
+                        refrescarMes();
+                        datosYaCargados = true;
+
+                        vistaActiva.animate()
+                                .alpha(1f)
+                                .setDuration(200)
+                                .setInterpolator(new DecelerateInterpolator())
+                                .start();
+                    })
+                    .start();
+        } else {
+            // Primera carga, sin animación
+            actualizarIndicePorFecha();
+            refrescarSemana();
+            refrescarMes();
+            datosYaCargados = true;
+        }
     }
 
     private void actualizarIndicePorFecha() {
@@ -446,6 +743,19 @@ public class CalendarFragment extends Fragment implements
         emptyView.setVisibility(citas.isEmpty() ? View.VISIBLE : View.GONE);
 
         dialog.setContentView(dialogView);
+
+        // Animación de entrada para el bottom sheet
+        dialogView.setTranslationY(300f);
+        dialogView.setAlpha(0f);
+        dialogView.post(() -> {
+            dialogView.animate()
+                    .translationY(0f)
+                    .alpha(1f)
+                    .setDuration(350)
+                    .setInterpolator(new OvershootInterpolator(0.8f))
+                    .start();
+        });
+
         dialog.show();
     }
 
@@ -560,8 +870,10 @@ public class CalendarFragment extends Fragment implements
                 runOnUiThreadSafely(() -> {
                     cita.actualizarModelo(citaActualizada);
                     actualizarCitaEnActividad(citaActualizada);
-                    actualizarIndicePorFecha();
-                    actualizarSeleccion(nuevaFecha);
+
+                    // Recargar todas las citas para asegurar sincronización
+                    cargarCitasDesdeDao();
+
                     ajustarPeriodicidadActividad(cita.getActividad());
                     if (root != null) {
                         Snackbar.make(root, getString(R.string.calendario_snackbar_reagendada,
@@ -627,9 +939,10 @@ public class CalendarFragment extends Fragment implements
                 runOnUiThreadSafely(() -> {
                     allAppointments.remove(cita);
                     eliminarCitaDeActividad(cita);
-                    actualizarIndicePorFecha();
-                    refrescarSemana();
-                    refrescarMes();
+
+                    // Recargar todas las citas para asegurar sincronización
+                    cargarCitasDesdeDao();
+
                     ajustarPeriodicidadActividad(cita.getActividad());
                     if (root != null) {
                         Snackbar.make(root, getString(R.string.calendario_snackbar_eliminada, cita.getActividadNombre()), Snackbar.LENGTH_LONG).show();
@@ -678,6 +991,7 @@ public class CalendarFragment extends Fragment implements
         if (puedeEditar) {
             reagendarButton.setVisibility(View.VISIBLE);
             reagendarButton.setOnClickListener(v -> {
+                animarBoton(v);
                 if (dialogHolder[0] != null) {
                     dialogHolder[0].dismiss();
                 }
@@ -690,6 +1004,7 @@ public class CalendarFragment extends Fragment implements
         if (puedeEliminar) {
             eliminarButton.setVisibility(View.VISIBLE);
             eliminarButton.setOnClickListener(v -> {
+                animarBoton(v);
                 if (dialogHolder[0] != null) {
                     dialogHolder[0].dismiss();
                 }
@@ -704,6 +1019,21 @@ public class CalendarFragment extends Fragment implements
                 .create();
 
         dialogHolder[0] = dialog;
+
+        // Animación de entrada para el diálogo con scale y bounce
+        view.setScaleX(0.8f);
+        view.setScaleY(0.8f);
+        view.setAlpha(0f);
+        view.post(() -> {
+            view.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .alpha(1f)
+                    .setDuration(300)
+                    .setInterpolator(new OvershootInterpolator(1.2f))
+                    .start();
+        });
+
         dialog.show();
     }
 
