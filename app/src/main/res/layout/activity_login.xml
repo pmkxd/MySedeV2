@@ -1,109 +1,232 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSurface"
-    android:padding="24dp"
     tools:context=".login.ActivityLogin">
 
-    <!-- Título -->
-    <TextView
-        android:id="@+id/txtWelcomeTitleMiSede"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Bienvenido a MiSede"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="?attr/colorOnSurface"
-        android:letterSpacing="0.01"
+    <!-- Gradient Background completo y suave -->
+    <View
+        android:id="@+id/gradient_background"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/bg_gradient_top"
+        android:alpha="0.6"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="70dp"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Subtítulo -->
-    <TextView
-        android:id="@+id/txtSubTitleMiSede"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ingresa para continuar"
-        android:textSize="15sp"
-        android:textColor="?attr/colorOnSurfaceVariant"
-        app:layout_constraintTop_toBottomOf="@id/txtWelcomeTitleMiSede"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="6dp"/>
+    <!-- ScrollView para contenido -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <!-- Card Login minimal -->
-    <LinearLayout
-        android:id="@+id/cardLoginContainerMiSede"
-        android:orientation="vertical"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:background="@drawable/bg_login_card_misede"
-        android:elevation="3dp"
-        app:layout_constraintTop_toBottomOf="@id/txtSubTitleMiSede"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="38dp">
-
-        <!-- Email -->
-        <EditText
-            android:id="@+id/inputCorreoMiSede"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="Correo electrónico"
-            android:textColor="?attr/colorOnSurface"
-            android:textColorHint="?attr/colorOnSurfaceVariant"
-            android:background="@color/md_theme_surfaceContainerHigh"
-            android:padding="14dp"
-            android:inputType="textEmailAddress"
-            android:elevation="0dp"
-            android:layout_marginBottom="14dp"
-            android:backgroundTint="@android:color/transparent"/>
+            android:layout_height="wrap_content"
+            android:padding="24dp">
 
-        <!-- Password -->
-        <EditText
-            android:id="@+id/inputPasswordMiSede"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="Contraseña"
-            android:textColor="?attr/colorOnSurface"
-            android:textColorHint="?attr/colorOnSurfaceVariant"
-            android:background="@color/md_theme_surfaceContainerHigh"
-            android:padding="14dp"
-            android:inputType="textPassword"
-            android:elevation="0dp"
-            android:backgroundTint="@android:color/transparent"/>
+            <!-- Logo circular con elevación y decoración -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/logo_card"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                app:cardCornerRadius="50dp"
+                app:cardElevation="16dp"
+                app:cardBackgroundColor="?attr/colorPrimaryContainer"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="60dp">
 
-        <!-- Botón Login -->
-        <Button
-            android:id="@+id/btnLoginMiSede"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="Iniciar sesión"
-            android:backgroundTint="?attr/colorPrimary"
-            android:textColor="?attr/colorOnPrimary"
-            android:textAllCaps="false"
-            android:layout_marginTop="18dp"
-            android:fontFamily="sans-serif-medium"/>
-    </LinearLayout>
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_user"
+                    android:tint="?attr/colorOnPrimaryContainer"
+                    tools:ignore="UseAppTint"/>
+            </androidx.cardview.widget.CardView>
 
-    <!-- Forgot Password -->
-    <TextView
-        android:id="@+id/txtForgotPassMiSede"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="¿Olvidó su contraseña?"
-        android:textColor="?attr/colorPrimary"
-        android:textSize="14sp"
-        app:layout_constraintTop_toBottomOf="@id/cardLoginContainerMiSede"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="18dp"
-        android:fontFamily="sans-serif-medium"/>
+            <!-- Anillo decorativo exterior -->
+            <View
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:background="@drawable/bg_circle_outline_primary"
+                app:layout_constraintTop_toTopOf="@id/logo_card"
+                app:layout_constraintBottom_toBottomOf="@id/logo_card"
+                app:layout_constraintStart_toStartOf="@id/logo_card"
+                app:layout_constraintEnd_toEndOf="@id/logo_card"/>
+
+            <!-- Título con efecto -->
+            <TextView
+                android:id="@+id/txtWelcomeTitleMiSede"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bienvenido a MySede"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface"
+                android:letterSpacing="0.02"
+                android:fontFamily="sans-serif-medium"
+                app:layout_constraintTop_toBottomOf="@id/logo_card"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="28dp"/>
+
+            <!-- Subtítulo -->
+            <TextView
+                android:id="@+id/txtSubTitleMiSede"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ingresa para continuar"
+                android:textSize="15sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:alpha="0.87"
+                android:letterSpacing="0.01"
+                app:layout_constraintTop_toBottomOf="@id/txtWelcomeTitleMiSede"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="8dp"/>
+
+            <!-- Card Login Premium con sombra -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardLoginContainerMiSede"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="32dp"
+                app:cardElevation="8dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+                app:strokeWidth="0dp"
+                app:layout_constraintTop_toBottomOf="@id/txtSubTitleMiSede"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="36dp">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="32dp">
+
+                    <!-- Email con Material TextInputLayout -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/emailInputLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Correo electrónico"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="?attr/colorSurfaceContainer"
+                        app:boxCornerRadiusTopStart="16dp"
+                        app:boxCornerRadiusTopEnd="16dp"
+                        app:boxCornerRadiusBottomStart="16dp"
+                        app:boxCornerRadiusBottomEnd="16dp"
+                        app:boxStrokeWidth="0dp"
+                        app:boxStrokeWidthFocused="2dp"
+                        app:boxStrokeColor="?attr/colorPrimary"
+                        app:hintTextColor="?attr/colorPrimary"
+                        app:startIconDrawable="@drawable/ic_email"
+                        app:startIconTint="?attr/colorOnSurfaceVariant"
+                        app:endIconMode="clear_text"
+                        app:endIconTint="?attr/colorOnSurfaceVariant"
+                        android:layout_marginBottom="18dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inputCorreoMiSede"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textEmailAddress"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="16sp"
+                            android:paddingTop="20dp"
+                            android:paddingBottom="20dp"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Password con Material TextInputLayout -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/passwordInputLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Contraseña"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="?attr/colorSurfaceContainer"
+                        app:boxCornerRadiusTopStart="16dp"
+                        app:boxCornerRadiusTopEnd="16dp"
+                        app:boxCornerRadiusBottomStart="16dp"
+                        app:boxCornerRadiusBottomEnd="16dp"
+                        app:boxStrokeWidth="0dp"
+                        app:boxStrokeWidthFocused="2dp"
+                        app:boxStrokeColor="?attr/colorPrimary"
+                        app:hintTextColor="?attr/colorPrimary"
+                        app:startIconDrawable="@drawable/ic_lock"
+                        app:startIconTint="?attr/colorOnSurfaceVariant"
+                        app:endIconMode="password_toggle"
+                        app:endIconTint="?attr/colorOnSurfaceVariant"
+                        android:layout_marginBottom="28dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inputPasswordMiSede"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textPassword"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="16sp"
+                            android:paddingTop="20dp"
+                            android:paddingBottom="20dp"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Botón Login Premium -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnLoginMiSede"
+                        android:layout_width="match_parent"
+                        android:layout_height="58dp"
+                        android:text="Iniciar sesión"
+                        android:textSize="16sp"
+                        android:textAllCaps="false"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.02"
+                        app:cornerRadius="18dp"
+                        app:elevation="4dp"
+                        app:backgroundTint="?attr/colorPrimary"
+                        android:textColor="?attr/colorOnPrimary"
+                        app:icon="@drawable/ic_arrow_forward"
+                        app:iconGravity="end"
+                        app:iconTint="?attr/colorOnPrimary"
+                        app:iconSize="22dp"
+                        app:rippleColor="?attr/colorPrimaryContainer"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Forgot Password con diseño mejorado -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/txtForgotPassMiSede"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="¿Olvidó su contraseña?"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="14sp"
+                android:fontFamily="sans-serif-medium"
+                android:textAllCaps="false"
+                style="@style/Widget.Material3.Button.TextButton"
+                app:icon="@drawable/ic_help"
+                app:iconTint="?attr/colorPrimary"
+                app:iconSize="18dp"
+                app:layout_constraintTop_toBottomOf="@id/cardLoginContainerMiSede"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="18dp"
+                android:layout_marginBottom="32dp"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

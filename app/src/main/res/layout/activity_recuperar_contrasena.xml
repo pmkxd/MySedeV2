@@ -1,73 +1,333 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSurface"
-    android:padding="24dp"
     tools:context=".login.ActivityForgotPassword"
     android:fitsSystemWindows="true">
 
+    <!-- Gradient Background más suave y extendido -->
+    <View
+        android:id="@+id/gradient_background"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/bg_gradient_forgot"
+        android:alpha="0.5"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Título -->
-    <TextView
-        android:id="@+id/txtResetTitleMiSede"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Recuperar contraseña"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        android:textColor="?attr/colorOnSurface"
-        android:gravity="center"
+    <!-- Botón Volver con fondo circular -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/back_button_container"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+        app:strokeWidth="0dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="80dp"/>
+        android:layout_margin="20dp">
 
-    <!-- Subtítulo -->
-    <TextView
-        android:id="@+id/txtResetSubMiSede"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ingresa tu correo para restablecer tu acceso"
-        android:textSize="15sp"
-        android:textColor="?attr/colorOnSurfaceVariant"
-        app:layout_constraintTop_toBottomOf="@id/txtResetTitleMiSede"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBackToLogin"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            style="@style/Widget.Material3.Button.IconButton"
+            app:icon="@drawable/ic_arrow_back"
+            app:iconTint="?attr/colorOnSurface"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:contentDescription="Volver"/>
+    </com.google.android.material.card.MaterialCardView>
 
-    <!-- Campo Correo -->
-    <EditText
-        android:id="@+id/inputEmailResetMiSede"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Correo electrónico"
-        android:inputType="textEmailAddress"
-        android:padding="14dp"
-        android:layout_marginTop="40dp"
-        android:background="@color/md_theme_surfaceContainerHigh"
-        android:textColor="?attr/colorOnSurface"
-        android:textColorHint="?attr/colorOnSurfaceVariant"
-        app:layout_constraintTop_toBottomOf="@id/txtResetSubMiSede"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+    <!-- ScrollView para contenido -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <!-- Botón enviar -->
-    <Button
-        android:id="@+id/btnResetPasswordMiSede"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Enviar enlace"
-        android:textAllCaps="false"
-        android:padding="14dp"
-        android:backgroundTint="?attr/colorPrimary"
-        android:textColor="?attr/colorOnPrimary"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@id/inputEmailResetMiSede"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="24dp">
+
+            <!-- Icono principal con animación de pulso -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/icon_container"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                app:cardCornerRadius="50dp"
+                app:cardElevation="12dp"
+                app:cardBackgroundColor="?attr/colorTertiaryContainer"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="80dp">
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_lock_reset"
+                    android:tint="?attr/colorOnTertiaryContainer"
+                    tools:ignore="UseAppTint"/>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Decoración: círculo pequeño alrededor del icono -->
+            <View
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:background="@drawable/bg_circle_outline"
+                app:layout_constraintTop_toTopOf="@id/icon_container"
+                app:layout_constraintBottom_toBottomOf="@id/icon_container"
+                app:layout_constraintStart_toStartOf="@id/icon_container"
+                app:layout_constraintEnd_toEndOf="@id/icon_container"/>
+
+            <!-- Título -->
+            <TextView
+                android:id="@+id/txtResetTitleMiSede"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="¿Olvidaste tu contraseña?"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface"
+                android:letterSpacing="0.01"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                app:layout_constraintTop_toBottomOf="@id/icon_container"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="28dp"/>
+
+            <!-- Subtítulo más cercano -->
+            <TextView
+                android:id="@+id/txtResetSubMiSede"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="No te preocupes, te enviaremos instrucciones para recuperar el acceso"
+                android:textSize="14sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:alpha="0.87"
+                android:gravity="center"
+                android:letterSpacing="0.005"
+                android:lineSpacingExtra="3dp"
+                app:layout_constraintTop_toBottomOf="@id/txtResetTitleMiSede"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="12dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"/>
+
+            <!-- Card contenedor del formulario con sombra suave -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardResetContainer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="6dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+                app:strokeWidth="0dp"
+                app:layout_constraintTop_toBottomOf="@id/txtResetSubMiSede"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="36dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="32dp">
+
+                    <!-- Campo Email con Material TextInputLayout -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/emailResetInputLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Correo electrónico"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="?attr/colorSurfaceContainer"
+                        app:boxCornerRadiusTopStart="16dp"
+                        app:boxCornerRadiusTopEnd="16dp"
+                        app:boxCornerRadiusBottomStart="16dp"
+                        app:boxCornerRadiusBottomEnd="16dp"
+                        app:boxStrokeWidth="0dp"
+                        app:boxStrokeWidthFocused="2dp"
+                        app:boxStrokeColor="?attr/colorTertiary"
+                        app:hintTextColor="?attr/colorTertiary"
+                        app:startIconDrawable="@drawable/ic_email"
+                        app:startIconTint="?attr/colorOnSurfaceVariant"
+                        app:endIconMode="clear_text"
+                        app:endIconTint="?attr/colorOnSurfaceVariant"
+                        app:helperText="Ingresa el correo con el que te registraste"
+                        app:helperTextTextColor="?attr/colorOnSurfaceVariant"
+                        android:layout_marginBottom="24dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inputEmailResetMiSede"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textEmailAddress"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="16sp"
+                            android:paddingTop="20dp"
+                            android:paddingBottom="20dp"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Botón Enviar enlace con gradiente simulado -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnResetPasswordMiSede"
+                        android:layout_width="match_parent"
+                        android:layout_height="58dp"
+                        android:text="Enviar enlace de recuperación"
+                        android:textSize="15sp"
+                        android:textAllCaps="false"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.01"
+                        app:cornerRadius="18dp"
+                        app:elevation="3dp"
+                        app:backgroundTint="?attr/colorTertiary"
+                        android:textColor="?attr/colorOnTertiary"
+                        app:icon="@drawable/ic_send"
+                        app:iconGravity="textEnd"
+                        app:iconTint="?attr/colorOnTertiary"
+                        app:iconSize="22dp"
+                        app:rippleColor="?attr/colorTertiaryContainer"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Información adicional con diseño mejorado -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/info_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="?attr/colorSecondaryContainer"
+                app:strokeWidth="0dp"
+                app:layout_constraintTop_toBottomOf="@id/cardResetContainer"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="24dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="18dp">
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        app:cardCornerRadius="18dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="?attr/colorOnSecondaryContainer">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_info"
+                            android:tint="?attr/colorSecondaryContainer"
+                            tools:ignore="UseAppTint"/>
+                    </androidx.cardview.widget.CardView>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="14dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Revisa tu correo"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSecondaryContainer"
+                            android:fontFamily="sans-serif-medium"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="No olvides revisar tu carpeta de spam"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSecondaryContainer"
+                            android:alpha="0.8"
+                            android:layout_marginTop="2dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Divider decorativo -->
+            <View
+                android:id="@+id/divider_decorative"
+                android:layout_width="60dp"
+                android:layout_height="3dp"
+                android:background="?attr/colorOutlineVariant"
+                android:alpha="0.3"
+                app:layout_constraintTop_toBottomOf="@id/info_card"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="32dp"/>
+
+            <!-- Texto volver al login mejorado -->
+            <LinearLayout
+                android:id="@+id/footer_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                app:layout_constraintTop_toBottomOf="@id/divider_decorative"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="32dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="¿Ya recordaste?"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:alpha="0.8"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnGoToLogin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Iniciar sesión"
+                    android:textColor="?attr/colorTertiary"
+                    android:textSize="14sp"
+                    android:textAllCaps="false"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    app:icon="@drawable/ic_login"
+                    app:iconTint="?attr/colorTertiary"
+                    app:iconSize="18dp"
+                    android:minWidth="0dp"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="8dp"/>
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

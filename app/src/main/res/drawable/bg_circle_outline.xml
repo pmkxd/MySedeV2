@@ -1,0 +1,12 @@
+<!-- ================================== -->
+<!-- bg_circle_outline.xml -->
+<!-- res/drawable/bg_circle_outline.xml -->
+<!-- Círculo decorativo alrededor del icono -->
+<!-- ================================== -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <stroke
+        android:width="2dp"
+        android:color="?attr/colorTertiaryContainer"/>
+    <solid android:color="@android:color/transparent"/>
+</shape>
