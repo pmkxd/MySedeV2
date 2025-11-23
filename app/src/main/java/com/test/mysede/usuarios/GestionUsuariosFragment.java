@@ -40,6 +40,9 @@ public class GestionUsuariosFragment extends Fragment {
     private List<Usuario> usuariosList;
     private FirebaseAuth mAuth;
 
+    // 🔥 ID del usuario que inició sesión (el admin real)
+    private String adminRealId;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -59,6 +62,12 @@ public class GestionUsuariosFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         usuariosDAO = new UsuariosDAO();
         usuariosList = new ArrayList<>();
+
+        // 🔥 Guardar el ID del admin real desde PermissionManager
+        Usuario adminActual = PermissionManager.getUsuarioActual();
+        if (adminActual != null) {
+            adminRealId = adminActual.getId();
+        }
 
         recyclerView = view.findViewById(R.id.recyclerViewUsuarios);
         fabCrear = view.findViewById(R.id.fabCrearUsuario);
@@ -98,9 +107,7 @@ public class GestionUsuariosFragment extends Fragment {
                 if (!isAdded()) return;
                 progressBar.setVisibility(View.GONE);
 
-                // ========================================
-                // FILTRAR SOLO USUARIOS ACTIVOS
-                // ========================================
+                // Filtrar solo usuarios activos
                 ArrayList<Usuario> usuariosActivos = new ArrayList<>();
                 for (Usuario usuario : usuarios) {
                     if (usuario.isActivo()) {
@@ -108,7 +115,6 @@ public class GestionUsuariosFragment extends Fragment {
                     }
                 }
                 usuariosList = usuariosActivos;
-                // FIN FILTRO
 
                 if (usuariosList.isEmpty()) {
                     tvEmpty.setVisibility(View.VISIBLE);
@@ -178,8 +184,14 @@ public class GestionUsuariosFragment extends Fragment {
     }
 
     private void confirmarEliminar(Usuario usuario, int posicion) {
-        if (mAuth.getCurrentUser() != null && usuario.getId().equals(mAuth.getCurrentUser().getUid())) {
-            Toast.makeText(requireContext(), "No puedes eliminar tu propio usuario", Toast.LENGTH_SHORT).show();
+
+        // Usar SIEMPRE PermissionManager
+        Usuario adminActual = PermissionManager.getUsuarioActual();
+
+        if (adminActual != null && usuario.getId().equals(adminActual.getId())) {
+            Toast.makeText(requireContext(),
+                    "No puedes deshabilitar tu propio usuario",
+                    Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -188,11 +200,13 @@ public class GestionUsuariosFragment extends Fragment {
                 .setMessage("¿Está seguro que desea deshabilitar a " + usuario.getNombre() + "?\n\n" +
                         "El usuario quedará inactivo y no podrá iniciar sesión.\n" +
                         "Podrás reactivarlo más tarde si es necesario.")
-                .setPositiveButton("Deshabilitar", (dialog, which) -> deshabilitarUsuario(usuario, posicion))
+                .setPositiveButton("Deshabilitar", (dialog, which) ->
+                        deshabilitarUsuario(usuario, posicion))
                 .setNegativeButton("Cancelar", null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
+
 
     private void deshabilitarUsuario(Usuario usuario, int posicion) {
         progressBar.setVisibility(View.VISIBLE);
