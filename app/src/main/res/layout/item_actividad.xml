@@ -5,77 +5,237 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="3dp"
+    app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+    app:strokeWidth="0dp"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="true"
+    app:rippleColor="?attr/colorPrimary">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
-        <!-- Nombre de la actividad -->
-        <TextView
-            android:id="@+id/tvNombreActividad"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Nombre de la Actividad"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/md_theme_onSurface"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Contenedor para tipo y periodicidad -->
+        <!-- Header con icono decorativo -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="4dp">
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
 
+            <!-- Icono de actividad -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/colorPrimaryContainer">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@android:drawable/ic_menu_agenda"
+                    app:tint="?attr/colorOnPrimaryContainer" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Nombre de la actividad -->
             <TextView
-                android:id="@+id/tvTipoActividad"
+                android:id="@+id/tvNombreActividad"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Tipo"
-                android:textSize="14sp"
-                android:textColor="@color/md_theme_primary"
-                android:drawablePadding="4dp"
-                android:gravity="center_vertical" />
-
-            <TextView
-                android:id="@+id/tvPeriodicidadActividad"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Periodicidad"
-                android:textSize="14sp"
-                android:textColor="@color/md_theme_secondary"
-                android:drawablePadding="4dp"
-                android:gravity="center_vertical" />
+                android:layout_marginStart="14dp"
+                android:text="Nombre de la Actividad"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="2"
+                android:ellipsize="end" />
 
         </LinearLayout>
 
-        <!-- Cupo -->
-        <TextView
-            android:id="@+id/tvCupoActividad"
+        <!-- Separador sutil -->
+        <View
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Cupo: 0"
-            android:textSize="14sp"
-            android:textColor="@color/md_theme_onSurfaceVariant"
-            android:layout_marginBottom="4dp" />
+            android:layout_height="1dp"
+            android:background="?attr/colorOutlineVariant"
+            android:alpha="0.4"
+            android:layout_marginBottom="14dp" />
 
-        <!-- Proyecto -->
-        <TextView
-            android:id="@+id/tvProyectoActividad"
+        <!-- Contenedor para tipo y periodicidad con badges -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Proyecto"
-            android:textSize="13sp"
-            android:textColor="@color/md_theme_onSurfaceVariant"
-            android:textStyle="italic" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <!-- Badge Tipo -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/colorPrimaryContainer"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="10dp">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@android:drawable/ic_menu_info_details"
+                        app:tint="?attr/colorOnPrimaryContainer"
+                        android:layout_marginEnd="6dp" />
+
+                    <TextView
+                        android:id="@+id/tvTipoActividad"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Tipo"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnPrimaryContainer"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Badge Periodicidad -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/colorSecondaryContainer"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="10dp">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@android:drawable/ic_menu_recent_history"
+                        app:tint="?attr/colorOnSecondaryContainer"
+                        android:layout_marginEnd="6dp" />
+
+                    <TextView
+                        android:id="@+id/tvPeriodicidadActividad"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Periodicidad"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSecondaryContainer"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+        <!-- Contenedor de info adicional -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="?attr/colorSurfaceContainer"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp">
+
+            <!-- Cupo con icono -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@android:drawable/ic_menu_myplaces"
+                    app:tint="?attr/colorTertiary"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/tvCupoActividad"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Cupo: 0"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+
+            <!-- Separador interno -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/colorOutlineVariant"
+                android:alpha="0.3"
+                android:layout_marginVertical="8dp" />
+
+            <!-- Proyecto con icono -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@android:drawable/ic_menu_view"
+                    app:tint="?attr/colorOnSurfaceVariant"
+                    android:layout_marginEnd="8dp"
+                    android:alpha="0.8" />
+
+                <TextView
+                    android:id="@+id/tvProyectoActividad"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Proyecto"
+                    android:textSize="13sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:fontFamily="sans-serif"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    android:lineSpacingExtra="2dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Indicador visual inferior -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="3dp"
+            android:background="?attr/colorPrimary"
+            android:layout_gravity="end"
+            android:alpha="0.6" />
 
     </LinearLayout>
 
