@@ -1,170 +1,408 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/md_theme_background">
+    android:background="?attr/colorSurface"
+    android:fitsSystemWindows="true">
 
-    <!-- Toolbar -->
+    <!-- AppBar con diseño mejorado -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:elevation="0dp"
+        app:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/md_theme_primary"
+            android:layout_height="64dp"
+            android:background="?attr/colorPrimary"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:title="Crear Usuario"
-            app:titleTextColor="@color/md_theme_onPrimary" />
+            app:titleTextColor="?attr/colorOnPrimary"
+            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="?attr/colorOnPrimary" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <ScrollView
+    <!-- Contenido principal con NestedScrollView -->
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true">
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingHorizontal="20dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="100dp">
 
-            <!-- Nombre -->
-            <com.google.android.material.textfield.TextInputLayout
+            <!-- Card principal de información del usuario -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nombre Completo"
-                android:layout_marginBottom="16dp"
-                app:boxBackgroundMode="outline">
+                app:cardCornerRadius="24dp"
+                app:cardElevation="3dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+                app:strokeWidth="0dp">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etNombreUsuario"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textPersonName" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="vertical"
+                    android:padding="24dp">
 
-            <!-- RUT (agregado) -->
-            <com.google.android.material.textfield.TextInputLayout
+                    <!-- Header con icono decorativo -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="24dp">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            app:cardCornerRadius="28dp"
+                            app:cardElevation="4dp"
+                            app:cardBackgroundColor="?attr/colorPrimaryContainer">
+
+                            <ImageView
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:layout_gravity="center"
+                                android:src="@android:drawable/ic_menu_add"
+                                app:tint="?attr/colorOnPrimaryContainer" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="16dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Nuevo Usuario"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorOnSurface"
+                                android:fontFamily="sans-serif-medium" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Completa los datos requeridos"
+                                android:textSize="13sp"
+                                android:textColor="?attr/colorOnSurfaceVariant"
+                                android:alpha="0.8" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Nombre Completo -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilNombreUsuario"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Nombre Completo"
+                        android:layout_marginBottom="16dp"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusBottomEnd="14dp"
+                        app:boxStrokeColor="?attr/colorPrimary"
+                        app:boxStrokeWidth="2dp"
+                        app:hintTextColor="?attr/colorPrimary"
+                        app:startIconDrawable="@android:drawable/ic_menu_myplaces"
+                        app:startIconTint="?attr/colorPrimary"
+                        app:helperText="Ingresa nombre y apellido"
+                        app:helperTextTextColor="?attr/colorOnSurfaceVariant">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etNombreUsuario"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textPersonName"
+                            android:paddingVertical="14dp"
+                            android:textSize="16sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- RUT -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilRutUsuario"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="RUT (Ej: 12345678-9)"
+                        android:layout_marginBottom="16dp"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusBottomEnd="14dp"
+                        app:boxStrokeColor="?attr/colorPrimary"
+                        app:boxStrokeWidth="2dp"
+                        app:hintTextColor="?attr/colorPrimary"
+                        app:startIconDrawable="@android:drawable/ic_menu_info_details"
+                        app:startIconTint="?attr/colorSecondary"
+                        app:helperText="Formato: 12345678-9"
+                        app:helperTextTextColor="?attr/colorOnSurfaceVariant">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etRutUsuario"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text"
+                            android:paddingVertical="14dp"
+                            android:textSize="16sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Email -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilEmailUsuario"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Email"
+                        android:layout_marginBottom="16dp"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusBottomEnd="14dp"
+                        app:boxStrokeColor="?attr/colorPrimary"
+                        app:boxStrokeWidth="2dp"
+                        app:hintTextColor="?attr/colorPrimary"
+                        app:startIconDrawable="@android:drawable/ic_dialog_email"
+                        app:startIconTint="?attr/colorTertiary"
+                        app:helperText="Correo electrónico válido"
+                        app:helperTextTextColor="?attr/colorOnSurfaceVariant">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etEmailUsuario"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textEmailAddress"
+                            android:paddingVertical="14dp"
+                            android:textSize="16sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Contraseña -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilPasswordUsuario"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Contraseña"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusBottomEnd="14dp"
+                        app:boxStrokeColor="?attr/colorPrimary"
+                        app:boxStrokeWidth="2dp"
+                        app:hintTextColor="?attr/colorPrimary"
+                        app:startIconDrawable="@android:drawable/ic_lock_idle_lock"
+                        app:startIconTint="?attr/colorError"
+                        app:endIconMode="password_toggle"
+                        app:endIconTint="?attr/colorError"
+                        app:helperText="Mínimo 6 caracteres"
+                        app:helperTextTextColor="?attr/colorOnSurfaceVariant"
+                        app:expandedHintEnabled="false">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etPasswordUsuario"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textPassword"
+                            android:paddingVertical="14dp"
+                            android:textSize="16sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card de Rol y Permisos -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="RUT (Ej: 12345678-9)"
-                android:layout_marginBottom="16dp"
-                app:boxBackgroundMode="outline">
+                android:layout_marginTop="20dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="?attr/colorSecondaryContainer"
+                app:strokeWidth="0dp">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etRutUsuario"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-            <!-- Email -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Email"
-                android:layout_marginBottom="16dp"
-                app:boxBackgroundMode="outline">
+                    <!-- Header de Rol -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etEmailUsuario"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textEmailAddress" />
-            </com.google.android.material.textfield.TextInputLayout>
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/ic_menu_manage"
+                            app:tint="?attr/colorOnSecondaryContainer" />
 
-            <!-- Contraseña -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Contraseña"
-                android:layout_marginBottom="16dp"
-                app:boxBackgroundMode="outline">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:text="Rol del Usuario"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSecondaryContainer"
+                            android:fontFamily="sans-serif-medium" />
+                    </LinearLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etPasswordUsuario"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPassword" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    <!-- Spinner de Rol -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="?attr/colorSurface"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="?attr/colorOnSecondaryContainer"
+                        android:layout_marginBottom="16dp">
 
-            <!-- Rol -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Rol del Usuario"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="@color/md_theme_primary"
-                android:layout_marginBottom="8dp" />
+                        <Spinner
+                            android:id="@+id/spinnerRolUsuario"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="56dp"
+                            android:paddingHorizontal="16dp"
+                            android:background="@android:color/transparent" />
+                    </com.google.android.material.card.MaterialCardView>
 
-            <Spinner
-                android:id="@+id/spinnerRolUsuario"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:layout_marginBottom="16dp"
-                android:background="@android:drawable/spinner_background" />
+                    <!-- Separador -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="12dp"
+                        android:background="?attr/colorOnSecondaryContainer"
+                        android:alpha="0.2" />
 
-            <!-- Nota informativa sobre permisos automáticos -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Los permisos se asignarán automáticamente según el rol seleccionado."
-                android:textSize="12sp"
-                android:textColor="@color/md_theme_onSurfaceVariant"
-                android:layout_marginBottom="24dp" />
+                    <!-- Nota informativa -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="12dp"
+                        android:background="?attr/colorSurface">
 
-            <!-- Botón cargar plantilla (oculto por defecto) -->
-            <Button
-                android:id="@+id/btnCargarPlantilla"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Cargar Plantilla de Permisos del Rol"
-                android:layout_marginBottom="24dp"
-                android:visibility="gone" />
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@android:drawable/ic_dialog_info"
+                            app:tint="?attr/colorOnSecondaryContainer"
+                            android:alpha="0.7" />
 
-            <!-- Sección Permisos (oculta por defecto) -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Permisos del Usuario"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/md_theme_onBackground"
-                android:layout_marginBottom="16dp"
-                android:visibility="gone" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:text="Los permisos se asignarán automáticamente según el rol seleccionado."
+                            android:textSize="13sp"
+                            android:textColor="?attr/colorOnSecondaryContainer"
+                            android:lineSpacingExtra="2dp"
+                            android:alpha="0.85" />
+                    </LinearLayout>
 
-            <!-- Container dinámico para checkboxes de permisos (oculto por defecto) -->
-            <LinearLayout
-                android:id="@+id/layoutPermisos"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginBottom="16dp"
-                android:visibility="gone" />
+                    <!-- Botón cargar plantilla -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCargarPlantilla"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Cargar Plantilla de Permisos del Rol"
+                        android:textAllCaps="false"
+                        android:paddingVertical="14dp"
+                        app:cornerRadius="12dp"
+                        app:icon="@android:drawable/ic_menu_upload"
+                        app:iconGravity="textStart"
+                        android:visibility="gone" />
+
+                    <!-- Sección Permisos -->
+                    <TextView
+                        android:id="@+id/txtTituloPermisos"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:text="Permisos del Usuario"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSecondaryContainer"
+                        android:layout_marginBottom="12dp"
+                        android:visibility="gone" />
+
+                    <!-- Container dinámico para checkboxes de permisos -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardPermisos"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="?attr/colorSurface"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="?attr/colorOnSecondaryContainer"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:id="@+id/layoutPermisos"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
 
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
-    <!-- Botón Guardar -->
-    <Button
+    <!-- Botón Guardar flotante -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnGuardarUsuario"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_height="64dp"
+        android:layout_gravity="bottom"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="20dp"
         android:text="Guardar Usuario"
-        android:textColor="@color/md_theme_onPrimary"
-        app:backgroundTint="@color/md_theme_primary" />
+        android:textColor="?attr/colorOnPrimary"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.02"
+        app:backgroundTint="?attr/colorPrimary"
+        app:cornerRadius="16dp"
+        app:elevation="6dp"
+        app:icon="@android:drawable/ic_menu_save"
+        app:iconGravity="textStart"
+        app:iconSize="24dp"
+        style="@style/Widget.Material3.Button.ElevatedButton" />
 
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

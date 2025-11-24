@@ -5,26 +5,39 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="3dp"
+    app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+    app:strokeWidth="0dp"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="true"
+    app:rippleColor="?attr/colorPrimary">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:padding="20dp">
 
-        <!-- Icono del usuario -->
-        <ImageView
-            android:id="@+id/ivIconoUsuario"
+        <!-- Icono del usuario con badge decorativo -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_marginEnd="16dp"
-            android:src="@android:drawable/ic_menu_manage"
-            android:tint="@color/md_theme_primary"
-            android:scaleType="fitCenter" />
+            app:cardCornerRadius="28dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="?attr/colorPrimaryContainer">
+
+            <ImageView
+                android:id="@+id/ivIconoUsuario"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center"
+                android:src="@android:drawable/ic_menu_manage"
+                app:tint="?attr/colorOnPrimaryContainer"
+                android:scaleType="fitCenter" />
+
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Información del usuario -->
         <LinearLayout
@@ -41,60 +54,166 @@
                 android:text="Nombre Usuario"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="@color/md_theme_onSurface"
-                android:layout_marginBottom="4dp" />
+                android:textColor="?attr/colorOnSurface"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_marginBottom="6dp" />
 
-            <!-- Email -->
-            <TextView
-                android:id="@+id/tvEmailUsuario"
+            <!-- Email con icono -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="email@ejemplo.com"
-                android:textSize="14sp"
-                android:textColor="@color/md_theme_onSurfaceVariant"
-                android:layout_marginBottom="8dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@android:drawable/ic_dialog_email"
+                    app:tint="?attr/colorOnSurfaceVariant"
+                    android:alpha="0.7"
+                    android:layout_marginEnd="6dp" />
+
+                <TextView
+                    android:id="@+id/tvEmailUsuario"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="email@ejemplo.com"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+            </LinearLayout>
+
+            <!-- Separador sutil -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/colorOutlineVariant"
+                android:alpha="0.4"
+                android:layout_marginBottom="12dp" />
 
             <!-- Contenedor para Rol y Estado -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="4dp">
+                android:gravity="center_vertical"
+                android:layout_marginBottom="10dp">
 
-                <!-- Rol -->
-                <TextView
-                    android:id="@+id/tvRolUsuario"
+                <!-- Badge Rol -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Rol"
-                    android:textSize="14sp"
-                    android:textColor="@color/md_theme_primary"
-                    android:textStyle="bold" />
+                    android:layout_marginEnd="8dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="?attr/colorPrimaryContainer"
+                    app:strokeWidth="0dp">
 
-                <!-- Estado -->
-                <TextView
-                    android:id="@+id/tvEstadoUsuario"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="8dp">
+
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:src="@android:drawable/ic_menu_info_details"
+                            app:tint="?attr/colorOnPrimaryContainer"
+                            android:layout_marginEnd="6dp" />
+
+                        <TextView
+                            android:id="@+id/tvRolUsuario"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Rol"
+                            android:textSize="13sp"
+                            android:textColor="?attr/colorOnPrimaryContainer"
+                            android:textStyle="bold"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Badge Estado -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Activo"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"
-                    android:background="@drawable/bg_rounded_light"
-                    android:textColor="@color/md_theme_primary" />
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="?attr/colorSecondaryContainer"
+                    app:strokeWidth="0dp">
+
+                    <TextView
+                        android:id="@+id/tvEstadoUsuario"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Activo"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="8dp"
+                        android:textColor="?attr/colorOnSecondaryContainer" />
+
+                </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
 
-            <!-- Permisos -->
-            <TextView
-                android:id="@+id/tvPermisosUsuario"
+            <!-- Permisos con contenedor visual -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="0 permisos"
-                android:textSize="12sp"
-                android:textColor="@color/md_theme_onSurfaceVariant" />
+                app:cardCornerRadius="10dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainer"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="10dp">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@android:drawable/ic_lock_idle_lock"
+                        app:tint="?attr/colorTertiary"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:id="@+id/tvPermisosUsuario"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="0 permisos"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <!-- Indicador visual -->
+                    <View
+                        android:layout_width="24dp"
+                        android:layout_height="3dp"
+                        android:background="?attr/colorTertiary"
+                        android:alpha="0.6" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
 

@@ -3,66 +3,203 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
-    app:cardBackgroundColor="@color/md_theme_surface">
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+    android:clickable="true"
+    android:focusable="true"
+    app:rippleColor="?attr/colorPrimary">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="12dp">
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <!-- Nombre del socio -->
-        <TextView
-            android:id="@+id/tvNombreSocio"
-            android:layout_width="0dp"
+        <!-- Fila superior: Icono + Nombre -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Nombre del socio"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
 
-        <!-- Número de beneficiarios -->
-        <TextView
-            android:id="@+id/tvCantBeneficiarios"
-            android:layout_width="wrap_content"
+            <!-- Icono decorativo -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:cardCornerRadius="20dp"
+                app:cardBackgroundColor="?attr/colorPrimaryContainer"
+                android:layout_marginEnd="12dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:src="@android:drawable/ic_menu_myplaces"
+                    app:tint="?attr/colorOnPrimaryContainer" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Nombre del socio -->
+            <TextView
+                android:id="@+id/tvNombreSocio"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Nombre del socio"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+        </LinearLayout>
+
+        <!-- Separador -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/colorOutlineVariant"
+            android:alpha="0.3"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Fila inferior: Beneficiarios + Acciones -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Beneficiarios: 0"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="14sp"
-            android:layout_marginEnd="8dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <!-- Botones -->
-        <ImageButton
-            android:id="@+id/btnVerSocio"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Ver"
-            android:src="@drawable/ic_visibility"
-            app:tint="?attr/colorPrimary" />
+            <!-- Badge de beneficiarios -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/colorSecondaryContainer">
 
-        <ImageButton
-            android:id="@+id/btnEditarSocio"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Editar"
-            android:src="@drawable/ic_edit"
-            app:tint="?attr/colorSecondary" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="10dp">
 
-        <ImageButton
-            android:id="@+id/btnEliminarSocio"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Eliminar"
-            android:src="@drawable/ic_delete"
-            app:tint="?attr/colorError" />
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@android:drawable/ic_menu_myplaces"
+                        app:tint="?attr/colorOnSecondaryContainer"
+                        android:layout_marginEnd="6dp" />
+
+                    <!-- Número de beneficiarios -->
+                    <TextView
+                        android:id="@+id/tvCantBeneficiarios"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Beneficiarios: 0"
+                        android:textColor="?attr/colorOnSecondaryContainer"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Container de acciones -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="?attr/colorSurfaceContainerHigh"
+                android:paddingHorizontal="4dp"
+                android:paddingVertical="4dp">
+
+                <!-- Botón Ver -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="?attr/colorPrimaryContainer"
+                    android:layout_marginEnd="4dp">
+
+                    <ImageButton
+                        android:id="@+id/btnVerSocio"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Ver"
+                        android:src="@drawable/ic_visibility"
+                        android:padding="6dp"
+                        android:scaleType="fitCenter"
+                        app:tint="?attr/colorOnPrimaryContainer" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Botón Editar -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="?attr/colorSecondaryContainer"
+                    android:layout_marginEnd="4dp">
+
+                    <ImageButton
+                        android:id="@+id/btnEditarSocio"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Editar"
+                        android:src="@drawable/ic_edit"
+                        android:padding="6dp"
+                        android:scaleType="fitCenter"
+                        app:tint="?attr/colorOnSecondaryContainer" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Botón Eliminar -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="?attr/colorErrorContainer">
+
+                    <ImageButton
+                        android:id="@+id/btnEliminarSocio"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Eliminar"
+                        android:src="@drawable/ic_delete"
+                        android:padding="6dp"
+                        android:scaleType="fitCenter"
+                        app:tint="?attr/colorOnErrorContainer" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     </LinearLayout>
+
+    <!-- Indicador decorativo inferior -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_gravity="bottom"
+        android:background="?attr/colorBackgroundFloating"
+        android:alpha="0.2" />
+
 </androidx.cardview.widget.CardView>
