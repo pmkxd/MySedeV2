@@ -31,7 +31,6 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 app:cardCornerRadius="20dp"
-                app:cardElevation="0dp"
                 app:cardBackgroundColor="?attr/colorPrimaryContainer"
                 android:layout_marginEnd="12dp">
 
@@ -120,10 +119,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:background="?attr/colorSurfaceContainer"
+                android:background="?attr/colorSurfaceContainerHigh"
                 android:paddingHorizontal="4dp"
-                android:paddingVertical="4dp"
-                android:elevation="1dp">
+                android:paddingVertical="4dp">
 
                 <!-- Botón Ver -->
                 <com.google.android.material.card.MaterialCardView
@@ -201,7 +199,7 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_gravity="bottom"
-        android:background="?attr/colorPrimary"
+        android:background="?attr/colorBackgroundFloating"
         android:alpha="0.2" />
 
 </androidx.cardview.widget.CardView>

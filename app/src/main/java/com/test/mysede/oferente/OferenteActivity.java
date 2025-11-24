@@ -71,11 +71,6 @@ public class OferenteActivity extends AppCompatActivity {
 
         // Configurar Toolbar con el nombre del usuario y menú de opciones
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            toolbar.setSubtitle(usuarioActual.getNombre());
-        }
         toolbar.setNavigationOnClickListener(v -> finish());
         
 

@@ -198,8 +198,7 @@ public class GestionUsuariosFragment extends Fragment {
         new AlertDialog.Builder(requireContext())
                 .setTitle("Deshabilitar Usuario")
                 .setMessage("¿Está seguro que desea deshabilitar a " + usuario.getNombre() + "?\n\n" +
-                        "El usuario quedará inactivo y no podrá iniciar sesión.\n" +
-                        "Podrás reactivarlo más tarde si es necesario.")
+                        "El usuario quedará inactivo y no podrá iniciar sesión.")
                 .setPositiveButton("Deshabilitar", (dialog, which) ->
                         deshabilitarUsuario(usuario, posicion))
                 .setNegativeButton("Cancelar", null)

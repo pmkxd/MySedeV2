@@ -23,10 +23,9 @@
 
         <!-- Icono decorativo con estilo proyecto -->
         <com.google.android.material.card.MaterialCardView
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:cardCornerRadius="20dp"
             app:cardBackgroundColor="?attr/colorSecondaryContainer"
             android:layout_marginEnd="14dp">
 
@@ -76,10 +75,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:background="?attr/colorSurfaceContainer"
+            android:background="?attr/colorSurfaceContainerHigh"
             android:paddingHorizontal="4dp"
-            android:paddingVertical="4dp"
-            android:elevation="1dp">
+            android:paddingVertical="4dp">
 
             <!-- Botón Ver -->
             <com.google.android.material.card.MaterialCardView
@@ -150,34 +148,12 @@
 
     </LinearLayout>
 
-    <!-- Indicador decorativo inferior con triple gradiente -->
-    <LinearLayout
+    <!-- Indicador decorativo inferior -->
+    <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_gravity="bottom"
-        android:orientation="horizontal">
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?attr/colorSecondary"
-            android:alpha="0.5" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?attr/colorPrimary"
-            android:alpha="0.3" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?attr/colorTertiary"
-            android:alpha="0.2" />
-
-    </LinearLayout>
+        android:background="?attr/colorBackgroundFloating"
+        android:alpha="0.2" />
 
 </androidx.cardview.widget.CardView>

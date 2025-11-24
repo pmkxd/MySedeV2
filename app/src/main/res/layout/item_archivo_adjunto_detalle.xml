@@ -31,8 +31,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="6dp"
+                app:cardCornerRadius="30dp"
                 app:cardBackgroundColor="?attr/colorPrimaryContainer">
 
                 <ImageView
@@ -182,7 +181,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="end"
+            android:gravity="center"
             android:orientation="horizontal">
 
             <!-- Botón Ver con icono -->
@@ -223,46 +222,28 @@
             <!-- Botón Eliminar con icono -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEliminarArchivo"
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Eliminar"
-                android:textSize="13sp"
-                app:icon="@drawable/ic_delete"
-                app:iconSize="18dp"
-                app:iconGravity="start"
-                app:cornerRadius="12dp"
+                android:layout_width="64dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="10dp"
-                android:layout_marginStart="8dp"
-                app:backgroundTint="?attr/colorErrorContainer"
-                android:textColor="?attr/colorOnErrorContainer" />
+                app:backgroundTint="?attr/colorOnErrorContainer"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_delete"
+                app:iconGravity="top"
+                app:iconSize="18dp"
+                app:iconTint="@color/md_theme_onPrimaryFixed_highContrast"/>
 
         </LinearLayout>
 
     </LinearLayout>
 
-    <!-- Indicador decorativo con gradiente diagonal -->
-    <LinearLayout
+    <!-- Indicador decorativo inferior -->
+    <View
         android:layout_width="match_parent"
-        android:layout_height="3dp"
+        android:layout_height="2dp"
         android:layout_gravity="bottom"
-        android:orientation="horizontal">
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:background="?attr/colorPrimary"
-            android:alpha="0.5" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?attr/colorSecondary"
-            android:alpha="0.3" />
-
-    </LinearLayout>
+        android:background="?attr/colorBackgroundFloating"
+        android:alpha="0.2" />
 
 </com.google.android.material.card.MaterialCardView>

@@ -61,7 +61,6 @@
                         android:layout_width="56dp"
                         android:layout_height="56dp"
                         app:cardCornerRadius="28dp"
-                        app:cardElevation="6dp"
                         app:cardBackgroundColor="?attr/colorPrimaryContainer">
 
                         <ImageView
@@ -117,7 +116,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="3dp"
                     android:layout_gravity="bottom"
-                    android:background="?attr/colorPrimary"
+                    android:background="?attr/colorBackgroundFloating"
                     android:alpha="0.3" />
 
             </com.google.android.material.card.MaterialCardView>
@@ -148,7 +147,6 @@
                         android:layout_width="56dp"
                         android:layout_height="56dp"
                         app:cardCornerRadius="28dp"
-                        app:cardElevation="6dp"
                         app:cardBackgroundColor="?attr/colorSecondaryContainer">
 
                         <ImageView
@@ -204,7 +202,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="3dp"
                     android:layout_gravity="bottom"
-                    android:background="?attr/colorSecondary"
+                    android:background="?attr/colorBackgroundFloating"
                     android:alpha="0.3" />
 
             </com.google.android.material.card.MaterialCardView>
@@ -235,7 +233,6 @@
                         android:layout_width="56dp"
                         android:layout_height="56dp"
                         app:cardCornerRadius="28dp"
-                        app:cardElevation="6dp"
                         app:cardBackgroundColor="?attr/colorTertiaryContainer">
 
                         <ImageView
@@ -291,7 +288,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="3dp"
                     android:layout_gravity="bottom"
-                    android:background="?attr/colorTertiary"
+                    android:background="?attr/colorBackgroundFloating"
                     android:alpha="0.3" />
 
             </com.google.android.material.card.MaterialCardView>
@@ -322,7 +319,6 @@
                         android:layout_width="56dp"
                         android:layout_height="56dp"
                         app:cardCornerRadius="28dp"
-                        app:cardElevation="6dp"
                         app:cardBackgroundColor="?attr/colorPrimaryContainer">
 
                         <ImageView
@@ -378,7 +374,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="3dp"
                     android:layout_gravity="bottom"
-                    android:background="?attr/colorPrimary"
+                    android:background="?attr/colorBackgroundFloating"
                     android:alpha="0.3" />
 
             </com.google.android.material.card.MaterialCardView>
@@ -409,7 +405,6 @@
                         android:layout_width="56dp"
                         android:layout_height="56dp"
                         app:cardCornerRadius="28dp"
-                        app:cardElevation="6dp"
                         app:cardBackgroundColor="?attr/colorSecondaryContainer">
 
                         <ImageView
@@ -465,7 +460,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="3dp"
                     android:layout_gravity="bottom"
-                    android:background="?attr/colorSecondary"
+                    android:background="?attr/colorBackgroundFloating"
                     android:alpha="0.3" />
 
             </com.google.android.material.card.MaterialCardView>
